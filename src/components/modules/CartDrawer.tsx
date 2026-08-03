@@ -125,9 +125,11 @@ export function CartDrawer() {
                 <span>جمع کل:</span>
                 <span>{totalPrice.toLocaleString("fa-IR")} <span className="text-sm font-normal text-neutral-600">تومان</span></span>
               </div>
-              <Button className="w-full bg-neutral-900 text-white hover:bg-neutral-800 rounded-none py-6 text-sm font-semibold tracking-wider">
-                تکمیل خرید و پرداخت
-              </Button>
+              <Link href="/checkout" onClick={closeCart} className="block">
+                <Button className="w-full bg-neutral-900 text-white hover:bg-neutral-800 rounded-none py-6 text-sm font-semibold tracking-wider">
+                  تکمیل خرید و پرداخت
+                </Button>
+              </Link>
             </div>
           </>
         )}
