@@ -50,8 +50,10 @@ type ProductRow = {
   id: string;
   name: string;
   price: number;
+  stock: number;
   category: string;
   sizes?: string[];
+  colors?: string[];
   image: string;
 };
 
@@ -71,8 +73,10 @@ interface ApiProduct {
   id: string;
   title: string;
   price: number;
+  stock: number;
   category?: ApiCategory;
   sizes?: string[];
+  colors?: string[];
   images?: string[];
 }
 
@@ -92,21 +96,27 @@ export default function AdminProductsPage() {
   const [formData, setFormData] = useState({
     name: "",
     price: "",
+    stock: "",
     category: "",
     description: "",
   });
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
       const res = await fetch("/api/admin/products");
-      const data: ApiProduct[] = (await res.json()) as ApiProduct[];
-      const mapped = data.map((p) => ({
+      const data = await res.json();
+      const productsList = Array.isArray(data) ? data : (data.products || []);
+      const mapped = productsList.map((p: ApiProduct) => ({
         id: p.id,
         name: p.title,
         price: p.price,
+        stock: p.stock,
         category: p.category?.name || "",
         sizes: p.sizes || [],
+        colors: p.colors || [],
         image: (p.images && p.images[0]) || "",
       }));
       setProducts(mapped);
@@ -140,20 +150,23 @@ export default function AdminProductsPage() {
   const openAddDialog = () => {
     setEditingProduct(null);
     setSelectedSizes([]);
+    setSelectedColors([]);
     setMainImagePreview("");
     setAdditionalImagePreviews([]);
-    setFormData({ name: "", price: "", category: "", description: "" });
+    setFormData({ name: "", price: "", stock: "", category: "", description: "" });
     setIsDialogOpen(true);
   };
 
   const openEditDialog = (product: ProductRow) => {
     setEditingProduct(product);
     setSelectedSizes(product.sizes || []);
+    setSelectedColors(product.colors || []);
     setMainImagePreview(product.image || "");
     setAdditionalImagePreviews([]);
     setFormData({
       name: product.name,
       price: product.price.toString(),
+      stock: product.stock.toString(),
       category: product.category,
       description: "",
     });
@@ -192,62 +205,76 @@ export default function AdminProductsPage() {
     );
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
 
     if (!formData.name.trim()) {
-      console.error("Validation error: Product name is required");
+      alert("نام محصول الزامی است.");
       return;
     }
     if (!formData.price || parseInt(formData.price) <= 0) {
-      console.error("Validation error: Valid price is required");
+      alert("قیمت باید بزرگ‌تر از صفر باشد.");
       return;
     }
     if (!formData.category) {
-      console.error("Validation error: Category is required");
+      alert("دسته‌بندی الزامی است.");
       return;
     }
     if (!mainImagePreview && !editingProduct) {
-      console.error("Validation error: Main image is required");
+      alert("تصویر اصلی الزامی است.");
       return;
     }
+
+    setSubmitting(true);
 
     const payload = {
       name: formData.name.trim(),
       price: parseInt(formData.price) || 0,
+      stock: parseInt(formData.stock) || 0,
       category: formData.category,
       description: formData.description.trim(),
       images: additionalImagePreviews.length > 0 ? additionalImagePreviews : (mainImagePreview ? [mainImagePreview] : []),
       sizes: selectedSizes,
+      colors: selectedColors,
     };
 
     try {
+      let res: Response;
       if (editingProduct) {
-        const res = await fetch(`/api/admin/products/${editingProduct.id}`, {
+        res = await fetch(`/api/admin/products/${editingProduct.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-
-        if (!res.ok) throw new Error("Failed to update product");
       } else {
-        const res = await fetch("/api/admin/products", {
+        res = await fetch("/api/admin/products", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-
-        if (!res.ok) throw new Error("Failed to create product");
       }
 
-      setFormData({ name: "", price: "", category: "", description: "" });
+      const result = await res.json();
+
+      if (!res.ok) {
+        const errorMessage = result?.error || "خطا در ثبت محصول";
+        console.error("Submit failed:", res.status, result);
+        alert(errorMessage);
+        return;
+      }
+
+      setFormData({ name: "", price: "", stock: "", category: "", description: "" });
       setSelectedSizes([]);
+      setSelectedColors([]);
       setMainImagePreview("");
       setAdditionalImagePreviews([]);
       setIsDialogOpen(false);
       await fetchProducts();
     } catch (error) {
       console.error("Submit error:", error);
+      alert("خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -295,21 +322,22 @@ export default function AdminProductsPage() {
               <TableHead className="text-right">تصویر</TableHead>
               <TableHead className="text-right">نام محصول</TableHead>
               <TableHead className="text-right">قیمت</TableHead>
+              <TableHead className="text-right">موجودی</TableHead>
               <TableHead className="text-right">دسته‌بندی</TableHead>
-              <TableHead className="text-right">سایزها</TableHead>
+              <TableHead className="text-right">رنگ‌ها</TableHead>
               <TableHead className="text-right">عملیات</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-neutral-600 py-8">
+                <TableCell colSpan={7} className="text-center text-neutral-600 py-8">
                   در حال بارگذاری...
                 </TableCell>
               </TableRow>
             ) : products.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-neutral-600 py-8">
+                <TableCell colSpan={7} className="text-center text-neutral-600 py-8">
                   هیچ محصولی یافت نشد.
                 </TableCell>
               </TableRow>
@@ -327,12 +355,24 @@ export default function AdminProductsPage() {
                   </TableCell>
                   <TableCell className="font-medium text-neutral-900">{product.name}</TableCell>
                   <TableCell className="text-neutral-700">{product.price.toLocaleString("fa-IR")} تومان</TableCell>
+                  <TableCell className="text-neutral-700">{product.stock.toLocaleString("fa-IR")}</TableCell>
                   <TableCell>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-800">
                       {product.category}
                     </span>
                   </TableCell>
-                  <TableCell className="text-neutral-600">{product.sizes?.join("، ") || "-"}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {(product.colors || []).map((color) => (
+                        <span
+                          key={color}
+                          className="w-5 h-5 rounded-full border border-neutral-200"
+                          style={{ backgroundColor: color }}
+                          title={color}
+                        />
+                      ))}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Button
@@ -415,6 +455,43 @@ export default function AdminProductsPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="stock" className="text-sm font-medium text-neutral-900">موجودی</Label>
+                  <Input
+                    id="stock"
+                    type="number"
+                    value={formData.stock}
+                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                    placeholder="۰"
+                    className="border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-neutral-900">رنگ‌ها</Label>
+                <div className="flex flex-wrap gap-2">
+                  {["#FFB6C1", "#E6E6FA", "#FFFFFF", "#000000", "#FF0000", "#00FF00", "#0000FF", "#FFA500"].map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => {
+                        setSelectedColors((prev) =>
+                          prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]
+                        );
+                      }}
+                      className={`w-8 h-8 rounded-full border-2 transition-transform ${
+                        selectedColors.includes(color)
+                          ? "border-neutral-900 scale-110"
+                          : "border-neutral-300"
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
                 </div>
               </div>
 
@@ -521,8 +598,13 @@ export default function AdminProductsPage() {
             </div>
           </form>
 
-          <Button type="submit" form="product-form" className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg mt-4 shrink-0 mx-6 mb-6">
-            {editingProduct ? "ذخیره تغییرات" : "ثبت محصول"}
+          <Button
+            type="button"
+            disabled={submitting}
+            onClick={() => handleSubmit()}
+            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg mt-4 shrink-0 mx-6 mb-6 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {submitting ? "در حال ثبت..." : editingProduct ? "ذخیره تغییرات" : "ثبت محصول"}
           </Button>
         </DialogContent>
       </Dialog>

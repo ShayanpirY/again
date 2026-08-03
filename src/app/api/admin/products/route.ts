@@ -24,11 +24,30 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, price, category, description, images, sizes } = body;
+    const { name, price, stock, category, description, images, sizes, colors } = body;
+
+    console.log("POST /api/admin/products payload:", { name, price, stock, category, description, images, sizes, colors });
 
     if (!name || !price || !category) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "فیلدهای نام، قیمت و دسته‌بندی الزامی هستند." },
+        { status: 400 }
+      );
+    }
+
+    const parsedPrice = Number(price);
+    const parsedStock = Number(stock);
+
+    if (!Number.isInteger(parsedPrice) || parsedPrice < 0) {
+      return NextResponse.json(
+        { error: "قیمت باید عدد صحیح و بزرگ‌تر یا مساوی صفر باشد." },
+        { status: 400 }
+      );
+    }
+
+    if (!Number.isInteger(parsedStock) || parsedStock < 0) {
+      return NextResponse.json(
+        { error: "موجودی باید عدد صحیح و بزرگ‌تر یا مساوی صفر باشد." },
         { status: 400 }
       );
     }
@@ -54,10 +73,12 @@ export async function POST(request: NextRequest) {
     const product = await prisma.product.create({
       data: {
         title: name,
-        price: parseInt(price) || 0,
+        price: parsedPrice,
+        stock: parsedStock,
         description: description || "",
         images: Array.isArray(images) ? images : images ? [images] : [],
         sizes: Array.isArray(sizes) ? sizes : [],
+        colors: Array.isArray(colors) ? colors : [],
         categoryId: categoryRecord.id,
         isActive: true,
       },
@@ -66,11 +87,14 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log("POST /api/admin/products success:", product.id);
     return NextResponse.json(product);
   } catch (error) {
+    console.error("Prisma Error:", error);
     console.error("Failed to create product:", error);
+    const errorMessage = error instanceof Error ? error.message : "خطا در ایجاد محصول. لطفاً دوباره تلاش کنید.";
     return NextResponse.json(
-      { error: "Failed to create product" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

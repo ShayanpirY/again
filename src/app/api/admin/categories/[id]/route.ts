@@ -21,11 +21,18 @@ export async function PUT(
       );
     }
 
+    const trimmedName = (name && name.trim()) || existing.name;
+    const finalSlug = (slug && slug.trim()) || trimmedName
+      .replace(/\s+/g, "-")
+      .replace(/[^\w\u0600-\u06FF-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "") || existing.slug;
+
     const category = await prisma.category.update({
       where: { id },
       data: {
-        name: name || existing.name,
-        slug: slug || existing.slug,
+        name: trimmedName,
+        slug: finalSlug,
       },
     });
 

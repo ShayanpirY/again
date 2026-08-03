@@ -68,6 +68,24 @@ export default function AdminCategoriesPage() {
     }
   };
 
+  const generateSlug = (text: string) => {
+    return text
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w\u0600-\u06FF-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  };
+
+  const suggestedCategories = [
+    { name: "نوزاد", slug: "نوزاد" },
+    { name: "کودک", slug: "کودک" },
+    { name: "نوجوان", slug: "نوجوان" },
+    { name: "دخترانه", slug: "دخترانه" },
+    { name: "پسرانه", slug: "پسرانه" },
+    { name: "سرهمی", slug: "سرهمی" },
+  ];
+
   useEffect(() => {
     const load = async () => {
       await fetchCategories();
@@ -83,6 +101,10 @@ export default function AdminCategoriesPage() {
     setIsDialogOpen(true);
   };
 
+  const applySuggestion = (name: string, slug: string) => {
+    setFormData({ name, slug: generateSlug(slug) });
+  };
+
   const openEditDialog = (category: CategoryRow) => {
     setEditingCategory(category);
     setFormData({
@@ -95,7 +117,7 @@ export default function AdminCategoriesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name.trim() || !formData.slug.trim()) {
+    if (!formData.name.trim()) {
       return;
     }
 
@@ -241,10 +263,23 @@ export default function AdminCategoriesPage() {
                   id="slug"
                   value={formData.slug}
                   onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  placeholder="مثلا: kids-clothes"
+                  placeholder="مثلاً: لباس-نوجوانان یا خالی بگذارید تا خودکار ساخته شود"
                   className="border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
-                  required
                 />
+                <div className="flex flex-wrap gap-2">
+                  {suggestedCategories.map((item) => (
+                    <Button
+                      key={item.slug}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="text-xs"
+                      onClick={() => applySuggestion(item.name, item.slug)}
+                    >
+                      {item.name}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
           </form>

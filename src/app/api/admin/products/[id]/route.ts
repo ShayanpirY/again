@@ -8,7 +8,9 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, price, category, description, images, sizes } = body;
+    const { name, price, stock, category, description, images, sizes, colors } = body;
+
+    console.log("PUT /api/admin/products/:id payload:", { id, name, price, stock, category, description, images, sizes, colors });
 
     const existing = await prisma.product.findUnique({
       where: { id },
@@ -17,8 +19,25 @@ export async function PUT(
 
     if (!existing) {
       return NextResponse.json(
-        { error: "Product not found" },
+        { error: "محصول پیدا نشد." },
         { status: 404 }
+      );
+    }
+
+    const parsedPrice = Number(price);
+    const parsedStock = Number(stock);
+
+    if (!Number.isInteger(parsedPrice) || parsedPrice < 0) {
+      return NextResponse.json(
+        { error: "قیمت باید عدد صحیح و بزرگ‌تر یا مساوی صفر باشد." },
+        { status: 400 }
+      );
+    }
+
+    if (!Number.isInteger(parsedStock) || parsedStock < 0) {
+      return NextResponse.json(
+        { error: "موجودی باید عدد صحیح و بزرگ‌تر یا مساوی صفر باشد." },
+        { status: 400 }
       );
     }
 
@@ -50,10 +69,12 @@ export async function PUT(
       where: { id },
       data: {
         title: name,
-        price: parseInt(price) || 0,
+        price: parsedPrice,
+        stock: parsedStock,
         description: description || "",
         images: Array.isArray(images) ? images : images ? [images] : [],
         sizes: Array.isArray(sizes) ? sizes : [],
+        colors: Array.isArray(colors) ? colors : [],
         categoryId,
         isActive: true,
       },
@@ -62,11 +83,14 @@ export async function PUT(
       },
     });
 
+    console.log("PUT /api/admin/products/:id success:", product.id);
     return NextResponse.json(product);
   } catch (error) {
+    console.error("Prisma Error:", error);
     console.error("Failed to update product:", error);
+    const errorMessage = error instanceof Error ? error.message : "خطا در ویرایش محصول. لطفاً دوباره تلاش کنید.";
     return NextResponse.json(
-      { error: "Failed to update product" },
+      { error: errorMessage },
       { status: 500 }
     );
   }
@@ -85,7 +109,7 @@ export async function DELETE(
 
     if (!existing) {
       return NextResponse.json(
-        { error: "Product not found" },
+        { error: "محصول پیدا نشد." },
         { status: 404 }
       );
     }
@@ -94,11 +118,14 @@ export async function DELETE(
       where: { id },
     });
 
+    console.log("DELETE /api/admin/products/:id success:", id);
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error("Prisma Error:", error);
     console.error("Failed to delete product:", error);
+    const errorMessage = error instanceof Error ? error.message : "خطا در حذف محصول. لطفاً دوباره تلاش کنید.";
     return NextResponse.json(
-      { error: "Failed to delete product" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

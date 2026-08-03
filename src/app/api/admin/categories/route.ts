@@ -23,17 +23,25 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, slug } = body;
 
-    if (!name || !slug) {
+    if (!name || !name.trim()) {
       return NextResponse.json(
-        { error: "Name and slug are required" },
+        { error: "Name is required" },
         { status: 400 }
       );
     }
 
+    const trimmedName = name.trim();
+    const generatedSlug = (slug && slug.trim()) || trimmedName
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w\u0600-\u06FF-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
     const category = await prisma.category.create({
       data: {
-        name,
-        slug,
+        name: trimmedName,
+        slug: generatedSlug || "uncategorized",
       },
     });
 

@@ -17,14 +17,52 @@ export default function CheckoutPage() {
   const shipping = subtotal > 2500000 ? 0 : 150000;
   const total = subtotal + shipping;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    setTimeout(() => {
+
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+
+    const firstName = formData.get("firstName") as string;
+    const lastName = formData.get("lastName") as string;
+    const phone = formData.get("phone") as string;
+    const address = formData.get("address") as string;
+
+    const orderData = {
+      customerName: `${firstName} ${lastName}`,
+      customerPhone: phone,
+      address,
+      totalPrice: total,
+      items: items.map((item) => ({
+        productId: item.product.id,
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity,
+        size: item.selectedSize,
+        color: item.selectedColor,
+        image: item.product.image,
+      })),
+    };
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to create order");
+      }
+
       clearCart();
       window.location.href = "/checkout/success";
-    }, 1000);
+    } catch (error) {
+      console.error("Checkout error:", error);
+      alert("خطا در ثبت سفارش. لطفاً دوباره تلاش کنید.");
+      setIsSubmitting(false);
+    }
   };
 
   if (items.length === 0) {
