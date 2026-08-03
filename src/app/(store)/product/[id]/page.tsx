@@ -8,15 +8,15 @@ import { Heart, Share2, Truck, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { useCartStore } from "@/store/useCart";
+import { useProductStore } from "@/store/useProductStore";
 import { SizeGuideModal } from "@/components/modules/SizeGuideModal";
-import { mockProducts } from "@/components/modules/ProductGrid";
 
 const sizes = ["سایز ۱", "سایز ۲", "سایز ۳", "سایز ۴", "سایز ۵", "سایز ۶", "سایز ۷", "سایز ۸"];
 
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
-  const product = mockProducts.find((p) => p.id === productId);
+  const product = useProductStore((state) => state.products.find((p) => p.id === productId));
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
