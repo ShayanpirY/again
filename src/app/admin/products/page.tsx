@@ -367,7 +367,7 @@ export default function AdminProductsPage() {
 
       {/* Add/Edit Product Modal */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-h-[85vh] flex flex-col justify-between sm:max-w-[600px]" dir="rtl">
+        <DialogContent className="max-h-[75vh] my-auto flex flex-col justify-between sm:max-w-[600px]" dir="rtl">
           <DialogHeader className="p-6 pb-2 border-b shrink-0">
             <DialogTitle className="text-xl font-bold text-neutral-900">
               {editingProduct ? "ویرایش محصول" : "افزودن محصول جدید"}
@@ -378,7 +378,7 @@ export default function AdminProductsPage() {
           </DialogHeader>
 
           <form id="product-form" onSubmit={handleSubmit}>
-            <div className="max-h-[70vh] overflow-y-auto p-6 pr-2 space-y-4">
+            <div className="max-h-[55vh] overflow-y-auto p-6 pr-2 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium text-neutral-900">نام محصول</Label>
                 <Input
