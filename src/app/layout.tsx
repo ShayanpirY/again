@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Vazirmatn } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { CartDrawer } from "@/components/modules/CartDrawer";
 
 const vazirmatn = Vazirmatn({
   subsets: ["arabic"],
@@ -40,11 +37,8 @@ export default function RootLayout({
       dir="rtl"
       className={`${vazirmatn.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground font-vazirmatn">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <CartDrawer />
+      <body className="min-h-full bg-background text-foreground font-vazirmatn">
+        {children}
       </body>
     </html>
   );
