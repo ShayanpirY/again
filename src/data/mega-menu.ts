@@ -1,0 +1,142 @@
+export const megaMenuData = {
+  newborn: {
+    clothing: [
+      { name: "لباس نوزاد", href: "/category/newborn/onesies" },
+      { name: "لباس خواب", href: "/category/newborn/sleepsuits" },
+      { name: "لباس پوشیدن", href: "/category/newborn/rompers" },
+      { name: "سرهمی و پوشاک", href: "/category/newborn/onesies" },
+      { name: "ست‌های نوزاد", href: "/category/newborn/sets" },
+    ],
+    shoesAccessories: [
+      { name: "پوتین نوزاد", href: "/category/newborn/booties" },
+      { name: "جوراب نوزاد", href: "/category/newborn/socks" },
+      { name: "کلاه نوزاد", href: "/category/newborn/hats" },
+      { name: "دستکش نوزاد", href: "/category/newborn/gloves" },
+      { name: "هدایا نوزاد", href: "/category/newborn/gifts" },
+    ],
+    collections: [
+      { name: "جدیدترین‌ها", href: "/products?sort=newest" },
+      { name: "پرفروش‌ترین‌ها", href: "/products?sort=popular" },
+      { name: "پوشاک ارگانیک", href: "/products?tag=organic" },
+      { name: "کالکشن بهار", href: "/products?collection=spring" },
+    ],
+    banner: {
+      image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=600&auto=format&fit=crop",
+      title: "کالکشن نوزاد",
+      subtitle: "نرمی و آرامش برای کوچک‌ترین‌ها",
+      href: "/category/newborn",
+    },
+  },
+  baby: {
+    clothing: [
+      { name: "تی‌شرت کودک", href: "/category/baby/t-shirts" },
+      { name: "پولوشرت کودک", href: "/category/baby/polos" },
+      { name: "پیراهن کودک", href: "/category/baby/dresses" },
+      { name: "شلوار کودک", href: "/category/baby/shorts" },
+      { name: "کاپشن و ژکت", href: "/category/baby/jackets" },
+    ],
+    shoesAccessories: [
+      { name: "کفش کتانی", href: "/category/baby/sneakers" },
+      { name: "پاپوش", href: "/category/baby/sandals" },
+      { name: "کلاه و شال", href: "/category/baby/hats" },
+      { name: "جوراب", href: "/category/baby/socks" },
+      { name: "کیف و کوله", href: "/category/baby/bags" },
+    ],
+    collections: [
+      { name: "جدیدترین‌ها", href: "/products?sort=newest" },
+      { name: "پرفروش‌ترین‌ها", href: "/products?sort=popular" },
+      { name: "پوشاک ارگانیک", href: "/products?tag=organic" },
+      { name: "کالکشن تابستان", href: "/products?collection=summer" },
+    ],
+    banner: {
+      image: "https://images.unsplash.com/photo-1522771930-78848d9293e8?q=80&w=600&auto=format&fit=crop",
+      title: "کالکشن کودک",
+      subtitle: "سبک و راحتی برای کوچک‌های شاد",
+      href: "/category/baby",
+    },
+  },
+  girl: {
+    clothing: [
+      { name: "پیراهن دخترانه", href: "/category/girl/dresses" },
+      { name: "بلوز دخترانه", href: "/category/girl/tops" },
+      { name: "دامن دخترانه", href: "/category/girl/skirts" },
+      { name: "ست دخترانه", href: "/category/girl/sets" },
+      { name: "لباس استخر", href: "/category/girl/swimwear" },
+    ],
+    shoesAccessories: [
+      { name: "کفش دخترانه", href: "/category/girl/shoes" },
+      { name: "پاپوش دخترانه", href: "/category/girl/sandals" },
+      { name: "کلاه و شال", href: "/category/girl/hats" },
+      { name: "جوراب", href: "/category/girl/socks" },
+      { name: "اکسسوری", href: "/category/girl/accessories" },
+    ],
+    collections: [
+      { name: "جدیدترین‌ها", href: "/products?sort=newest" },
+      { name: "پرفروش‌ترین‌ها", href: "/products?sort=popular" },
+      { name: "کالکشن بهار", href: "/products?collection=spring" },
+      { name: "کالکشن تابستان", href: "/products?collection=summer" },
+    ],
+    banner: {
+      image: "https://images.unsplash.com/photo-1621452773781-0f992fd1f5cb?q=80&w=600&auto=format&fit=crop",
+      title: "کالکشن دخترانه",
+      subtitle: "ظرافت و شادابی برای دختران",
+      href: "/category/girl",
+    },
+  },
+  boy: {
+    clothing: [
+      { name: "تی‌شرت پسرانه", href: "/category/boy/t-shirts" },
+      { name: "پولوشرت پسرانه", href: "/category/boy/polos" },
+      { name: "شلوار پسرانه", href: "/category/boy/shorts" },
+      { name: "ست پسرانه", href: "/category/boy/sets" },
+      { name: "لباس استخر", href: "/category/boy/swimwear" },
+    ],
+    shoesAccessories: [
+      { name: "کفش پسرانه", href: "/category/boy/shoes" },
+      { name: "پاپوش پسرانه", href: "/category/boy/sandals" },
+      { name: "کلاه و شال", href: "/category/boy/hats" },
+      { name: "جوراب", href: "/category/boy/socks" },
+      { name: "کیف و کوله", href: "/category/boy/bags" },
+    ],
+    collections: [
+      { name: "جدیدترین‌ها", href: "/products?sort=newest" },
+      { name: "پرفروش‌ترین‌ها", href: "/products?sort=popular" },
+      { name: "پوشاک ارگانیک", href: "/products?tag=organic" },
+      { name: "کالکشن ورزشی", href: "/products?collection=sport" },
+    ],
+    banner: {
+      image: "https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?q=80&w=600&auto=format&fit=crop",
+      title: "کالکشن پسرانه",
+      subtitle: "انرژی و شادابی برای پسران",
+      href: "/category/boy",
+    },
+  },
+  "pre-teen": {
+    clothing: [
+      { name: "تی‌شرت نوجوان", href: "/category/pre-teen/t-shirts" },
+      { name: "پولوشرت نوجوان", href: "/category/pre-teen/polos" },
+      { name: "شلوار نوجوان", href: "/category/pre-teen/shorts" },
+      { name: "پیراهن نوجوان", href: "/category/pre-teen/dresses" },
+      { name: "لباس ورزشی", href: "/category/pre-teen/activewear" },
+    ],
+    shoesAccessories: [
+      { name: "کفش نوجوان", href: "/category/pre-teen/shoes" },
+      { name: "پاپوش نوجوان", href: "/category/pre-teen/sandals" },
+      { name: "کلاه و شال", href: "/category/pre-teen/hats" },
+      { name: "جوراب", href: "/category/pre-teen/socks" },
+      { name: "اکسسوری", href: "/category/pre-teen/accessories" },
+    ],
+    collections: [
+      { name: "جدیدترین‌ها", href: "/products?sort=newest" },
+      { name: "پرفروش‌ترین‌ها", href: "/products?sort=popular" },
+      { name: "کالکشن پاییزه", href: "/products?collection=autumn" },
+      { name: "کالکشن زمستانه", href: "/products?collection=winter" },
+    ],
+    banner: {
+      image: "https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?q=80&w=600&auto=format&fit=crop",
+      title: "کالکشن نوجوان",
+      subtitle: "استایل خاص برای نوجوانان",
+      href: "/category/pre-teen",
+    },
+  },
+};

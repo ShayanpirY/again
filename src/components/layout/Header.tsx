@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag, Search, Heart, User, Menu, ChevronDown } from "lucide-react";
+import { ShoppingBag, Search, Heart, User, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCart";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
+import { MegaMenu } from "@/components/modules/MegaMenu";
+import { MobileNav } from "@/components/modules/MobileNav";
 
 const announcementText = "ارسال رایگان برای سفارشات بالای ۲,۵۰۰,۰۰۰ تومان | بازگشت رایگان کالا";
 
@@ -14,36 +16,37 @@ const mainNavItems = [
     label: "نوزاد",
     href: "/category/newborn",
     age: "۰ تا ۱۸ ماه",
-    subcategories: ["لباس نوزاد", "لباس خواب", "لباس پوشیدن", "پوتین", "هدایا"],
+    categoryKey: "newborn",
   },
   {
     label: "کودک",
     href: "/category/baby",
     age: "۶ تا ۳۶ ماه",
-    subcategories: ["بالاتنه", "پایین تنه", "پیراهن", "لباس خارجی", "کفش"],
+    categoryKey: "baby",
   },
   {
     label: "دختر",
     href: "/category/girl",
     age: "۲ تا ۹ سال",
-    subcategories: ["پیراهن", "بلوز", "دامن", "ست", "لباس استخر"],
+    categoryKey: "girl",
   },
   {
     label: "پسر",
     href: "/category/boy",
     age: "۲ تا ۹ سال",
-    subcategories: ["تی‌شرت", "شلوار کوتاه", "پولوشرت", "ست", "لباس استخر"],
+    categoryKey: "boy",
   },
   {
     label: "نوجوان",
     href: "/category/pre-teen",
     age: "۸ تا ۱۶ سال",
-    subcategories: ["بالاتنه", "پایین تنه", "پیراهن", "لباس ورزشی", "اکسسوری"],
+    categoryKey: "pre-teen",
   },
 ];
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const { toggleCart, getTotalItems } = useCartStore();
   const totalItems = getTotalItems();
 
@@ -70,34 +73,10 @@ export function Header() {
                 >
                   <Menu className="h-5 w-5" />
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                  <nav className="flex flex-col gap-6 mt-8">
-                    {mainNavItems.map((item) => (
-                      <div key={item.label} className="space-y-2">
-                        <Link
-                          href={item.href}
-                          className="text-lg font-semibold tracking-wide hover:text-neutral-600 transition-colors"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          {item.label}
-                        </Link>
-                        <p className="text-xs text-neutral-500">{item.age}</p>
-                        {item.subcategories.map((sub) => (
-                          <Link
-                            key={sub}
-                            href={`${item.href}/${sub.toLowerCase().replace(/\s+/g, "-")}`}
-                            className="block text-sm text-neutral-600 hover:text-black transition-colors"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                          >
-                            {sub}
-                          </Link>
-                        ))}
-                      </div>
-                    ))}
-                    <Link href="/sale" className="text-lg font-semibold text-red-600" onClick={() => setIsMobileMenuOpen(false)}>
-                      حراج
-                    </Link>
-                  </nav>
+                <SheetContent side="right" className="w-[300px] sm:w-[400px] overflow-y-auto">
+                  <div className="mt-8">
+                    <MobileNav onClose={() => setIsMobileMenuOpen(false)} />
+                  </div>
                 </SheetContent>
               </Sheet>
               <Button variant="ghost" size="icon" className="h-9 w-9">
@@ -114,44 +93,52 @@ export function Header() {
 
             {/* Left: Desktop Navigation + Icons */}
             <div className="hidden lg:flex items-center gap-8">
-              <nav className="flex items-center gap-8">
+              <nav className="flex items-center gap-1 relative">
                 {mainNavItems.map((item) => (
-                  <div key={item.label} className="relative group">
+                  <div
+                    key={item.label}
+                    className="relative"
+                    onMouseEnter={() => setActiveCategory(item.categoryKey)}
+                    onMouseLeave={() => setActiveCategory(null)}
+                  >
                     <Link
                       href={item.href}
-                      className="flex items-center gap-1 text-xs font-semibold tracking-[0.15em] text-neutral-900 hover:text-neutral-600 transition-colors py-6"
+                      className={`flex items-center gap-1 text-xs font-semibold tracking-[0.15em] transition-colors px-3 py-6 ${
+                        activeCategory === item.categoryKey
+                          ? "text-neutral-900"
+                          : "text-neutral-600 hover:text-neutral-900"
+                      }`}
                     >
                       {item.label}
-                      <ChevronDown className="h-3 w-3 transition-transform group-hover:rotate-180" />
+                      <svg
+                        className={`h-3 w-3 transition-transform duration-200 ${
+                          activeCategory === item.categoryKey ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
                     </Link>
-                    {/* Mega Menu Dropdown */}
-                    <div className="absolute top-full right-0 w-64 bg-white border border-neutral-200 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                      <div className="p-6">
-                        <p className="text-xs font-semibold text-neutral-500 mb-3">{item.age}</p>
-                        <div className="space-y-2.5">
-                          {item.subcategories.map((sub) => (
-                            <Link
-                              key={sub}
-                              href={`${item.href}/${sub.toLowerCase().replace(/\s+/g, "-")}`}
-                              className="block text-sm text-neutral-700 hover:text-black transition-colors"
-                            >
-                              {sub}
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 ))}
                 <Link
                   href="/sale"
-                  className="text-xs font-semibold tracking-[0.15em] text-red-600 hover:text-red-700 transition-colors py-6"
+                  className="text-xs font-semibold tracking-[0.15em] text-red-600 hover:text-red-700 transition-colors px-3 py-6"
                 >
-                  حراج
+                  حراج ویژه
                 </Link>
+
+                {/* Mega Menu Dropdown */}
+                {activeCategory && (
+                  <div className="absolute top-full right-0 left-0 bg-white border-t border-neutral-200 shadow-xl transition-all duration-300 z-50">
+                    <MegaMenu categoryKey={activeCategory} />
+                  </div>
+                )}
               </nav>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 border-r border-neutral-200 pr-4">
                 <Button variant="ghost" size="icon" className="h-9 w-9">
                   <Search className="h-5 w-5" />
                 </Button>
