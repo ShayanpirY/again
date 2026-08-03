@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingCart, Settings } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Settings, Tag } from "lucide-react";
 
 const menuItems = [
   { href: "/admin", icon: LayoutDashboard, label: "داشبورد", exact: true },
   { href: "/admin/products", icon: Package, label: "محصولات" },
+  { href: "/admin/categories", icon: Tag, label: "دسته‌بندی‌ها" },
   { href: "/admin/orders", icon: ShoppingCart, label: "سفارشات" },
   { href: "/admin/settings", icon: Settings, label: "تنظیمات" },
 ];

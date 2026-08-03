@@ -55,8 +55,16 @@ type ProductRow = {
   image: string;
 };
 
-interface ApiCategory {
+type CategoryRow = {
+  id: string;
   name: string;
+  slug: string;
+};
+
+interface ApiCategory {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 interface ApiProduct {
@@ -71,6 +79,7 @@ interface ApiProduct {
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<CategoryRow[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductRow | null>(null);
@@ -89,6 +98,7 @@ export default function AdminProductsPage() {
 
   const fetchProducts = async () => {
     try {
+      setLoading(true);
       const res = await fetch("/api/admin/products");
       const data: ApiProduct[] = (await res.json()) as ApiProduct[];
       const mapped = data.map((p) => ({
@@ -107,39 +117,24 @@ export default function AdminProductsPage() {
     }
   };
 
-  useEffect(() => {
-    let ignore = false;
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("/api/admin/categories");
+      const data: ApiCategory[] = (await res.json()) as ApiCategory[];
+      setCategories(data);
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
+    }
+  };
 
+  useEffect(() => {
     const load = async () => {
-      try {
-        const res = await fetch("/api/admin/products");
-        const data: ApiProduct[] = (await res.json()) as ApiProduct[];
-        if (!ignore) {
-          const mapped = data.map((p) => ({
-            id: p.id,
-            name: p.title,
-            price: p.price,
-            category: p.category?.name || "",
-            sizes: p.sizes || [],
-            image: (p.images && p.images[0]) || "",
-          }));
-          setProducts(mapped);
-        }
-      } catch (error) {
-        if (!ignore) {
-          console.error("Failed to fetch products:", error);
-        }
-      } finally {
-        if (!ignore) {
-          setLoading(false);
-        }
-      }
+      await fetchProducts();
+      await fetchCategories();
     };
 
     load();
-    return () => {
-      ignore = true;
-    };
+    return () => {};
   }, []);
 
   const openAddDialog = () => {
@@ -414,11 +409,11 @@ export default function AdminProductsPage() {
                     required
                   >
                     <option value="">انتخاب کنید</option>
-                    <option value="نوزاد">نوزاد</option>
-                    <option value="کودک">کودک</option>
-                    <option value="دختر">دختر</option>
-                    <option value="پسر">پسر</option>
-                    <option value="نوجوان">نوجوان</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.name}>
+                        {category.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
