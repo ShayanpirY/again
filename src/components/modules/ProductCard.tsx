@@ -41,6 +41,7 @@ export function ProductCard({ product }: ProductCardProps) {
           fill
           className="object-cover transition-opacity duration-500"
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 50vw, 25vw"
+          unoptimized
         />
 
         {/* Badges */}

@@ -80,6 +80,7 @@ export default function ProductDetailPage() {
                 className="object-cover"
                 priority
                 sizes="(max-width: 1024px) 100vw, 50vw"
+                unoptimized
               />
               {product.isNew && (
                 <span className="absolute top-4 right-4 px-3 py-1.5 bg-neutral-900 text-white text-xs font-medium tracking-wider">
@@ -110,6 +111,7 @@ export default function ProductDetailPage() {
                       fill
                       className="object-cover"
                       sizes="80px"
+                      unoptimized
                     />
                   </button>
                 ))}
