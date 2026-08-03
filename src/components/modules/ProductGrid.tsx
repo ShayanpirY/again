@@ -193,3 +193,5 @@ export function ProductGrid({ title = "جدیدترین‌های فصل", subtit
     </section>
   );
 }
+
+export { mockProducts };
