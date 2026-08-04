@@ -13,11 +13,11 @@ export function MegaMenu({ categoryKey }: MegaMenuProps) {
   if (!data) return null;
 
   return (
-    <div className="container mx-auto px-4 py-8" dir="rtl">
+    <div className="container mx-auto px-4 py-6" dir="rtl">
       <div className="grid grid-cols-12 gap-8">
         {/* Column 1: Clothing */}
         <div className="col-span-3">
-          <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider mb-4 pb-2 border-b border-neutral-200">
+          <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">
             پوشاک اصلی
           </h3>
           <ul className="space-y-3">
@@ -25,7 +25,7 @@ export function MegaMenu({ categoryKey }: MegaMenuProps) {
               <li key={item.name}>
                 <Link
                   href={item.href}
-                  className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors block"
+                  className="text-sm text-gray-600 hover:text-black hover:translate-x-[-2px] transition-all block"
                 >
                   {item.name}
                 </Link>
@@ -36,7 +36,7 @@ export function MegaMenu({ categoryKey }: MegaMenuProps) {
 
         {/* Column 2: Shoes & Accessories */}
         <div className="col-span-3">
-          <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider mb-4 pb-2 border-b border-neutral-200">
+          <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">
             کفش و اکسسوری
           </h3>
           <ul className="space-y-3">
@@ -44,7 +44,7 @@ export function MegaMenu({ categoryKey }: MegaMenuProps) {
               <li key={item.name}>
                 <Link
                   href={item.href}
-                  className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors block"
+                  className="text-sm text-gray-600 hover:text-black hover:translate-x-[-2px] transition-all block"
                 >
                   {item.name}
                 </Link>
@@ -55,7 +55,7 @@ export function MegaMenu({ categoryKey }: MegaMenuProps) {
 
         {/* Column 3: Collections */}
         <div className="col-span-3">
-          <h3 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider mb-4 pb-2 border-b border-neutral-200">
+          <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">
             کالکشن‌ها
           </h3>
           <ul className="space-y-3">
@@ -63,7 +63,7 @@ export function MegaMenu({ categoryKey }: MegaMenuProps) {
               <li key={item.name}>
                 <Link
                   href={item.href}
-                  className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors block"
+                  className="text-sm text-gray-600 hover:text-black hover:translate-x-[-2px] transition-all block"
                 >
                   {item.name}
                 </Link>
@@ -75,7 +75,7 @@ export function MegaMenu({ categoryKey }: MegaMenuProps) {
         {/* Column 4: Banner */}
         <div className="col-span-3">
           <Link href={data.banner.href} className="block group/banner">
-            <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100 rounded-sm">
+            <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100 rounded-2xl">
               <img
                 src={data.banner.image}
                 alt={data.banner.title}

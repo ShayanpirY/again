@@ -53,7 +53,7 @@ export default function SalePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-b from-red-100/80 via-orange-100/50 to-white" dir="rtl">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-neutral-900 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
@@ -65,8 +65,9 @@ export default function SalePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white" dir="rtl">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-red-100/80 via-orange-100/50 to-white relative" dir="rtl">
+      <div className="fixed inset-0 bg-white/30 backdrop-blur-[2px] pointer-events-none" />
+      <div className="container mx-auto px-4 py-8 relative">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-neutral-600 mb-8">
           <Link href="/" className="hover:text-neutral-900 transition-colors">خانه</Link>
@@ -84,7 +85,7 @@ export default function SalePage() {
         {products.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} product={product} variant="sale" />
             ))}
           </div>
         ) : (

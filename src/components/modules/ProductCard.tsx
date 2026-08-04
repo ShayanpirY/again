@@ -22,12 +22,15 @@ interface ProductCardProps {
     isNew?: boolean;
     isSale?: boolean;
   };
+  variant?: "default" | "child" | "girl" | "boy" | "teen" | "sale";
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, variant = "default" }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const { addItem, openCart } = useCartStore();
+
+  const isThemed = variant !== "default";
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -52,13 +55,25 @@ export function ProductCard({ product }: ProductCardProps) {
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
+  const cardClass = variant === "child"
+    ? "bg-white shadow-sm rounded-2xl overflow-hidden"
+    : variant === "girl"
+      ? "bg-white shadow-sm rounded-2xl overflow-hidden border border-rose-100"
+      : variant === "boy"
+        ? "bg-white shadow-sm rounded-2xl overflow-hidden border border-emerald-100"
+        : variant === "teen"
+          ? "bg-white shadow-sm rounded-2xl overflow-hidden border border-purple-50"
+          : variant === "sale"
+            ? "bg-white shadow-sm rounded-2xl overflow-hidden border border-red-100"
+            : "bg-white";
+
   return (
     <div
-      className="group relative bg-white"
+      className={`group relative ${cardClass}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link href={`/products/${product.id}`} className="block relative aspect-[3/4] overflow-hidden bg-neutral-100">
+      <Link href={`/products/${product.id}`} className={`block relative aspect-[3/4] overflow-hidden ${isThemed ? "bg-neutral-50" : "bg-neutral-100"}`}>
         {/* Main Image */}
         <Image
           src={isHovered && product.images?.[0] ? product.images[0] : (product.image || "/placeholder.png")}

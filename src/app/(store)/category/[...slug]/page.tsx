@@ -24,10 +24,53 @@ const slugToCategoryMap: Record<string, string> = {
   "pre-teen": "نوجوان",
 };
 
+type ThemeVariant = "child" | "girl" | "boy" | "teen" | "sale" | "default";
+
+const categoryThemeMap: Record<string, ThemeVariant> = {
+  newborn: "child",
+  baby: "child",
+  girl: "girl",
+  boy: "boy",
+  "pre-teen": "teen",
+};
+
+const themeClassMap: Record<ThemeVariant, { page: string; card: string; overlay?: string }> = {
+  child: {
+    page: "bg-gradient-to-b from-amber-100/90 via-yellow-50/50 to-white",
+    card: "bg-white shadow-sm rounded-2xl overflow-hidden",
+    overlay: "fixed inset-0 bg-white/40 backdrop-blur-[2px] pointer-events-none",
+  },
+  girl: {
+    page: "bg-gradient-to-b from-rose-100/90 via-pink-50/50 to-white",
+    card: "bg-white shadow-sm rounded-2xl overflow-hidden border border-rose-100",
+    overlay: "fixed inset-0 bg-white/30 backdrop-blur-[2px] pointer-events-none",
+  },
+  boy: {
+    page: "bg-gradient-to-b from-emerald-100/90 via-teal-50/50 to-white",
+    card: "bg-white shadow-sm rounded-2xl overflow-hidden border border-emerald-100",
+    overlay: "fixed inset-0 bg-white/30 backdrop-blur-[2px] pointer-events-none",
+  },
+  teen: {
+    page: "bg-gradient-to-b from-purple-100/80 via-violet-50/50 to-white",
+    card: "bg-white shadow-sm rounded-2xl overflow-hidden border border-purple-50",
+    overlay: "fixed inset-0 bg-white/30 backdrop-blur-[2px] pointer-events-none",
+  },
+  sale: {
+    page: "bg-gradient-to-b from-red-100/90 via-orange-50/50 to-white",
+    card: "bg-white shadow-sm rounded-2xl overflow-hidden border border-red-100",
+    overlay: "fixed inset-0 bg-white/30 backdrop-blur-[2px] pointer-events-none",
+  },
+  default: {
+    page: "bg-white",
+    card: "bg-white",
+  },
+};
+
 export default function CategoryPage({ params }: { params: Promise<{ slug: string[] }> }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryTitle, setCategoryTitle] = useState("");
+  const [themeVariant, setThemeVariant] = useState<ThemeVariant>("default");
 
   useEffect(() => {
     const fetchCategoryData = async () => {
@@ -37,6 +80,8 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         const mainSlug = slugSegments[0] || "";
         
         const categoryName = slugToCategoryMap[mainSlug];
+        const theme = categoryThemeMap[mainSlug] || "default";
+        setThemeVariant(theme);
         
         if (!categoryName) {
           setProducts([]);
@@ -72,8 +117,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
   }, [params]);
 
   if (loading) {
+    const themeClasses = themeClassMap[themeVariant] || themeClassMap.default;
     return (
-      <div className="min-h-screen bg-white" dir="rtl">
+      <div className={`min-h-screen ${themeClasses.page}`} dir="rtl">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-neutral-900 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
@@ -84,9 +130,13 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     );
   }
 
+  const themeClasses = themeClassMap[themeVariant] || themeClassMap.default;
+  const showCardTheme = themeVariant !== "default";
+
   return (
-    <div className="min-h-screen bg-white" dir="rtl">
-      <div className="container mx-auto px-4 py-8">
+    <div className={`min-h-screen ${themeClasses.page} relative`} dir="rtl">
+      {themeClasses.overlay && <div className={themeClasses.overlay} />}
+      <div className="container mx-auto px-4 py-8 relative">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-neutral-600 mb-8">
           <Link href="/" className="hover:text-neutral-900 transition-colors">خانه</Link>
@@ -106,7 +156,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         {products.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} product={product} variant={showCardTheme ? themeVariant : "default"} />
             ))}
           </div>
         ) : (
