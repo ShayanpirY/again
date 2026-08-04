@@ -24,9 +24,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, price, stock, category, description, images, sizes, colors } = body;
+    const { name, price, stock, category, description, images, sizes, colors, variants } = body;
 
-    console.log("POST /api/admin/products payload:", { name, price, stock, category, description, images, sizes, colors });
+    console.log("POST /api/admin/products payload:", { name, price, stock, category, description, images, sizes, colors, variants });
 
     if (!name || !price || !category) {
       return NextResponse.json(
@@ -36,18 +36,10 @@ export async function POST(request: NextRequest) {
     }
 
     const parsedPrice = Number(price);
-    const parsedStock = Number(stock);
 
     if (!Number.isInteger(parsedPrice) || parsedPrice < 0) {
       return NextResponse.json(
         { error: "قیمت باید عدد صحیح و بزرگ‌تر یا مساوی صفر باشد." },
-        { status: 400 }
-      );
-    }
-
-    if (!Number.isInteger(parsedStock) || parsedStock < 0) {
-      return NextResponse.json(
-        { error: "موجودی باید عدد صحیح و بزرگ‌تر یا مساوی صفر باشد." },
         { status: 400 }
       );
     }
@@ -70,17 +62,30 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const normalizedVariants = Array.isArray(variants)
+      ? variants
+          .filter((v: { color?: string; size?: string; stock?: number }) => v.color && v.size)
+          .map((v: { color?: string; size?: string; stock?: number }) => ({
+            color: v.color,
+            size: v.size,
+            stock: Number(v.stock) || 0,
+          }))
+      : [];
+
     const product = await prisma.product.create({
       data: {
         title: name,
         price: parsedPrice,
-        stock: parsedStock,
+        stock: 0,
         description: description || "",
         images: Array.isArray(images) ? images : images ? [images] : [],
         sizes: Array.isArray(sizes) ? sizes : [],
         colors: Array.isArray(colors) ? colors : [],
         categoryId: categoryRecord.id,
         isActive: true,
+        variants: {
+          create: normalizedVariants,
+        },
       },
       include: {
         category: true,

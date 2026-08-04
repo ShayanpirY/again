@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +46,33 @@ const standardSizes = [
   "سایز ۴",
 ];
 
+const COLOR_NAMES: Record<string, string> = {
+  '#000000': 'مشکی',
+  '#FFFFFF': 'سفید',
+  '#FF0000': 'قرمز',
+  '#0000FF': 'آبی',
+  '#008000': 'سبز',
+  '#FFFF00': 'زرد',
+  '#FFA500': 'نارنجی',
+  '#800080': 'بنفش',
+  '#FFC0CB': 'صورتی',
+  '#A52A2A': 'قهوه‌ای',
+  '#808080': 'خاکستری',
+  '#E6E6FA': 'یاسی',
+  '#F5F5DC': 'کرم / بژ',
+  '#40E0D0': 'فیروزه‌ای',
+  '#000080': 'سورمه‌ای',
+  '#800000': 'زرشکی',
+  '#98FF98': 'نعنایی',
+  '#FFD700': 'طلایی/خردلی',
+};
+
+export const getColorName = (colorHex: string): string => {
+  if (!colorHex) return '';
+  const normalizedHex = colorHex.toUpperCase().trim();
+  return COLOR_NAMES[normalizedHex] || COLOR_NAMES[colorHex.toLowerCase().trim()] || colorHex;
+};
+
 type ProductRow = {
   id: string;
   name: string;
@@ -78,6 +105,7 @@ interface ApiProduct {
   sizes?: string[];
   colors?: string[];
   images?: string[];
+  variants?: { color?: string; size?: string; stock: number }[];
 }
 
 export default function AdminProductsPage() {
@@ -102,6 +130,22 @@ export default function AdminProductsPage() {
   });
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [variantStocks, setVariantStocks] = useState<Record<string, number>>({});
+
+  const variants = useMemo(() => {
+    if (selectedColors.length === 0 || selectedSizes.length === 0) return [];
+    return selectedColors.flatMap((color) =>
+      selectedSizes.map((size) => ({
+        color,
+        size,
+        stock: variantStocks[`${color}||${size}`] ?? 0,
+      }))
+    );
+  }, [selectedColors, selectedSizes, variantStocks]);
+
+  const updateVariantStock = (color: string, size: string, stock: number) => {
+    setVariantStocks((prev) => ({ ...prev, [`${color}||${size}`]: stock }));
+  };
 
   const fetchProducts = async () => {
     try {
@@ -154,6 +198,7 @@ export default function AdminProductsPage() {
     setMainImagePreview("");
     setAdditionalImagePreviews([]);
     setFormData({ name: "", price: "", stock: "", category: "", description: "" });
+    setVariantStocks({});
     setIsDialogOpen(true);
   };
 
@@ -236,6 +281,7 @@ export default function AdminProductsPage() {
       images: additionalImagePreviews.length > 0 ? additionalImagePreviews : (mainImagePreview ? [mainImagePreview] : []),
       sizes: selectedSizes,
       colors: selectedColors,
+      variants,
     };
 
     try {
@@ -266,6 +312,7 @@ export default function AdminProductsPage() {
       setFormData({ name: "", price: "", stock: "", category: "", description: "" });
       setSelectedSizes([]);
       setSelectedColors([]);
+      setVariantStocks({});
       setMainImagePreview("");
       setAdditionalImagePreviews([]);
       setIsDialogOpen(false);
@@ -511,12 +558,60 @@ export default function AdminProductsPage() {
                     >
                       {size}
                     </button>
-                  ))}
-                </div>
-              </div>
+                   ))}
+                 </div>
+               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="main-image" className="text-sm font-medium text-neutral-900">تصویر اصلی</Label>
+               {selectedColors.length > 0 && selectedSizes.length > 0 && (
+                 <div className="space-y-2">
+                   <div className="flex items-center justify-between">
+                     <Label className="text-sm font-medium text-neutral-900">تنوع محصول (رنگ + سایز)</Label>
+                     <span className="text-xs text-neutral-500">{variants.length} ترکیب</span>
+                   </div>
+                   <div className="border border-neutral-200 rounded-md overflow-hidden">
+                     <Table>
+                       <TableHeader>
+                         <TableRow>
+                           <TableHead className="text-right text-xs font-medium text-neutral-600">رنگ</TableHead>
+                           <TableHead className="text-right text-xs font-medium text-neutral-600">سایز</TableHead>
+                           <TableHead className="text-right text-xs font-medium text-neutral-600">موجودی</TableHead>
+                         </TableRow>
+                       </TableHeader>
+                       <TableBody>
+                         {variants.map((variant) => (
+                            <TableRow key={`${variant.color}||${variant.size}`}>
+                             <TableCell>
+                               <div className="flex items-center gap-2">
+                                 <span
+                                   className="w-5 h-5 rounded-full border border-neutral-200 inline-block"
+                                   style={{ backgroundColor: variant.color }}
+                                 />
+                                 <span className="text-sm text-neutral-700">{getColorName(variant.color)}</span>
+                               </div>
+                             </TableCell>
+                             <TableCell className="text-sm text-neutral-700">{variant.size}</TableCell>
+                              <TableCell>
+                                <Input
+                                  type="number"
+                                  min={0}
+                                  value={variant.stock}
+                                  onChange={(e) => {
+                                    const value = parseInt(e.target.value) || 0;
+                                    updateVariantStock(variant.color, variant.size, value);
+                                  }}
+                                  className="w-24 h-8 text-sm border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
+                                />
+                              </TableCell>
+                           </TableRow>
+                         ))}
+                       </TableBody>
+                     </Table>
+                   </div>
+                 </div>
+               )}
+
+               <div className="space-y-2">
+                 <Label htmlFor="main-image" className="text-sm font-medium text-neutral-900">تصویر اصلی</Label>
                 <div
                   onClick={() => mainImageInputRef.current?.click()}
                   className="border-2 border-dashed border-neutral-300 rounded-lg p-4 text-center cursor-pointer hover:border-neutral-400 transition-colors"

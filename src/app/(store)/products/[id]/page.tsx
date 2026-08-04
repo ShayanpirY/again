@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Heart, Share2, Truck, Shield, ChevronLeft, ChevronRight, Star, MessageSquare, HelpCircle } from "lucide-react";
+import { Share2, Truck, Shield, ChevronLeft, ChevronRight, Star, MessageSquare, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -408,23 +408,29 @@ export default function ProductDetailPage() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {availableSizes.map((size) => {
-                    const variantStock = product.variants.find(v => v.size === size && (!selectedColor || v.color === selectedColor))?.stock ?? 0;
-                    const isOutOfStock = variantStock === 0;
+                    let sizeIsOutOfStock = false;
+                    if (!selectedColor) {
+                      const sizeVariants = product.variants.filter(v => v.size === size);
+                      if (sizeVariants.length > 0) sizeIsOutOfStock = sizeVariants.every(v => v.stock === 0);
+                    } else {
+                      const variant = product.variants.find(v => v.size === size && v.color === selectedColor);
+                      if (variant) sizeIsOutOfStock = variant.stock === 0;
+                    }
                     return (
                       <button
                         key={size}
-                        onClick={() => !isOutOfStock && setSelectedSize(size)}
-                        disabled={isOutOfStock}
+                        onClick={() => !sizeIsOutOfStock && setSelectedSize(size)}
+                        disabled={sizeIsOutOfStock}
                         className={`px-4 py-2.5 text-sm font-medium border rounded-sm transition-all ${
                           selectedSize === size
                             ? "border-neutral-900 bg-neutral-900 text-white"
-                            : isOutOfStock
+                            : sizeIsOutOfStock
                               ? "border-neutral-200 text-neutral-400 cursor-not-allowed"
                               : "border-neutral-300 text-neutral-700 hover:border-neutral-900 hover:text-neutral-900"
                         }`}
                       >
                         {size}
-                        {isOutOfStock && " (ناموجود)"}
+                        {sizeIsOutOfStock && " (ناموجود)"}
                       </button>
                     );
                   })}
@@ -441,20 +447,10 @@ export default function ProductDetailPage() {
               >
                 {currentStock > 0 ? "افزودن به سبد خرید" : "ناموجود"}
               </Button>
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  className="flex-1 border-neutral-300 text-neutral-700 hover:bg-neutral-50 rounded-none py-6"
-                  onClick={() => setIsWishlisted(!isWishlisted)}
-                >
-                  <Heart className={`h-5 w-5 ml-2 ${isWishlisted ? "fill-red-600 text-red-600" : ""}`} />
-                  {isWishlisted ? "در لیست علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"}
-                </Button>
-                <Button variant="outline" className="flex-1 border-neutral-300 text-neutral-700 hover:bg-neutral-50 rounded-none py-6">
-                  <Share2 className="h-5 w-5 ml-2" />
-                  اشتراک‌گذاری
-                </Button>
-              </div>
+              <Button variant="outline" className="w-full border-neutral-300 text-neutral-700 hover:bg-neutral-50 rounded-none py-6">
+                <Share2 className="h-5 w-5 ml-2" />
+                اشتراک‌گذاری
+              </Button>
             </div>
 
             {/* Trust Badges */}
