@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
 import { MegaMenu } from "@/components/modules/MegaMenu";
 import { MobileNav } from "@/components/modules/MobileNav";
+import { SearchModal } from "@/components/modules/SearchModal";
 
 const announcementText = "ارسال رایگان برای سفارشات بالای ۲,۵۰۰,۰۰۰ تومان | بازگشت رایگان کالا";
 
@@ -46,8 +47,8 @@ const mainNavItems = [
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { toggleCart, getTotalItems } = useCartStore();
   const totalItems = getTotalItems();
 
@@ -85,10 +86,13 @@ export function Header() {
                   </div>
                 </SheetContent>
               </Sheet>
-              <Button variant="ghost" size="icon" className="h-9 w-9">
-                <Search className="h-5 w-5" />
-              </Button>
-            </div>
+               <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setIsSearchOpen(true)}>
+                 <Search className="h-5 w-5" />
+               </Button>
+             </div>
+             
+             {/* Search Modal */}
+             <SearchModal key={isSearchOpen ? "open" : "closed"} isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
 
             {/* Center: Logo */}
             <Link href="/" className="flex-shrink-0">
@@ -97,59 +101,48 @@ export function Header() {
               </span>
             </Link>
 
-            {/* Left: Desktop Navigation + Icons */}
-            <div className="hidden lg:flex items-center gap-8">
-              <nav className="flex items-center gap-1 relative">
-                {mainNavItems.map((item) => (
-                  <div
-                    key={item.label}
-                    className="relative"
-                    onMouseEnter={() => setActiveCategory(item.categoryKey)}
-                    onMouseLeave={() => setActiveCategory(null)}
-                  >
-                    <Link
-                      href={item.href}
-                      className={`flex items-center gap-1 text-xs font-semibold tracking-[0.15em] transition-colors px-3 py-6 ${
-                        activeCategory === item.categoryKey
-                          ? "text-neutral-900"
-                          : "text-neutral-600 hover:text-neutral-900"
-                      }`}
-                    >
-                      {item.label}
-                      <svg
-                        className={`h-3 w-3 transition-transform duration-200 ${
-                          activeCategory === item.categoryKey ? "rotate-180" : ""
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </Link>
-                  </div>
-                ))}
-                <Link
-                  href="/sale"
-                  className="text-xs font-semibold tracking-[0.15em] text-red-600 hover:text-red-700 transition-colors px-3 py-6"
-                >
-                  حراج ویژه
-                </Link>
+             {/* Left: Desktop Navigation + Icons */}
+             <div className="hidden lg:flex items-center gap-8">
+               <nav className="flex items-center gap-1 relative">
+                 {mainNavItems.map((item) => (
+                   <div
+                     key={item.label}
+                     className="relative group pb-1"
+                   >
+                     <Link
+                       href={item.href}
+                       className="flex items-center gap-1 text-xs font-semibold tracking-[0.15em] transition-colors px-3 py-6 text-neutral-600 group-hover:text-neutral-900"
+                     >
+                       {item.label}
+                       <svg
+                         className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24"
+                       >
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                       </svg>
+                     </Link>
 
-                {/* Mega Menu Dropdown */}
-                {activeCategory && (
-                  <div className="absolute top-full right-0 left-0 pt-2">
-                    <div className="bg-white border-t border-neutral-200 shadow-xl transition-all duration-300 z-50">
-                      <MegaMenu categoryKey={activeCategory} />
-                    </div>
-                  </div>
-                )}
-              </nav>
+                     <div className="absolute top-full right-0 left-0 hidden group-hover:block">
+                       <div className="bg-white border-t border-neutral-200 shadow-xl transition-all duration-300 z-50">
+                         <MegaMenu categoryKey={item.categoryKey} />
+                       </div>
+                     </div>
+                   </div>
+                 ))}
+                 <Link
+                   href="/sale"
+                   className="text-xs font-semibold tracking-[0.15em] text-red-600 hover:text-red-700 transition-colors px-3 py-6"
+                 >
+                   حراج ویژه
+                 </Link>
+               </nav>
 
-              <div className="flex items-center gap-1 border-r border-neutral-200 pr-4">
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                  <Search className="h-5 w-5" />
-                </Button>
+               <div className="flex items-center gap-1 border-r border-neutral-200 pr-4">
+                 <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setIsSearchOpen(true)}>
+                   <Search className="h-5 w-5" />
+                 </Button>
                 <Button variant="ghost" size="icon" className="h-9 w-9">
                   <Heart className="h-5 w-5" />
                 </Button>
