@@ -12,6 +12,13 @@ export async function GET(
       where: { id },
       include: {
         category: true,
+        variants: true,
+        reviews: {
+          orderBy: { createdAt: "desc" },
+        },
+        questions: {
+          orderBy: { createdAt: "desc" },
+        },
       },
     });
 
@@ -22,7 +29,19 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(product);
+    const relatedProducts = await prisma.product.findMany({
+      where: {
+        isActive: true,
+        categoryId: product.categoryId,
+        id: { not: id },
+      },
+      include: {
+        category: true,
+      },
+      take: 8,
+    });
+
+    return NextResponse.json({ product, relatedProducts });
   } catch (error) {
     console.error("Failed to fetch product:", error);
     return NextResponse.json(
