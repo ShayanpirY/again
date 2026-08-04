@@ -36,27 +36,27 @@ const categoryThemeMap: Record<string, ThemeVariant> = {
 
 const themeClassMap: Record<ThemeVariant, { page: string; card: string; overlay?: string }> = {
   child: {
-    page: "bg-gradient-to-b from-amber-100/90 via-yellow-50/50 to-white",
+    page: "bg-gradient-to-b from-amber-200/60 via-amber-100/30 to-white",
     card: "bg-white shadow-sm rounded-2xl overflow-hidden",
     overlay: "fixed inset-0 bg-white/40 backdrop-blur-[2px] pointer-events-none",
   },
   girl: {
-    page: "bg-gradient-to-b from-rose-100/90 via-pink-50/50 to-white",
+    page: "bg-gradient-to-b from-rose-200/60 via-rose-100/30 to-white",
     card: "bg-white shadow-sm rounded-2xl overflow-hidden border border-rose-100",
     overlay: "fixed inset-0 bg-white/30 backdrop-blur-[2px] pointer-events-none",
   },
   boy: {
-    page: "bg-gradient-to-b from-emerald-100/90 via-teal-50/50 to-white",
+    page: "bg-gradient-to-b from-emerald-200/60 via-emerald-100/30 to-white",
     card: "bg-white shadow-sm rounded-2xl overflow-hidden border border-emerald-100",
     overlay: "fixed inset-0 bg-white/30 backdrop-blur-[2px] pointer-events-none",
   },
   teen: {
-    page: "bg-gradient-to-b from-purple-100/80 via-violet-50/50 to-white",
+    page: "bg-gradient-to-b from-purple-200/60 via-purple-100/30 to-white",
     card: "bg-white shadow-sm rounded-2xl overflow-hidden border border-purple-50",
     overlay: "fixed inset-0 bg-white/30 backdrop-blur-[2px] pointer-events-none",
   },
   sale: {
-    page: "bg-gradient-to-b from-red-100/90 via-orange-50/50 to-white",
+    page: "bg-gradient-to-b from-red-200/60 via-orange-100/30 to-white",
     card: "bg-white shadow-sm rounded-2xl overflow-hidden border border-red-100",
     overlay: "fixed inset-0 bg-white/30 backdrop-blur-[2px] pointer-events-none",
   },

@@ -54,11 +54,11 @@ export function Header() {
   const totalItems = getTotalItems();
 
   const megaMenuThemeClass: Record<string, string> = {
-    newborn: "bg-sky-50/95 backdrop-blur-md border-b border-sky-100",
-    baby: "bg-amber-50/95 backdrop-blur-md border-b border-amber-100",
-    girl: "bg-rose-50/95 backdrop-blur-md border-b border-rose-100",
-    boy: "bg-emerald-50/95 backdrop-blur-md border-b border-emerald-100",
-    "pre-teen": "bg-purple-50/95 backdrop-blur-md border-b border-purple-100",
+    newborn: "bg-sky-100/90 backdrop-blur-md border-b border-sky-100",
+    baby: "bg-amber-100/90 backdrop-blur-md border-b border-amber-100",
+    girl: "bg-rose-100/90 backdrop-blur-md border-b border-rose-100",
+    boy: "bg-emerald-100/90 backdrop-blur-md border-b border-emerald-100",
+    "pre-teen": "bg-purple-100/90 backdrop-blur-md border-b border-purple-100",
   };
 
   const activeMegaTheme = activeCategory ? megaMenuThemeClass[activeCategory] || "bg-white/95 backdrop-blur-md border-b border-gray-100" : "";

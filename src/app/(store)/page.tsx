@@ -2,19 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { LatestProducts } from "@/components/modules/LatestProducts";
-
-const heroSlides = [
-  {
-    id: 1,
-    image: "https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?q=80&w=1200&auto=format&fit=crop",
-    href: "/products?collection=new",
-  },
-  {
-    id: 2,
-    image: "https://images.unsplash.com/photo-1522771930-78848d9293e8?q=80&w=1200&auto=format&fit=crop",
-    href: "/category/newborn",
-  },
-];
+import { HeroSection } from "@/components/modules/HeroSection";
 
 const ageCategories = [
   {
@@ -53,37 +41,7 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative bg-white">
-        <div className="relative h-[70vh] min-h-[500px] max-h-[900px] overflow-hidden">
-          <img
-            src={heroSlides[0].image}
-            alt="کالکشن جدید"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/10" />
-          <div className="absolute inset-0 flex items-center">
-            <div className="container mx-auto px-4">
-              <div className="max-w-xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white mb-4">
-                  بهار و تابستان ۲۰۲۵
-                </p>
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-                  کالکشن جدید
-                </h1>
-                <Link href={heroSlides[0].href}>
-                  <Button
-                    size="lg"
-                    className="bg-white text-neutral-900 hover:bg-neutral-100 rounded-none px-8 py-6 text-xs font-semibold uppercase tracking-[0.15em]"
-                  >
-                    مشاهده کالکشن جدید
-                    <ArrowLeft className="h-4 w-4 mr-2 rotate-180" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection />
 
       {/* Age Categories */}
       <section className="bg-white py-16 lg:py-24">

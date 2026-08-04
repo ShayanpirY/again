@@ -53,7 +53,7 @@ export default function SalePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-red-100/80 via-orange-100/50 to-white" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-b from-red-200/60 via-orange-100/30 to-white" dir="rtl">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <div className="w-8 h-8 border-2 border-neutral-900 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
@@ -65,7 +65,7 @@ export default function SalePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-100/80 via-orange-100/50 to-white relative" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-b from-red-200/60 via-orange-100/30 to-white relative" dir="rtl">
       <div className="fixed inset-0 bg-white/30 backdrop-blur-[2px] pointer-events-none" />
       <div className="container mx-auto px-4 py-8 relative">
         {/* Breadcrumb */}
