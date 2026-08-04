@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { ProductGrid } from "@/components/modules/ProductGrid";
+import { LatestProducts } from "@/components/modules/LatestProducts";
 
 const heroSlides = [
   {
@@ -124,7 +124,7 @@ export default function Home() {
       </section>
 
       {/* New Arrivals */}
-      <ProductGrid />
+      <LatestProducts />
 
       {/* Featured Banner */}
       <section className="bg-neutral-50 py-16 lg:py-24">

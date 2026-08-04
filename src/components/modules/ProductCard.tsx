@@ -9,7 +9,19 @@ import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCart";
 
 interface ProductCardProps {
-  product: Product;
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    image?: string;
+    images?: string[];
+    colors?: string[];
+    sizes?: string[];
+    category?: string;
+    originalPrice?: number;
+    isNew?: boolean;
+    isSale?: boolean;
+  };
 }
 
 export function ProductCard({ product }: ProductCardProps) {
@@ -19,7 +31,20 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem(product, 1);
+    const fullProduct: Product = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image || (product.images && product.images[0]) || "",
+      images: product.images || [],
+      colors: product.colors || [],
+      sizes: product.sizes || [],
+      category: product.category || "",
+      subcategory: "",
+      ageRange: "",
+      gender: "unisex",
+    };
+    addItem(fullProduct, 1);
     openCart();
   };
 
@@ -33,10 +58,10 @@ export function ProductCard({ product }: ProductCardProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link href={`/product/${product.id}`} className="block relative aspect-[3/4] overflow-hidden bg-neutral-100">
+      <Link href={`/products/${product.id}`} className="block relative aspect-[3/4] overflow-hidden bg-neutral-100">
         {/* Main Image */}
         <Image
-          src={isHovered && product.images?.[0] ? product.images[0] : product.image}
+          src={isHovered && product.images?.[0] ? product.images[0] : (product.image || "/placeholder.png")}
           alt={product.name}
           fill
           className="object-cover transition-opacity duration-500"
@@ -115,7 +140,7 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
 
         {/* Product Name */}
-        <Link href={`/product/${product.id}`}>
+        <Link href={`/products/${product.id}`}>
           <h3 className="text-sm font-medium text-neutral-900 hover:text-neutral-600 transition-colors line-clamp-1">
             {product.name}
           </h3>

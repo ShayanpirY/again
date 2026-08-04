@@ -5,7 +5,7 @@ import { ShoppingBag, Search, Heart, User, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCart";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MegaMenu } from "@/components/modules/MegaMenu";
 import { MobileNav } from "@/components/modules/MobileNav";
 
@@ -47,8 +47,14 @@ const mainNavItems = [
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const { toggleCart, getTotalItems } = useCartStore();
   const totalItems = getTotalItems();
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white">
@@ -150,7 +156,7 @@ export function Header() {
                 </Button>
                 <Button variant="ghost" size="icon" className="h-9 w-9 relative" onClick={toggleCart}>
                   <ShoppingBag className="h-5 w-5" />
-                  {totalItems > 0 && (
+                  {mounted && totalItems > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-neutral-900 text-white text-[10px] font-bold flex items-center justify-center">
                       {totalItems}
                     </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,24 +8,63 @@ import { Heart, Share2, Truck, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { useCartStore } from "@/store/useCart";
-import { useProductStore } from "@/store/useProductStore";
 import { SizeGuideModal } from "@/components/modules/SizeGuideModal";
 
-const sizes = ["سایز ۱", "سایز ۲", "سایز ۳", "سایز ۴", "سایز ۵", "سایز ۶", "سایز ۷", "سایز ۸"];
+interface Product {
+  id: string;
+  title: string;
+  price: number;
+  description?: string;
+  images: string[];
+  colors: string[];
+  sizes: string[];
+  category?: {
+    name: string;
+  };
+}
 
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
-  const product = useProductStore((state) => state.products.find((p) => p.id === productId));
-
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const { addItem, openCart } = useCartStore();
 
-  const allImages = product ? [product.image, ...(product.images || [])] : [];
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await fetch(`/api/products/${productId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setProduct(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch product:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
+
+  const allImages = product ? [product.images?.[0] || "", ...(product.images?.slice(1) || [])].filter(Boolean) : [];
   const safeSelectedImage = allImages.length > 0 ? Math.min(selectedImage, allImages.length - 1) : 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white" dir="rtl">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-neutral-900 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-neutral-600">در حال بارگذاری...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -43,16 +82,24 @@ export default function ProductDetailPage() {
     );
   }
 
-  const discount = product.originalPrice
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-    : 0;
-
   const handleAddToCart = () => {
     if (!selectedSize) {
       alert("لطفاً سایز را انتخاب کنید.");
       return;
     }
-    addItem(product, 1, undefined, selectedSize);
+    addItem({
+      id: product.id,
+      name: product.title,
+      price: product.price,
+      image: product.images?.[0] || "",
+      images: product.images || [],
+      colors: product.colors || [],
+      category: product.category?.name || "",
+      subcategory: "",
+      sizes: product.sizes || [],
+      ageRange: "",
+      gender: "unisex",
+    }, 1, undefined, selectedSize);
     openCart();
   };
 
@@ -65,7 +112,7 @@ export default function ProductDetailPage() {
           <span>/</span>
           <Link href="/products" className="hover:text-neutral-900 transition-colors">محصولات</Link>
           <span>/</span>
-          <span className="text-neutral-900">{product.name}</span>
+          <span className="text-neutral-900">{product.title}</span>
         </nav>
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
@@ -73,24 +120,16 @@ export default function ProductDetailPage() {
           <div className="space-y-4">
             {/* Main Image */}
             <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100 rounded-sm">
-              <Image
-                src={allImages[safeSelectedImage]}
-                alt={product.name}
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                unoptimized
-              />
-              {product.isNew && (
-                <span className="absolute top-4 right-4 px-3 py-1.5 bg-neutral-900 text-white text-xs font-medium tracking-wider">
-                  جدید
-                </span>
-              )}
-              {product.isSale && discount > 0 && (
-                <span className="absolute top-4 right-4 px-3 py-1.5 bg-red-600 text-white text-xs font-medium tracking-wider">
-                  -{discount}٪
-                </span>
+              {allImages.length > 0 && (
+                <Image
+                  src={allImages[safeSelectedImage]}
+                  alt={product.title}
+                  fill
+                  className="object-cover"
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  unoptimized
+                />
               )}
             </div>
 
@@ -107,7 +146,7 @@ export default function ProductDetailPage() {
                   >
                     <Image
                       src={img}
-                      alt={`${product.name} - تصویر ${index + 1}`}
+                      alt={`${product.title} - تصویر ${index + 1}`}
                       fill
                       className="object-cover"
                       sizes="80px"
@@ -124,51 +163,48 @@ export default function ProductDetailPage() {
             {/* Brand & Name */}
             <div>
               <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">
-                {product.category}
+                {product.category?.name}
               </p>
               <h1 className="text-2xl lg:text-3xl font-bold text-neutral-900 mb-4 leading-tight">
-                {product.name}
+                {product.title}
               </h1>
               <div className="flex items-center gap-3">
                 <span className="text-2xl font-bold text-neutral-900">
                   {product.price.toLocaleString("fa-IR")} <span className="text-base font-normal text-neutral-600">تومان</span>
                 </span>
-                {product.originalPrice && (
-                  <span className="text-lg text-neutral-500 line-through">
-                    {product.originalPrice.toLocaleString("fa-IR")}
-                  </span>
-                )}
               </div>
             </div>
 
             {/* Size Selector */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-neutral-900">انتخاب سایز</span>
-                <Button
-                  variant="link"
-                  className="text-xs text-neutral-600 hover:text-neutral-900 p-0 h-auto"
-                  onClick={() => setIsSizeGuideOpen(true)}
-                >
-                  راهنمای سایز
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`px-4 py-2.5 text-sm font-medium border rounded-sm transition-all ${
-                      selectedSize === size
-                        ? "border-neutral-900 bg-neutral-900 text-white"
-                        : "border-neutral-300 text-neutral-700 hover:border-neutral-900 hover:text-neutral-900"
-                    }`}
+            {product.sizes && product.sizes.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-neutral-900">انتخاب سایز</span>
+                  <Button
+                    variant="link"
+                    className="text-xs text-neutral-600 hover:text-neutral-900 p-0 h-auto"
+                    onClick={() => setIsSizeGuideOpen(true)}
                   >
-                    {size}
-                  </button>
-                ))}
+                    راهنمای سایز
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-4 py-2.5 text-sm font-medium border rounded-sm transition-all ${
+                        selectedSize === size
+                          ? "border-neutral-900 bg-neutral-900 text-white"
+                          : "border-neutral-300 text-neutral-700 hover:border-neutral-900 hover:text-neutral-900"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Add to Cart & Actions */}
             <div className="space-y-3">
@@ -217,34 +253,44 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Accordion */}
-            <Accordion className="border-t border-neutral-200 pt-4">
-              <AccordionItem value="specs">
-                <AccordionTrigger className="text-sm font-semibold text-neutral-900 hover:no-underline">
-                  مشخصات و جنس پارچه
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-2 text-sm text-neutral-600">
-                    <p>جنس: ۱۰۰٪ پنبه ارگانیک</p>
-                    <p>وزن: ۱۸۰ گرم</p>
-                    <p>مکانیسم بافت: نرم و نفس‌بخش</p>
-                    <p>مورد تأیید: استاندارد OEKO-TEX</p>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="care">
-                <AccordionTrigger className="text-sm font-semibold text-neutral-900 hover:no-underline">
-                  شرایط شستشو و نگهداری
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-2 text-sm text-neutral-600">
-                    <p>شستشو با ماشین با دمای ۳۰ درجه</p>
-                    <p>از استفاده از سفیدکننده خودداری کنید</p>
-                    {product.gender === "girl" && <p>آهسته در دمای پایین اتو بکشید</p>}
-                    <p>نکند در خشک‌کن قرار ندهید</p>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+            {product.description && (
+              <Accordion className="border-t border-neutral-200 pt-4">
+                <AccordionItem value="description">
+                  <AccordionTrigger className="text-sm font-semibold text-neutral-900 hover:no-underline">
+                    توضیحات محصول
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2 text-sm text-neutral-600">
+                      <p>{product.description}</p>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="specs">
+                  <AccordionTrigger className="text-sm font-semibold text-neutral-900 hover:no-underline">
+                    مشخصات
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2 text-sm text-neutral-600">
+                      <p>جنس: ۱۰۰٪ پنبه ارگانیک</p>
+                      <p>وزن: ۱۸۰ گرم</p>
+                      <p>مکانیسم بافت: نرم و نفس‌بخش</p>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="care">
+                  <AccordionTrigger className="text-sm font-semibold text-neutral-900 hover:no-underline">
+                    شرایط شستشو و نگهداری
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-2 text-sm text-neutral-600">
+                      <p>شستشو با ماشین با دمای ۳۰ درجه</p>
+                      <p>از استفاده از سفیدکننده خودداری کنید</p>
+                      <p>مکنده در خشک‌کن قرار ندهید</p>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            )}
           </div>
         </div>
       </div>
