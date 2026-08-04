@@ -25,6 +25,8 @@ model Product {
   sizes       String[]
   categoryId  String
   isActive    Boolean  @default(true)
+  isSale      Boolean  @default(false)
+  isNew       Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   colors      String[]

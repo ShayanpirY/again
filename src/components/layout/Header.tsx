@@ -138,8 +138,10 @@ export function Header() {
 
                 {/* Mega Menu Dropdown */}
                 {activeCategory && (
-                  <div className="absolute top-full right-0 left-0 bg-white border-t border-neutral-200 shadow-xl transition-all duration-300 z-50">
-                    <MegaMenu categoryKey={activeCategory} />
+                  <div className="absolute top-full right-0 left-0 pt-2">
+                    <div className="bg-white border-t border-neutral-200 shadow-xl transition-all duration-300 z-50">
+                      <MegaMenu categoryKey={activeCategory} />
+                    </div>
                   </div>
                 )}
               </nav>

@@ -3,10 +3,33 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function CheckoutSuccessPage() {
-  const [trackingCode] = useState(() => "KDK" + Math.random().toString(36).substring(2, 10).toUpperCase());
+  const [mounted, setMounted] = useState(false);
+  const [trackingCode, setTrackingCode] = useState("");
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+    setTrackingCode("KDK" + Math.random().toString(36).substring(2, 10).toUpperCase());
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center" dir="rtl">
+        <div className="text-center space-y-6 max-w-md mx-auto px-4">
+          <div className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mx-auto">
+            <CheckCircle className="h-12 w-12 text-green-600" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl lg:text-3xl font-bold text-neutral-900">سفارش شما با موفقیت ثبت شد!</h1>
+            <p className="text-neutral-600">از اعتماد شما سپاسگزاریم. سفارش شما در حال پردازش است.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center" dir="rtl">
