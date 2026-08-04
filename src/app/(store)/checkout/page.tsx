@@ -24,15 +24,20 @@ export default function CheckoutPage() {
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
 
-    const firstName = formData.get("firstName") as string;
-    const lastName = formData.get("lastName") as string;
-    const phone = formData.get("phone") as string;
-    const address = formData.get("address") as string;
+    const firstName = (formData.get("firstName") as string | null)?.trim() || "";
+    const lastName = (formData.get("lastName") as string | null)?.trim() || "";
+    const phone = (formData.get("phone") as string | null)?.trim() || "";
+    const province = (formData.get("province") as string | null)?.trim() || "";
+    const city = (formData.get("city") as string | null)?.trim() || "";
+    const address = (formData.get("address") as string | null)?.trim() || "";
+    const postalCode = (formData.get("postalCode") as string | null)?.trim() || "";
+
+    const fullAddress = [address, province, city, postalCode].filter(Boolean).join(" - ");
 
     const orderData = {
-      customerName: `${firstName} ${lastName}`,
+      customerName: `${firstName} ${lastName}`.trim(),
       customerPhone: phone,
-      address,
+      address: fullAddress,
       totalPrice: total,
       items: items.map((item) => ({
         productId: item.product.id,
@@ -52,15 +57,21 @@ export default function CheckoutPage() {
         body: JSON.stringify(orderData),
       });
 
+      const result = await res.json();
+
       if (!res.ok) {
-        throw new Error("Failed to create order");
+        const errorMessage = result?.error || "خطا در ثبت سفارش";
+        console.error("Checkout failed:", res.status, result);
+        alert(errorMessage);
+        setIsSubmitting(false);
+        return;
       }
 
       clearCart();
       window.location.href = "/checkout/success";
     } catch (error) {
       console.error("Checkout error:", error);
-      alert("خطا در ثبت سفارش. لطفاً دوباره تلاش کنید.");
+      alert("خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.");
       setIsSubmitting(false);
     }
   };
@@ -107,6 +118,7 @@ export default function CheckoutPage() {
                     <Label htmlFor="firstName" className="text-sm font-medium text-neutral-900">نام</Label>
                     <Input
                       id="firstName"
+                      name="firstName"
                       placeholder="نام خود را وارد کنید"
                       className="border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
                       required
@@ -116,6 +128,7 @@ export default function CheckoutPage() {
                     <Label htmlFor="lastName" className="text-sm font-medium text-neutral-900">نام خانوادگی</Label>
                     <Input
                       id="lastName"
+                      name="lastName"
                       placeholder="نام خانوادگی"
                       className="border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
                       required
@@ -123,22 +136,24 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-sm font-medium text-neutral-900">شماره تماس</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="۰۹۱۲۳۴۵۶۷۸۹"
-                    className="border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
-                    required
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-sm font-medium text-neutral-900">شماره تماس</Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+                      className="border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
+                      required
+                    />
+                  </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="province" className="text-sm font-medium text-neutral-900">استان</Label>
                     <Input
                       id="province"
+                      name="province"
                       placeholder="تهران"
                       className="border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
                       required
@@ -148,6 +163,7 @@ export default function CheckoutPage() {
                     <Label htmlFor="city" className="text-sm font-medium text-neutral-900">شهر</Label>
                     <Input
                       id="city"
+                      name="city"
                       placeholder="تهران"
                       className="border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
                       required
@@ -155,25 +171,27 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="address" className="text-sm font-medium text-neutral-900">آدرس پستی</Label>
-                  <textarea
-                    id="address"
-                    placeholder="آدرس دقیق خود را وارد کنید..."
-                    className="w-full min-h-[100px] px-3 py-2 text-sm border border-neutral-300 rounded-md focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 resize-none"
-                    required
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="address" className="text-sm font-medium text-neutral-900">آدرس پستی</Label>
+                    <textarea
+                      id="address"
+                      name="address"
+                      placeholder="آدرس دقیق خود را وارد کنید..."
+                      className="w-full min-h-[100px] px-3 py-2 text-sm border border-neutral-300 rounded-md focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 resize-none"
+                      required
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="postalCode" className="text-sm font-medium text-neutral-900">کد پستی</Label>
-                  <Input
-                    id="postalCode"
-                    placeholder="۱۲۳۴۵۶۷۸۹۰"
-                    className="border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
-                    required
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="postalCode" className="text-sm font-medium text-neutral-900">کد پستی</Label>
+                    <Input
+                      id="postalCode"
+                      name="postalCode"
+                      placeholder="۱۲۳۴۵۶۷۸۹۰"
+                      className="border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
+                      required
+                    />
+                  </div>
               </div>
             </div>
 

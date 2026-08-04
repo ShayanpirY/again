@@ -36,7 +36,7 @@ model Order {
   id            String    @id @default(cuid())
   customerName  String
   customerPhone String
-  address       String
+  address       String    @db.Text
   status        String    @default("PENDING")
   totalPrice    Int
   trackingCode  String?

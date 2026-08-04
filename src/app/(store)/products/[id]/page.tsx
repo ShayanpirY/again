@@ -23,12 +23,15 @@ interface Product {
   };
 }
 
+const defaultColors = ["#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF"];
+
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -83,6 +86,10 @@ export default function ProductDetailPage() {
   }
 
   const handleAddToCart = () => {
+    if (!selectedColor) {
+      alert("لطفاً رنگ را انتخاب کنید.");
+      return;
+    }
     if (!selectedSize) {
       alert("لطفاً سایز را انتخاب کنید.");
       return;
@@ -99,7 +106,7 @@ export default function ProductDetailPage() {
       sizes: product.sizes || [],
       ageRange: "",
       gender: "unisex",
-    }, 1, undefined, selectedSize);
+    }, 1, selectedColor, selectedSize);
     openCart();
   };
 
@@ -172,6 +179,26 @@ export default function ProductDetailPage() {
                 <span className="text-2xl font-bold text-neutral-900">
                   {product.price.toLocaleString("fa-IR")} <span className="text-base font-normal text-neutral-600">تومان</span>
                 </span>
+              </div>
+            </div>
+
+            {/* Color Selector */}
+            <div className="space-y-3">
+              <span className="text-sm font-semibold text-neutral-900">انتخاب رنگ</span>
+              <div className="flex flex-wrap gap-2">
+                {(product.colors && product.colors.length > 0 ? product.colors : defaultColors).map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`w-8 h-8 rounded-full border-2 transition-transform ${
+                      selectedColor === color
+                        ? "border-neutral-900 scale-110"
+                        : "border-neutral-300 hover:border-neutral-400"
+                    }`}
+                    style={{ backgroundColor: color }}
+                    title={color}
+                  />
+                ))}
               </div>
             </div>
 
