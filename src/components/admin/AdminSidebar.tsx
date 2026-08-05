@@ -2,13 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingCart, Settings, Tag } from "lucide-react";
+import { LayoutDashboard, Package, Tag, ShoppingCart, Settings, RotateCcw, Users, Ticket, BarChart3 } from "lucide-react";
 
 const menuItems = [
   { href: "/admin", icon: LayoutDashboard, label: "داشبورد", exact: true },
   { href: "/admin/products", icon: Package, label: "محصولات" },
   { href: "/admin/categories", icon: Tag, label: "دسته‌بندی‌ها" },
   { href: "/admin/orders", icon: ShoppingCart, label: "سفارشات" },
+  { href: "/admin/returns", icon: RotateCcw, label: "درخواست‌های مرجوعی" },
+  { href: "/admin/users", icon: Users, label: "مدیریت کاربران" },
+  { href: "/admin/coupons", icon: Ticket, label: "کدهای تخفیف" },
+  { href: "/admin/reports", icon: BarChart3, label: "گزارش‌ها و آمار" },
   { href: "/admin/settings", icon: Settings, label: "تنظیمات" },
 ];
 

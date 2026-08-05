@@ -81,6 +81,52 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Seasonal Collections Banner */}
+      <section className="bg-white py-16 lg:py-24">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 lg:mb-16">
+            <h2 className="text-2xl lg:text-3xl font-bold text-neutral-900 mb-3">
+              کالکشن‌های فصلی و پیشنهاد استایل
+            </h2>
+            <p className="text-neutral-600 text-sm max-w-md mx-auto">
+              با جدیدترین کالکشن‌های فصلی و ست‌های منتخب استایل، چهره‌ای متفاوت بسازید.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <Link
+              href="/products?collection=spring-summer"
+              className="group relative aspect-[4/3] overflow-hidden bg-neutral-100"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=800&auto=format&fit=crop"
+                alt="کالکشن بهاره و تابستانه"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+              <div className="absolute bottom-0 right-0 left-0 p-6 lg:p-8">
+                <p className="text-white/80 text-xs uppercase tracking-[0.2em] mb-2">کالکشن جدید</p>
+                <h3 className="text-white text-xl lg:text-2xl font-bold">کالکشن بهاره / تابستانه</h3>
+              </div>
+            </Link>
+            <Link
+              href="/products?collection=style"
+              className="group relative aspect-[4/3] overflow-hidden bg-neutral-100"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1485968579580-b6d095142e6e?q=80&w=800&auto=format&fit=crop"
+                alt="پیشنهاد استایل و ست لباس"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+              <div className="absolute bottom-0 right-0 left-0 p-6 lg:p-8">
+                <p className="text-white/80 text-xs uppercase tracking-[0.2em] mb-2">ست‌های منتخب</p>
+                <h3 className="text-white text-xl lg:text-2xl font-bold">پیشنهاد استایل و ست لباس</h3>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* New Arrivals */}
       <LatestProducts />
 

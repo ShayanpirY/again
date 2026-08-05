@@ -123,3 +123,29 @@
     @apply font-sans;
   }
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #invoice-print, #invoice-print * {
+    visibility: visible;
+  }
+  #invoice-print {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 2rem;
+    background: white;
+    direction: rtl;
+    font-family: var(--font-vazirmatn), system-ui, sans-serif;
+  }
+  #invoice-print h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  #invoice-print table, #invoice-print div {
+    visibility: visible;
+  }
+}

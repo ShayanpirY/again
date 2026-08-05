@@ -7,6 +7,7 @@ import { Heart, ShoppingBag, Eye } from "lucide-react";
 import { Product } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCart";
+import { getColorName } from "@/lib/colorNames";
 
 interface ProductCardProps {
   product: {
@@ -104,7 +105,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
             e.preventDefault();
             setIsWishlisted(!isWishlisted);
           }}
-          className="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-white/80 hover:bg-white transition-colors"
+          className="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-white/80 hover:bg-white transition-all duration-200 hover:scale-110"
         >
           <Heart
             className={`h-4 w-4 transition-colors ${
@@ -148,7 +149,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
                 key={index}
                 className="w-3.5 h-3.5 rounded-full border border-neutral-200"
                 style={{ backgroundColor: color }}
-                title={color}
+                title={getColorName(color)}
               />
             ))}
           </div>

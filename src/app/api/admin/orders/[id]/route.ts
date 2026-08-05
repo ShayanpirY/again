@@ -9,6 +9,21 @@ const ALLOWED_STATUSES = [
   "CANCELED",
 ] as const;
 
+const ALLOWED_PAYMENT_STATUSES = [
+  "PENDING",
+  "PAID",
+  "FAILED",
+  "REFUNDED",
+] as const;
+
+const ALLOWED_RETURN_STATUSES = [
+  "NONE",
+  "REQUESTED",
+  "APPROVED",
+  "REJECTED",
+  "COMPLETED",
+] as const;
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -16,7 +31,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { status, trackingCode } = body;
+    const { status, trackingCode, paymentStatus, returnStatus, returnReason } = body;
 
     const existing = await prisma.order.findUnique({
       where: { id },
@@ -37,6 +52,18 @@ export async function PUT(
 
     if (trackingCode !== undefined) {
       updateData.trackingCode = trackingCode || null;
+    }
+
+    if (paymentStatus && ALLOWED_PAYMENT_STATUSES.includes(paymentStatus)) {
+      updateData.paymentStatus = paymentStatus;
+    }
+
+    if (returnStatus && ALLOWED_RETURN_STATUSES.includes(returnStatus)) {
+      updateData.returnStatus = returnStatus;
+    }
+
+    if (returnReason !== undefined) {
+      updateData.returnReason = returnReason || null;
     }
 
     const order = await prisma.order.update({
