@@ -90,7 +90,7 @@ export function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white">
+    <header className="sticky top-0 z-50 w-full bg-[#FAF9F6]">
       <div className="w-full bg-neutral-900 text-white">
         <div className="container mx-auto px-4">
           <p className="text-center text-[11px] font-medium tracking-[0.2em] py-2.5 uppercase">

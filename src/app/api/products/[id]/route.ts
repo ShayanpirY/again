@@ -29,6 +29,19 @@ export async function GET(
       );
     }
 
+    const reviewBuyers = await prisma.orderItem.findMany({
+      where: { productId: id },
+      select: { order: { select: { customerName: true } } },
+    });
+    const verifiedBuyerNames = new Set(
+      reviewBuyers.map((oi) => oi.order.customerName.trim().toLowerCase())
+    );
+
+    const reviews = product.reviews.map((review) => ({
+      ...review,
+      isVerifiedBuyer: verifiedBuyerNames.has(review.authorName.trim().toLowerCase()),
+    }));
+
     type RelatedCandidate = {
       id: string;
       title: string;
@@ -106,7 +119,7 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ product, relatedProducts: candidates });
+    return NextResponse.json({ product: { ...product, reviews }, relatedProducts: candidates });
   } catch (error) {
     console.error("Failed to fetch product:", error);
     return NextResponse.json(

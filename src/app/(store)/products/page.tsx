@@ -669,7 +669,7 @@ export default function ProductsPage() {
         <div className="flex gap-8">
           {/* Desktop Sidebar */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
-            <div className="sticky top-8">
+            <div className="sticky top-8 bg-[#F5F5F5] rounded-sm p-5">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-neutral-900">فیلترها</h2>
                 {activeFiltersCount > 0 && (

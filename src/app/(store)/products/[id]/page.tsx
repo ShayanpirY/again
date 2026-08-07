@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Share2, Truck, Shield, ChevronLeft, ChevronRight, Star, MessageSquare, HelpCircle, Play, Ruler } from "lucide-react";
+import { Share2, Truck, Shield, ChevronLeft, ChevronRight, Star, MessageSquare, HelpCircle, Play, Ruler, BadgeCheck, ChevronDown, MessageCircleQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,6 +51,7 @@ interface Review {
   rating: number;
   comment: string;
   createdAt: string;
+  isVerifiedBuyer?: boolean;
 }
 
 interface Question {
@@ -110,13 +111,31 @@ export default function ProductDetailPage() {
   const [questionForm, setQuestionForm] = useState({ authorName: "", question: "" });
   const [submittingReview, setSubmittingReview] = useState(false);
   const [submittingQuestion, setSubmittingQuestion] = useState(false);
+  const [openQuestionId, setOpenQuestionId] = useState<string | null>(null);
   const { addItem, openCart } = useCartStore();
   const [isZoomed, setIsZoomed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
+  const fetchProduct = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/products/${productId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.product) {
+          setProduct(data.product);
+          setRelatedProducts(data.relatedProducts || []);
+        } else {
+          setProduct(data);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch product:", error);
+    }
+  }, [productId]);
+
   useEffect(() => {
-    const fetchProduct = async () => {
+    const load = async () => {
       setLoading(true);
       setProduct(null);
       setRelatedProducts([]);
@@ -125,26 +144,11 @@ export default function ProductDetailPage() {
       setSelectedSize(null);
       setMediaTab("image");
       setIsZoomed(false);
-      try {
-        const res = await fetch(`/api/products/${productId}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.product) {
-            setProduct(data.product);
-            setRelatedProducts(data.relatedProducts || []);
-          } else {
-            setProduct(data);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch product:", error);
-      } finally {
-        setLoading(false);
-      }
+      await fetchProduct();
+      setLoading(false);
     };
-
-    fetchProduct();
-  }, [productId]);
+    load();
+  }, [fetchProduct]);
 
   const allImages = product 
     ? [product.images?.[0] || "", ...(product.images?.slice(1) || [])].filter(Boolean)
@@ -191,6 +195,23 @@ export default function ProductDetailPage() {
     ? getStockLevel(selectedSizeStock)
     : currentStockLevel;
 
+  const ratingCounts = product?.reviews.reduce<number[]>(
+    (acc, r) => {
+      const idx = Math.min(Math.max(Math.round(r.rating), 1), 5);
+      acc[idx] = (acc[idx] || 0) + 1;
+      return acc;
+    },
+    [0, 0, 0, 0, 0, 0]
+  ) ?? [0, 0, 0, 0, 0, 0];
+
+  const averageRating = product && product.reviews.length > 0
+    ? product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length
+    : 0;
+
+  const toggleQuestion = (id: string) => {
+    setOpenQuestionId((prev) => (prev === id ? null : id));
+  };
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!imageContainerRef.current) return;
     const rect = imageContainerRef.current.getBoundingClientRect();
@@ -228,12 +249,14 @@ export default function ProductDetailPage() {
     e.preventDefault();
     setSubmittingReview(true);
     try {
-      await fetch(`/api/products/${productId}/reviews`, {
+      const res = await fetch(`/api/products/${productId}/reviews`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reviewForm),
       });
+      if (!res.ok) throw new Error("Failed to submit review");
       setReviewForm({ authorName: "", rating: 5, comment: "" });
+      await fetchProduct();
       alert("نظر شما با موفقیت ثبت شد.");
     } catch (error) {
       console.error("Failed to submit review:", error);
@@ -247,12 +270,14 @@ export default function ProductDetailPage() {
     e.preventDefault();
     setSubmittingQuestion(true);
     try {
-      await fetch(`/api/products/${productId}/questions`, {
+      const res = await fetch(`/api/products/${productId}/questions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(questionForm),
       });
+      if (!res.ok) throw new Error("Failed to submit question");
       setQuestionForm({ authorName: "", question: "" });
+      await fetchProduct();
       alert("سوال شما با موفقیت ثبت شد.");
     } catch (error) {
       console.error("Failed to submit question:", error);
@@ -599,29 +624,77 @@ export default function ProductDetailPage() {
             {/* Reviews Tab */}
             <TabsContent value="reviews" className="mt-6">
               <div className="grid lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-4">
-                  {product.reviews.length > 0 ? (
-                    product.reviews.map((review) => (
-                      <div key={review.id} className="border-b border-neutral-100 pb-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="flex items-center gap-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Star
-                                key={star}
-                                className={`h-4 w-4 ${star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-neutral-300"}`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-sm font-medium text-neutral-900">{review.authorName}</span>
-                          <span className="text-xs text-neutral-500">
-                            {new Date(review.createdAt).toLocaleDateString("fa-IR")}
-                          </span>
-                        </div>
-                        <p className="text-sm text-neutral-600">{review.comment}</p>
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Rating Summary */}
+                  <div className="flex flex-col sm:flex-row gap-6 p-6 bg-neutral-50 rounded-sm">
+                    <div className="sm:w-40 shrink-0 flex flex-col items-center justify-center">
+                      <p className="text-5xl font-bold text-neutral-900">
+                        {averageRating.toLocaleString("fa-IR")}
+                      </p>
+                      <div className="flex items-center gap-0.5 mt-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`h-4 w-4 ${star <= Math.round(averageRating) ? "fill-yellow-400 text-yellow-400" : "text-neutral-300"}`}
+                          />
+                        ))}
                       </div>
-                    ))
+                      <p className="text-xs text-neutral-500 mt-2">از {product.reviews.length.toLocaleString("fa-IR")} نظر</p>
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      {[5, 4, 3, 2, 1].map((star) => {
+                        const count = ratingCounts[star] || 0;
+                        const pct = product.reviews.length > 0
+                          ? Math.round((count / product.reviews.length) * 100)
+                          : 0;
+                        return (
+                          <div key={star} className="flex items-center gap-3">
+                            <span className="w-6 text-sm text-neutral-700 shrink-0">{star.toLocaleString("fa-IR")}</span>
+                            <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400 shrink-0" />
+                            <div className="flex-1 h-2 bg-neutral-200 rounded-full overflow-hidden">
+                              <div className="h-full bg-amber-400 rounded-full" style={{ width: `${pct}%` }} />
+                            </div>
+                            <span className="w-8 text-xs text-neutral-600 shrink-0 text-left">{count.toLocaleString("fa-IR")}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Review List */}
+                  {product.reviews.length > 0 ? (
+                    <div className="space-y-4">
+                      {product.reviews.map((review) => (
+                        <div key={review.id} className="border-b border-neutral-100 pb-4">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`h-4 w-4 ${star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-neutral-300"}`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm font-medium text-neutral-900">{review.authorName}</span>
+                            {review.isVerifiedBuyer && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-[10px] font-medium">
+                                <BadgeCheck className="h-3 w-3" />
+                                خریدار تایید شده
+                              </span>
+                            )}
+                            <span className="text-xs text-neutral-500">
+                              {new Date(review.createdAt).toLocaleDateString("fa-IR")}
+                            </span>
+                          </div>
+                          <p className="text-sm text-neutral-600 leading-relaxed">{review.comment}</p>
+                        </div>
+                      ))}
+                    </div>
                   ) : (
-                    <p className="text-neutral-500 text-sm">هنوز نظری ثبت نشده است.</p>
+                    <div className="text-center py-8 border border-dashed border-neutral-200 rounded-sm">
+                      <MessageSquare className="h-8 w-8 text-neutral-300 mx-auto mb-2" />
+                      <p className="text-neutral-500 text-sm">هنوز نظری ثبت نشده است. اولین نظر را ثبت کنید.</p>
+                    </div>
                   )}
                 </div>
 
@@ -677,31 +750,58 @@ export default function ProductDetailPage() {
             {/* Questions Tab */}
             <TabsContent value="questions" className="mt-6">
               <div className="grid lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-4">
+                <div className="lg:col-span-2 space-y-3">
                   {product.questions.length > 0 ? (
-                    product.questions.map((question) => (
-                      <div key={question.id} className="border-b border-neutral-100 pb-4">
-                        <div className="flex items-start gap-3">
-                          <HelpCircle className="h-5 w-5 text-neutral-400 mt-0.5" />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-neutral-900">{question.authorName}</p>
-                            <p className="text-sm text-neutral-700 mt-1">{question.question}</p>
-                            {question.answer && (
-                              <div className="mt-2 p-3 bg-neutral-50 rounded-sm">
-                                <p className="text-xs text-neutral-600">{question.answer}</p>
-                                {question.answeredAt && (
-                                  <p className="text-xs text-neutral-500 mt-1">
-                                    پاسخ داده شده در {new Date(question.answeredAt).toLocaleDateString("fa-IR")}
-                                  </p>
-                                )}
-                              </div>
-                            )}
-                          </div>
+                    product.questions.map((question, index) => {
+                      const isOpen = openQuestionId === question.id || (openQuestionId === null && index === 0);
+                      const isAnswered = !!question.answer;
+                      return (
+                        <div key={question.id} className="border border-neutral-200 rounded-sm overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={() => toggleQuestion(question.id)}
+                            aria-expanded={isOpen}
+                            className="w-full flex items-center gap-3 p-4 text-right hover:bg-neutral-50 transition-colors"
+                          >
+                            <HelpCircle className="h-5 w-5 text-neutral-400 shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-neutral-900 line-clamp-2">{question.question}</p>
+                              <p className="text-xs text-neutral-500 mt-1">
+                                {question.authorName} • {new Date(question.createdAt).toLocaleDateString("fa-IR")}
+                              </p>
+                            </div>
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium shrink-0 ${
+                              isAnswered ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"
+                            }`}>
+                              {isAnswered ? "پاسخ داده شده" : "در انتظار پاسخ"}
+                            </span>
+                            <ChevronDown className={`h-4 w-4 text-neutral-500 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                          </button>
+                          {isOpen && (
+                            <div className="border-t border-neutral-100 p-4 pr-14">
+                              {question.answer ? (
+                                <div>
+                                  <p className="text-xs font-semibold text-neutral-500 mb-1">پاسخ فروشگاه:</p>
+                                  <p className="text-sm text-neutral-700 leading-relaxed">{question.answer}</p>
+                                  {question.answeredAt && (
+                                    <p className="text-xs text-neutral-500 mt-2">
+                                      پاسخ داده شده در {new Date(question.answeredAt).toLocaleDateString("fa-IR")}
+                                    </p>
+                                  )}
+                                </div>
+                              ) : (
+                                <p className="text-sm text-neutral-500">هنوز پاسخی برای این سوال ثبت نشده است.</p>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
-                    <p className="text-neutral-500 text-sm">هنوز سوالی پرسیده نشده است.</p>
+                    <div className="text-center py-8 border border-dashed border-neutral-200 rounded-sm">
+                      <MessageCircleQuestion className="h-8 w-8 text-neutral-300 mx-auto mb-2" />
+                      <p className="text-neutral-500 text-sm">هنوز سوالی پرسیده نشده است. اولین سوال را ثبت کنید.</p>
+                    </div>
                   )}
                 </div>
 
