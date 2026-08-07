@@ -2,20 +2,26 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Truck, Shield } from "lucide-react";
 import { useCartStore } from "@/store/useCart";
+import { PromoCodeBox } from "@/components/modules/PromoCodeBox";
+import { applyCoupon } from "@/lib/coupons";
 
 export default function CheckoutPage() {
-  const { items, getTotalPrice, clearCart } = useCartStore();
+  const { items, getTotalPrice, clearCart, promoCode } = useCartStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const subtotal = getTotalPrice();
+  const promo = applyCoupon(promoCode ?? "", subtotal);
+  const discount = promo.ok ? promo.discount : 0;
   const shipping = subtotal > 2500000 ? 0 : 150000;
-  const total = subtotal + shipping;
+  const total = Math.max(0, subtotal - discount + shipping);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +44,7 @@ export default function CheckoutPage() {
       customerName: `${firstName} ${lastName}`.trim(),
       customerPhone: phone,
       address: fullAddress,
-      totalPrice: total,
+      promoCode: promo.ok ? promo.coupon!.code : undefined,
       items: items.map((item) => ({
         productId: item.product.id,
         name: item.product.name,
@@ -68,7 +74,7 @@ export default function CheckoutPage() {
       }
 
       clearCart();
-      window.location.href = "/checkout/success";
+      router.replace("/checkout/success");
     } catch (error) {
       console.error("Checkout error:", error);
       alert("خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.");
@@ -217,9 +223,12 @@ export default function CheckoutPage() {
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-medium text-neutral-900 truncate">{item.product.name}</h4>
                         <p className="text-xs text-neutral-600 mt-0.5">
+                          {item.selectedColor && `رنگ: ${item.selectedColor}`}
+                          {item.selectedColor && item.selectedSize && " • "}
                           {item.selectedSize && `سایز: ${item.selectedSize}`}
                         </p>
                         <p className="text-sm font-semibold text-neutral-900 mt-1">
+                          {item.product.price.toLocaleString("fa-IR")} تومان × {item.quantity.toLocaleString("fa-IR")} ={" "}
                           {(item.product.price * item.quantity).toLocaleString("fa-IR")} تومان
                         </p>
                       </div>
@@ -229,11 +238,22 @@ export default function CheckoutPage() {
 
                 <Separator className="bg-neutral-200" />
 
+                {/* Promo Code */}
+                <div className="mt-6">
+                  <PromoCodeBox subtotal={subtotal} />
+                </div>
+
                 {/* Totals */}
                 <div className="space-y-3 mt-6">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-neutral-600">جمع کالاها</span>
                     <span className="text-neutral-900">{subtotal.toLocaleString("fa-IR")} تومان</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-neutral-600">تخفیف کد تخفیف</span>
+                    <span className={discount > 0 ? "text-green-600 font-medium" : "text-neutral-900"}>
+                      {discount > 0 ? `-${discount.toLocaleString("fa-IR")} تومان` : "۰ تومان"}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-neutral-600">هزینه ارسال</span>

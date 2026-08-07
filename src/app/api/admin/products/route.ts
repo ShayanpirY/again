@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       data: {
         title: name,
         price: parsedPrice,
-        stock: 0,
+        stock: Number(stock) || 0,
         description: description || "",
         images: Array.isArray(images) ? images : images ? [images] : [],
         sizes: Array.isArray(sizes) ? sizes : [],

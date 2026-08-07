@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { applyCoupon } from "@/lib/coupons";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { customerName, customerPhone, address, totalPrice, items } = body;
+    const { customerName, customerPhone, address, items, promoCode } = body;
 
-    console.log("POST /api/orders payload:", { customerName, customerPhone, address, totalPrice, itemsCount: items?.length });
+    console.log("POST /api/orders payload:", { customerName, customerPhone, address, itemsCount: items?.length, promoCode });
 
     const missingFields: string[] = [];
     if (!customerName || typeof customerName !== "string" || !customerName.trim()) missingFields.push("customerName");
     if (!customerPhone || typeof customerPhone !== "string" || !customerPhone.trim()) missingFields.push("customerPhone");
     if (!address || typeof address !== "string" || !address.trim()) missingFields.push("address");
-    if (totalPrice === undefined || totalPrice === null || totalPrice === "") missingFields.push("totalPrice");
     if (!items || !Array.isArray(items) || items.length === 0) missingFields.push("items");
 
     if (missingFields.length > 0) {
@@ -26,12 +26,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const subtotal = items.reduce(
+      (sum: number, item: Record<string, unknown>) =>
+        sum + Number(item.price) * Number(item.quantity),
+      0
+    );
+
+    const promo = applyCoupon(promoCode ?? "", subtotal);
+    const discount = promo.ok ? promo.discount : 0;
+    const shippingCost = subtotal > 2500000 ? 0 : 150000;
+    const totalPrice = subtotal - discount + shippingCost;
+
     const order = await prisma.order.create({
       data: {
         customerName,
         customerPhone,
         address,
-        totalPrice: Number(totalPrice),
+        totalPrice,
+        discount,
+        shippingCost,
         items: {
           create: items.map((item: Record<string, unknown>) => ({
             productId: item.productId as string | undefined,

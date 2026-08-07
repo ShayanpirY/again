@@ -57,6 +57,8 @@ type ProductRow = {
   sizes?: string[];
   colors?: string[];
   image: string;
+  images?: string[];
+  description?: string;
 };
 
 type CategoryRow = {
@@ -80,6 +82,7 @@ interface ApiProduct {
   sizes?: string[];
   colors?: string[];
   images?: string[];
+  description?: string;
   variants?: { color?: string; size?: string; stock: number }[];
 }
 
@@ -137,6 +140,8 @@ export default function AdminProductsPage() {
         sizes: p.sizes || [],
         colors: p.colors || [],
         image: (p.images && p.images[0]) || "",
+        images: p.images || [],
+        description: p.description || "",
       }));
       setProducts(mapped);
     } catch (error) {
@@ -182,13 +187,13 @@ export default function AdminProductsPage() {
     setSelectedSizes(product.sizes || []);
     setSelectedColors(product.colors || []);
     setMainImagePreview(product.image || "");
-    setAdditionalImagePreviews([]);
+    setAdditionalImagePreviews((product.images || []).slice(1));
     setFormData({
       name: product.name,
       price: product.price.toString(),
       stock: product.stock.toString(),
       category: product.category,
-      description: "",
+      description: product.description || "",
     });
     setIsDialogOpen(true);
   };
@@ -253,7 +258,7 @@ export default function AdminProductsPage() {
       stock: parseInt(formData.stock) || 0,
       category: formData.category,
       description: formData.description.trim(),
-      images: additionalImagePreviews.length > 0 ? additionalImagePreviews : (mainImagePreview ? [mainImagePreview] : []),
+      images: [mainImagePreview, ...additionalImagePreviews].filter(Boolean),
       sizes: selectedSizes,
       colors: selectedColors,
       variants,

@@ -5,10 +5,13 @@ import { CartItem, Product } from "@/types";
 interface CartStore {
   items: CartItem[];
   isOpen: boolean;
+  promoCode: string | null;
   addItem: (product: Product, quantity?: number, selectedColor?: string, selectedSize?: string) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  removeItem: (productId: string, selectedColor?: string, selectedSize?: string) => void;
+  updateQuantity: (productId: string, quantity: number, selectedColor?: string, selectedSize?: string) => void;
   clearCart: () => void;
+  setPromoCode: (code: string) => void;
+  clearPromo: () => void;
   toggleCart: () => void;
   openCart: () => void;
   closeCart: () => void;
@@ -16,27 +19,33 @@ interface CartStore {
   getTotalPrice: () => number;
 }
 
+const matchesItem = (
+  item: CartItem,
+  productId: string,
+  selectedColor?: string,
+  selectedSize?: string
+) =>
+  item.product.id === productId &&
+  item.selectedColor === selectedColor &&
+  item.selectedSize === selectedSize;
+
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
       isOpen: false,
+      promoCode: null,
 
       addItem: (product, quantity = 1, selectedColor, selectedSize) => {
         set((state) => {
-          const existingItem = state.items.find(
-            (item) =>
-              item.product.id === product.id &&
-              item.selectedColor === selectedColor &&
-              item.selectedSize === selectedSize
+          const existingItem = state.items.find((item) =>
+            matchesItem(item, product.id, selectedColor, selectedSize)
           );
 
           if (existingItem) {
             return {
               items: state.items.map((item) =>
-                item.product.id === product.id &&
-                item.selectedColor === selectedColor &&
-                item.selectedSize === selectedSize
+                matchesItem(item, product.id, selectedColor, selectedSize)
                   ? { ...item, quantity: item.quantity + quantity }
                   : item
               ),
@@ -49,25 +58,32 @@ export const useCartStore = create<CartStore>()(
         });
       },
 
-      removeItem: (productId) => {
+      removeItem: (productId, selectedColor, selectedSize) => {
         set((state) => ({
-          items: state.items.filter((item) => item.product.id !== productId),
-        }));
-      },
-
-      updateQuantity: (productId, quantity) => {
-        if (quantity <= 0) {
-          get().removeItem(productId);
-          return;
-        }
-        set((state) => ({
-          items: state.items.map((item) =>
-            item.product.id === productId ? { ...item, quantity } : item
+          items: state.items.filter(
+            (item) => !matchesItem(item, productId, selectedColor, selectedSize)
           ),
         }));
       },
 
-      clearCart: () => set({ items: [] }),
+      updateQuantity: (productId, quantity, selectedColor, selectedSize) => {
+        if (quantity <= 0) {
+          get().removeItem(productId, selectedColor, selectedSize);
+          return;
+        }
+        set((state) => ({
+          items: state.items.map((item) =>
+            matchesItem(item, productId, selectedColor, selectedSize)
+              ? { ...item, quantity }
+              : item
+          ),
+        }));
+      },
+
+      clearCart: () => set({ items: [], promoCode: null }),
+
+      setPromoCode: (code) => set({ promoCode: code.trim().toUpperCase() }),
+      clearPromo: () => set({ promoCode: null }),
 
       toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
       openCart: () => set({ isOpen: true }),
@@ -86,7 +102,7 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: "cart-storage",
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({ items: state.items, promoCode: state.promoCode }),
     }
   )
 );

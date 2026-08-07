@@ -209,8 +209,8 @@ export default function AdminOrdersPage() {
     return Number(price).toLocaleString("fa-IR");
   };
 
-  const getFinalPrice = (order: Order) => {
-    return order.totalPrice - order.discount + order.shippingCost;
+  const getSubtotal = (order: Order) => {
+    return order.totalPrice - order.shippingCost + order.discount;
   };
 
   return (
@@ -228,6 +228,7 @@ export default function AdminOrdersPage() {
               <TableHead className="text-right">مشتری</TableHead>
               <TableHead className="text-right">تماس</TableHead>
               <TableHead className="text-right">مبلغ کل</TableHead>
+              <TableHead className="text-right">تخفیف</TableHead>
               <TableHead className="text-right">وضعیت پرداخت</TableHead>
               <TableHead className="text-right">وضعیت سفارش</TableHead>
               <TableHead className="text-right">مرجوعی</TableHead>
@@ -238,13 +239,13 @@ export default function AdminOrdersPage() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-neutral-600 py-8">
+                <TableCell colSpan={10} className="text-center text-neutral-600 py-8">
                   در حال بارگذاری...
                 </TableCell>
               </TableRow>
             ) : orders.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-neutral-600 py-8">
+                <TableCell colSpan={10} className="text-center text-neutral-600 py-8">
                   هیچ سفارشی یافت نشد.
                 </TableCell>
               </TableRow>
@@ -272,6 +273,13 @@ export default function AdminOrdersPage() {
                     </TableCell>
                     <TableCell className="text-neutral-700">
                       {formatPrice(order.totalPrice)}
+                    </TableCell>
+                    <TableCell className="text-neutral-700">
+                      {order.discount > 0 ? (
+                        <span className="text-red-600">-{formatPrice(order.discount)}</span>
+                      ) : (
+                        <span className="text-neutral-400">—</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${paymentStatus.className}`}>
@@ -466,7 +474,7 @@ export default function AdminOrdersPage() {
               <div className="space-y-2 pt-4 border-t">
                 <div className="flex justify-between text-sm">
                   <span className="text-neutral-600">جمع اقلام:</span>
-                  <span className="text-neutral-900">{formatPrice(selectedOrder.totalPrice)}</span>
+                  <span className="text-neutral-900">{formatPrice(getSubtotal(selectedOrder))}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-neutral-600">تخفیف:</span>
@@ -478,7 +486,7 @@ export default function AdminOrdersPage() {
                 </div>
                 <div className="flex justify-between items-center pt-2 border-t">
                   <span className="text-sm font-medium text-neutral-900">مبلغ نهایی:</span>
-                  <span className="text-lg font-bold text-neutral-900">{formatPrice(getFinalPrice(selectedOrder))}</span>
+                  <span className="text-lg font-bold text-neutral-900">{formatPrice(selectedOrder.totalPrice)}</span>
                 </div>
               </div>
             </div>
@@ -546,7 +554,7 @@ export default function AdminOrdersPage() {
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-neutral-600">جمع اقلام:</span>
-                  <span className="text-neutral-900">{formatPrice(selectedOrder.totalPrice)}</span>
+                  <span className="text-neutral-900">{formatPrice(getSubtotal(selectedOrder))}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-neutral-600">تخفیف:</span>
@@ -558,7 +566,7 @@ export default function AdminOrdersPage() {
                 </div>
                 <div className="flex justify-between items-center pt-2 border-t">
                   <span className="text-sm font-medium text-neutral-900">مبلغ نهایی:</span>
-                  <span className="text-lg font-bold text-neutral-900">{formatPrice(getFinalPrice(selectedOrder))}</span>
+                  <span className="text-lg font-bold text-neutral-900">{formatPrice(selectedOrder.totalPrice)}</span>
                 </div>
               </div>
 

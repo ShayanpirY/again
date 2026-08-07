@@ -5,13 +5,18 @@ import { useCartStore } from "@/store/useCart";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { PromoCodeBox } from "@/components/modules/PromoCodeBox";
+import { applyCoupon } from "@/lib/coupons";
 import Image from "next/image";
 import Link from "next/link";
 
 export function CartDrawer() {
-  const { items, isOpen, closeCart, removeItem, updateQuantity, getTotalItems, getTotalPrice } = useCartStore();
+  const { items, isOpen, closeCart, removeItem, updateQuantity, getTotalItems, getTotalPrice, promoCode } = useCartStore();
   const totalItems = getTotalItems();
-  const totalPrice = getTotalPrice();
+  const subtotal = getTotalPrice();
+  const promo = applyCoupon(promoCode ?? "", subtotal);
+  const discount = promo.ok ? promo.discount : 0;
+  const total = Math.max(0, subtotal - discount);
 
   return (
     <Sheet open={isOpen} onOpenChange={closeCart}>
@@ -83,7 +88,7 @@ export function CartDrawer() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-neutral-500 hover:text-red-600 flex-shrink-0"
-                          onClick={() => removeItem(item.product.id)}
+                          onClick={() => removeItem(item.product.id, item.selectedColor, item.selectedSize)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -94,7 +99,7 @@ export function CartDrawer() {
                             variant="outline"
                             size="icon"
                             className="h-7 w-7 rounded-full border-neutral-300 text-neutral-700 hover:bg-neutral-100"
-                            onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.selectedColor, item.selectedSize)}
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
@@ -105,7 +110,7 @@ export function CartDrawer() {
                             variant="outline"
                             size="icon"
                             className="h-7 w-7 rounded-full border-neutral-300 text-neutral-700 hover:bg-neutral-100"
-                            onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.selectedColor, item.selectedSize)}
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
@@ -121,10 +126,25 @@ export function CartDrawer() {
             </ScrollArea>
 
             <div className="space-y-4 pt-4 border-t border-neutral-200">
-              <div className="flex items-center justify-between text-lg font-bold text-neutral-900">
-                <span>جمع کل:</span>
-                <span>{totalPrice.toLocaleString("fa-IR")} <span className="text-sm font-normal text-neutral-600">تومان</span></span>
+              <PromoCodeBox subtotal={subtotal} />
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-neutral-600">جمع کالاها</span>
+                  <span className="text-neutral-900">{subtotal.toLocaleString("fa-IR")} <span className="text-xs text-neutral-500">تومان</span></span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-neutral-600">تخفیف کد ({promo.coupon!.code})</span>
+                    <span className="text-green-600">-{discount.toLocaleString("fa-IR")} <span className="text-xs text-neutral-500">تومان</span></span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between text-base font-bold text-neutral-900 pt-2 border-t border-neutral-200">
+                  <span>جمع نهایی:</span>
+                  <span>{total.toLocaleString("fa-IR")} <span className="text-sm font-normal text-neutral-600">تومان</span></span>
+                </div>
               </div>
+
               <Link href="/checkout" onClick={closeCart} className="block">
                 <Button className="w-full bg-neutral-900 text-white hover:bg-neutral-800 rounded-none py-6 text-sm font-semibold tracking-wider">
                   تکمیل خرید و پرداخت
