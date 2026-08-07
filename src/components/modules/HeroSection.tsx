@@ -26,23 +26,27 @@ export const HeroSection = () => {
         />
       </div>
 
-      <div className="absolute inset-0 z-20 bg-gradient-to-l from-black/70 via-black/30 to-transparent" />
+      <div className="absolute inset-0 z-20 bg-gradient-to-l from-black/40 via-black/10 to-transparent" />
 
       <div className="relative z-30 max-w-7xl mx-auto h-full px-6 flex items-center justify-end" dir="rtl">
-        <div className="text-right text-white max-w-xl space-y-5">
-          
-          <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight drop-shadow-xl">
+        <div className="text-right max-w-xl space-y-5 rounded-3xl bg-white/80 backdrop-blur-md border border-white/60 shadow-2xl p-8 sm:p-10">
+
+          <span className="inline-flex items-center gap-2 rounded-full bg-rose-500 text-white px-5 py-2 text-xs font-bold shadow-lg shadow-rose-300">
+            ✨ بهار و تابستان ۱۴۰۵
+          </span>
+
+          <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight text-neutral-900">
             کالکشن جدید
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-100 font-medium leading-relaxed drop-shadow">
+          <p className="text-base sm:text-lg text-neutral-600 font-medium leading-relaxed">
             استایل‌های مدرن و دوست‌داشتنی برای نوزادان، کودکان و نوجوانان
           </p>
 
           <div className="pt-2">
             <Link
               href="/products"
-              className="inline-flex items-center gap-3 bg-white text-slate-900 hover:bg-sky-500 hover:text-white px-8 py-4 rounded-full font-bold text-sm transition-all duration-300 shadow-2xl hover:shadow-sky-500/30 group"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white px-8 py-4 rounded-full font-bold text-sm transition-all duration-300 shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 group"
             >
               <span>مشاهده کالکشن جدید</span>
               <span className="group-hover:-translate-x-1 transition-transform duration-300">
