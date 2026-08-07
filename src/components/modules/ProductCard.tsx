@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Heart, ShoppingBag, Eye } from "lucide-react";
 import { Product } from "@/types";
@@ -30,6 +31,7 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
   const [isHovered, setIsHovered] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const { addItem, openCart } = useCartStore();
+  const router = useRouter();
 
   const isThemed = variant !== "default";
 
@@ -131,6 +133,8 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
             <Button
               variant="outline"
               size="icon"
+              onClick={() => router.push(`/products/${product.id}`)}
+              aria-label="مشاهده محصول"
               className="h-10 w-10 border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white rounded-none"
             >
               <Eye className="h-4 w-4" />

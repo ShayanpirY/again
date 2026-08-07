@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ProductCard } from "@/components/modules/ProductCard";
-import { Button } from "@/components/ui/button";
+import { ProductEmptyState } from "@/components/modules/ProductEmptyState";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -21,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SlidersHorizontal, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { getColorName } from "@/lib/colorNames";
 
 interface ApiProduct {
@@ -73,6 +75,7 @@ const STANDARD_SIZES = [
 
 const FABRICS = ["پنبه", "پلی‌استر", "نخی", "پشم", "الیاف مصنوعی", "مخلوط"];
 const SEASONS = ["بهار", "تابستان", "پاییز", "زمستان"];
+const PAGE_SIZE = 12;
 
 function FilterContent({
   categories,
@@ -369,8 +372,11 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [totalProducts, setTotalProducts] = useState(0);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const seqRef = useRef(0);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedAges, setSelectedAges] = useState<string[]>([]);
@@ -390,7 +396,7 @@ export default function ProductsPage() {
   useEffect(() => {
     const fetchFilters = async () => {
       try {
-        const res = await fetch("/api/products");
+        const res = await fetch("/api/products?limit=1000");
         const data: ApiProduct[] = await res.json();
 
         const colors = [...new Set(data.flatMap((p) => p.colors || []))].sort();
@@ -424,17 +430,35 @@ export default function ProductsPage() {
     fetchCategories();
   }, []);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
+  const fetchPage = useCallback(
+    async (skip: number, replace: boolean) => {
+      const seq = ++seqRef.current;
+      await Promise.resolve();
+      if (seq !== seqRef.current) return;
+
+      if (replace) {
+        setLoading(true);
+        setLoadingMore(false);
+      } else {
+        setLoadingMore(true);
+      }
+
       try {
         const params = new URLSearchParams();
 
-        if (selectedCategories.length > 0) {
-          const slugs = selectedCategories
-            .map((id) => categories.find((c) => c.id === id)?.slug)
-            .filter((slug): slug is string => Boolean(slug));
-          if (slugs.length > 0) params.set("category", slugs[0]);
+        const categorySlugs = selectedCategories
+          .map((id) => categories.find((c) => c.id === id)?.slug)
+          .filter((slug): slug is string => Boolean(slug));
+        if (categorySlugs.length > 0) {
+          params.set("category", categorySlugs.join(","));
+        }
+
+        if (selectedAges.length > 0) {
+          params.set("age", selectedAges.join(","));
+        }
+
+        if (selectedSizes.length > 0) {
+          params.set("sizes", selectedSizes.join(","));
         }
 
         if (selectedColors.length > 0) {
@@ -442,15 +466,15 @@ export default function ProductsPage() {
         }
 
         if (selectedFabrics.length > 0) {
-          params.set("fabric", selectedFabrics[0]);
+          params.set("fabric", selectedFabrics.join(","));
         }
 
         if (selectedSeasons.length > 0) {
-          params.set("season", selectedSeasons[0]);
+          params.set("season", selectedSeasons.join(","));
         }
 
         if (selectedBrands.length > 0) {
-          params.set("brand", selectedBrands[0]);
+          params.set("brand", selectedBrands.join(","));
         }
 
         if (inStockOnly) {
@@ -466,21 +490,68 @@ export default function ProductsPage() {
         }
 
         params.set("sort", sortBy);
-        params.set("limit", "100");
+        params.set("skip", String(skip));
+        params.set("limit", String(PAGE_SIZE));
 
         const res = await fetch(`/api/products?${params.toString()}`);
         const data: ApiProduct[] = await res.json();
-        setProducts(data);
-        setTotalProducts(data.length);
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+        if (seq !== seqRef.current) return;
 
-    fetchProducts();
-  }, [selectedCategories, selectedAges, selectedSizes, selectedColors, selectedFabrics, selectedSeasons, selectedBrands, inStockOnly, priceRange, sortBy, categories, maxPrice]);
+        setProducts((prev) => (replace ? data : [...prev, ...data]));
+        setTotalProducts(Number(res.headers.get("X-Total-Count")) || data.length);
+      } catch (error) {
+        if (seq === seqRef.current) {
+          console.error("Failed to fetch products:", error);
+        }
+      } finally {
+        if (seq === seqRef.current) {
+          if (replace) setLoading(false);
+          else setLoadingMore(false);
+        }
+      }
+    },
+    [
+      selectedCategories,
+      selectedAges,
+      selectedSizes,
+      selectedColors,
+      selectedFabrics,
+      selectedSeasons,
+      selectedBrands,
+      inStockOnly,
+      priceRange,
+      sortBy,
+      categories,
+      maxPrice,
+    ]
+  );
+
+  useEffect(() => {
+    const load = async () => {
+      await fetchPage(0, true);
+    };
+    load();
+    return () => {
+      seqRef.current += 1;
+    };
+  }, [fetchPage]);
+
+  const hasMore = products.length < totalProducts;
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && !loading && !loadingMore && hasMore) {
+          fetchPage(products.length, false);
+        }
+      },
+      { rootMargin: "400px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loading, loadingMore, hasMore, products.length, fetchPage]);
 
   const clearAllFilters = () => {
     setSelectedCategories([]);
@@ -522,23 +593,28 @@ export default function ProductsPage() {
             <h1 className="text-2xl lg:text-3xl font-bold text-neutral-900 mb-1">
               همه محصولات
             </h1>
-            <p className="text-sm text-neutral-600">
-              {loading ? "در حال بارگذاری..." : `${totalProducts} محصول یافت شد`}
+            <p className="flex items-center gap-2 text-sm text-neutral-600">
+              {loading ? (
+                <>
+                  <span className="h-3 w-3 rounded-full border-2 border-neutral-400 border-t-transparent animate-spin" />
+                  {products.length > 0 ? "در حال به‌روزرسانی..." : "در حال بارگذاری..."}
+                </>
+              ) : (
+                `${totalProducts} محصول یافت شد`
+              )}
             </p>
           </div>
           <div className="flex items-center gap-3">
             {/* Mobile Filter Button */}
             <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-              <SheetTrigger>
-                <Button variant="outline" className="lg:hidden">
-                  <SlidersHorizontal className="h-4 w-4 ml-2" />
-                  فیلترها
-                  {activeFiltersCount > 0 && (
-                    <span className="mr-2 bg-neutral-900 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {activeFiltersCount}
-                    </span>
-                  )}
-                </Button>
+              <SheetTrigger className={buttonVariants({ variant: "outline", className: "lg:hidden" })}>
+                <SlidersHorizontal className="h-4 w-4 ml-2" />
+                فیلترها
+                {activeFiltersCount > 0 && (
+                  <span className="mr-2 bg-neutral-900 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {activeFiltersCount}
+                  </span>
+                )}
               </SheetTrigger>
               <SheetContent side="right" className="w-[300px] sm:w-[400px] overflow-y-auto">
                 <SheetHeader>
@@ -638,7 +714,7 @@ export default function ProductsPage() {
 
           {/* Product Grid */}
           <div className="flex-1">
-            {loading ? (
+            {loading && products.length === 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[...Array(8)].map((_, i) => (
                   <div key={i} className="animate-pulse">
@@ -649,36 +725,49 @@ export default function ProductsPage() {
                 ))}
               </div>
             ) : products.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {products.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={{
-                      id: product.id,
-                      name: product.title,
-                      price: product.price,
-                      image: (product.images && product.images[0]) || "",
-                      images: product.images || [],
-                      colors: product.colors || [],
-                      category: product.category?.name || "",
-                      originalPrice: product.originalPrice,
-                      isNew: product.isNew,
-                      isSale: product.isSale,
-                    }}
-                  />
-                ))}
+              <div className="relative">
+                <div
+                  className={cn(
+                    "transition-opacity duration-300",
+                    loading && "pointer-events-none opacity-40"
+                  )}
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {products.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={{
+                          id: product.id,
+                          name: product.title,
+                          price: product.price,
+                          image: (product.images && product.images[0]) || "",
+                          images: product.images || [],
+                          colors: product.colors || [],
+                          category: product.category?.name || "",
+                          originalPrice: product.originalPrice,
+                          isNew: product.isNew,
+                          isSale: product.isSale,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                {loading && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="h-8 w-8 rounded-full border-2 border-neutral-900 border-t-transparent animate-spin" />
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="text-center py-16">
-                <p className="text-neutral-600 mb-4">هیچ محصولی یافت نشد.</p>
-                <Button
-                  variant="outline"
-                  onClick={clearAllFilters}
-                >
-                  پاک کردن فیلترها
-                </Button>
-              </div>
+              <ProductEmptyState onReset={clearAllFilters} />
             )}
+
+            {/* Infinite scroll sentinel */}
+            <div ref={sentinelRef} className="flex items-center justify-center py-8">
+              {loadingMore && (
+                <div className="h-8 w-8 rounded-full border-2 border-neutral-900 border-t-transparent animate-spin" />
+              )}
+            </div>
           </div>
         </div>
       </div>

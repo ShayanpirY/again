@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { FilterState } from "@/types";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -144,12 +144,10 @@ export function Filters({ filters, onFilterChange }: FiltersProps) {
   return (
     <>
       <Sheet>
-        <SheetTrigger
-          render={<Button variant="outline" className="lg:hidden" />}
-        >
-          <SlidersHorizontal className="h-4 w-4 ml-2" />
-          فیلترها
-        </SheetTrigger>
+<SheetTrigger className={buttonVariants({ variant: "outline", className: "lg:hidden" })}>
+  <SlidersHorizontal className="h-4 w-4 ml-2" />
+  فیلترها
+</SheetTrigger>
         <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
           <SheetHeader>
             <SheetTitle>فیلترهای جستجو</SheetTitle>

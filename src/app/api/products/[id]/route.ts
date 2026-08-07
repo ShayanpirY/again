@@ -29,19 +29,84 @@ export async function GET(
       );
     }
 
-    const relatedProducts = await prisma.product.findMany({
-      where: {
-        isActive: true,
-        categoryId: product.categoryId,
-        id: { not: id },
-      },
-      include: {
-        category: true,
-      },
-      take: 8,
-    });
+    type RelatedCandidate = {
+      id: string;
+      title: string;
+      price: number;
+      images: string[];
+      colors: string[];
+      isSale: boolean;
+      isNew: boolean;
+      category: { name: string } | null;
+    };
 
-    return NextResponse.json({ product, relatedProducts });
+    const candidates: RelatedCandidate[] = [];
+    const seen = new Set<string>([id]);
+
+    const pushUnique = (items: RelatedCandidate[]) => {
+      for (const p of items) {
+        if (seen.has(p.id) || candidates.length >= 8) continue;
+        seen.add(p.id);
+        candidates.push(p);
+      }
+    };
+
+    const mapCandidate = (p: {
+      id: string;
+      title: string;
+      price: number;
+      images: string[];
+      colors: string[];
+      isSale: boolean;
+      isNew: boolean;
+      category: { name: string } | null;
+    }): RelatedCandidate => p;
+
+    pushUnique(
+      (
+        await prisma.product.findMany({
+          where: { isActive: true, categoryId: product.categoryId, id: { not: id } },
+          include: { category: true },
+          take: 8,
+          orderBy: { createdAt: "desc" },
+        })
+      ).map(mapCandidate)
+    );
+
+    if (candidates.length < 8 && product.ageGroup) {
+      pushUnique(
+        (
+          await prisma.product.findMany({
+            where: {
+              isActive: true,
+              ageGroup: product.ageGroup,
+              id: { notIn: [...seen] },
+            },
+            include: { category: true },
+            take: 8 - candidates.length,
+            orderBy: { createdAt: "desc" },
+          })
+        ).map(mapCandidate)
+      );
+    }
+
+    if (candidates.length < 8) {
+      pushUnique(
+        (
+          await prisma.product.findMany({
+            where: {
+              isActive: true,
+              id: { notIn: [...seen] },
+            },
+            include: { category: true },
+            take: 8 - candidates.length,
+            orderBy: { createdAt: "desc" },
+          })
+        ).map(mapCandidate)
+      );
+    }
+
+    return NextResponse.json({ product, relatedProducts: candidates });
   } catch (error) {
     console.error("Failed to fetch product:", error);
     return NextResponse.json(

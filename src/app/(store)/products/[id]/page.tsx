@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCartStore } from "@/store/useCart";
 import { SizeGuideModal } from "@/components/modules/SizeGuideModal";
+import { getColorName } from "@/lib/colorNames";
 
 interface Product {
   id: string;
@@ -242,9 +243,7 @@ export default function ProductDetailPage() {
           <span>/</span>
           <Link href="/products" className="hover:text-neutral-900 transition-colors">محصولات</Link>
           <span>/</span>
-          <Link href={`/category/${product.category?.name || 'products'}`} className="hover:text-neutral-900 transition-colors">
-            {product.category?.name}
-          </Link>
+          <span className="text-neutral-600">{product.category?.name}</span>
           <span>/</span>
           <span className="text-neutral-900 line-clamp-1">{product.title}</span>
         </nav>
@@ -372,7 +371,12 @@ export default function ProductDetailPage() {
             {/* Color Selector */}
             {availableColors.length > 0 && (
               <div className="space-y-3">
-                <span className="text-sm font-semibold text-neutral-900">انتخاب رنگ</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-neutral-900">انتخاب رنگ</span>
+                  {selectedColor && (
+                    <span className="text-sm text-neutral-600">{getColorName(selectedColor)}</span>
+                  )}
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {availableColors.map((color) => (
                     <button
@@ -383,8 +387,9 @@ export default function ProductDetailPage() {
                           ? "border-neutral-900 scale-110"
                           : "border-neutral-300 hover:border-neutral-400"
                       }`}
-                      style={{ backgroundColor: color }}
-                      title={color}
+                      style={{ backgroundColor: color, boxShadow: selectedColor === color ? "0 0 0 3px rgba(23,23,23,0.15)" : undefined }}
+                      title={getColorName(color)}
+                      aria-label={getColorName(color)}
                     />
                   ))}
                 </div>
