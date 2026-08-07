@@ -1,10 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface SizeGuideModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  sizeChartUrl?: string | null;
 }
 
 const sizeChart = [
@@ -18,7 +20,7 @@ const sizeChart = [
   { size: "سایز ۸", age: "۶-۷ سال", height: "۹۸-۱۰۴ سانت", chest: "۶۱-۶۳ سانت" },
 ];
 
-export function SizeGuideModal({ open, onOpenChange }: SizeGuideModalProps) {
+export function SizeGuideModal({ open, onOpenChange, sizeChartUrl }: SizeGuideModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl font-vazirmatn" dir="rtl">
@@ -51,6 +53,19 @@ export function SizeGuideModal({ open, onOpenChange }: SizeGuideModalProps) {
             </tbody>
           </table>
         </div>
+
+        {sizeChartUrl && (
+          <div className="relative w-full h-64 mt-4 rounded-sm overflow-hidden bg-neutral-50">
+            <Image
+              src={sizeChartUrl}
+              alt="جدول سایز محصول"
+              fill
+              className="object-contain"
+              sizes="(max-width: 672px) 100vw, 672px"
+              unoptimized
+            />
+          </div>
+        )}
 
         <div className="bg-neutral-50 p-4 rounded-sm mt-4">
           <p className="text-xs text-neutral-600 leading-relaxed">

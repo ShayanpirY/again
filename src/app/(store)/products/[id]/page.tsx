@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Share2, Truck, Shield, ChevronLeft, ChevronRight, Star, MessageSquare, HelpCircle } from "lucide-react";
+import { Share2, Truck, Shield, ChevronLeft, ChevronRight, Star, MessageSquare, HelpCircle, Play, Ruler } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -73,6 +73,28 @@ interface RelatedProduct {
 
 const defaultColors = ["#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF"];
 
+const LOW_STOCK_THRESHOLD = 5;
+
+type StockLevel = "in" | "low" | "out";
+
+const getStockLevel = (stock: number): StockLevel => {
+  if (stock <= 0) return "out";
+  if (stock <= LOW_STOCK_THRESHOLD) return "low";
+  return "in";
+};
+
+const STOCK_LABELS: Record<StockLevel, string> = {
+  in: "موجود",
+  low: "کم موجود",
+  out: "ناموجود",
+};
+
+const STOCK_TEXT_COLORS: Record<StockLevel, string> = {
+  in: "text-green-600",
+  low: "text-amber-600",
+  out: "text-red-600",
+};
+
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
@@ -83,6 +105,7 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+  const [mediaTab, setMediaTab] = useState<"image" | "video">("image");
   const [reviewForm, setReviewForm] = useState({ authorName: "", rating: 5, comment: "" });
   const [questionForm, setQuestionForm] = useState({ authorName: "", question: "" });
   const [submittingReview, setSubmittingReview] = useState(false);
@@ -94,6 +117,14 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     const fetchProduct = async () => {
+      setLoading(true);
+      setProduct(null);
+      setRelatedProducts([]);
+      setSelectedImage(0);
+      setSelectedColor(null);
+      setSelectedSize(null);
+      setMediaTab("image");
+      setIsZoomed(false);
       try {
         const res = await fetch(`/api/products/${productId}`);
         if (res.ok) {
@@ -135,6 +166,30 @@ export default function ProductDetailPage() {
   });
 
   const currentStock = selectedVariant?.stock ?? product?.stock ?? 0;
+  const currentStockLevel = getStockLevel(currentStock);
+
+  const getColorStock = (color: string): number | null => {
+    if (!product || !product.variants || product.variants.length === 0) return null;
+    const matching = product.variants.filter(v => v.color === color);
+    if (matching.length === 0) return null;
+    return matching.reduce((sum, v) => sum + (v.stock || 0), 0);
+  };
+
+  const getSizeStock = (size: string): number => {
+    if (product && product.variants && product.variants.length > 0) {
+      const matching = product.variants.filter(
+        v => v.size === size && (!selectedColor || v.color === selectedColor)
+      );
+      if (matching.length > 0) return matching.reduce((sum, v) => sum + (v.stock || 0), 0);
+      return 0;
+    }
+    return product?.stock ?? 0;
+  };
+
+  const selectedSizeStock = selectedSize !== null ? getSizeStock(selectedSize) : null;
+  const selectedSizeLevel = selectedSizeStock !== null
+    ? getStockLevel(selectedSizeStock)
+    : currentStockLevel;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!imageContainerRef.current) return;
@@ -254,16 +309,17 @@ export default function ProductDetailPage() {
             {/* Main Image/Video */}
             <div 
               ref={imageContainerRef}
-              className="relative aspect-[3/4] overflow-hidden bg-neutral-100 rounded-sm cursor-crosshair"
-              onMouseEnter={() => setIsZoomed(true)}
+              className={`relative aspect-[3/4] overflow-hidden bg-neutral-100 rounded-sm ${mediaTab === "video" ? "" : "cursor-crosshair"}`}
+              onMouseEnter={() => mediaTab !== "video" && setIsZoomed(true)}
               onMouseLeave={() => setIsZoomed(false)}
               onMouseMove={handleMouseMove}
             >
-              {product.videoUrl ? (
+              {product.videoUrl && mediaTab === "video" ? (
                 <video
                   src={product.videoUrl}
                   className="w-full h-full object-cover"
                   controls
+                  playsInline
                   poster={allImages[0]}
                 />
               ) : allImages.length > 0 && (
@@ -283,14 +339,36 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Thumbnails */}
-            {allImages.length > 1 && (
+            {(allImages.length > 1 || product.videoUrl) && (
               <div className="flex gap-3 overflow-x-auto pb-2">
+                {product.videoUrl && (
+                  <button
+                    key="video-tab"
+                    onClick={() => { setMediaTab("video"); setIsZoomed(false); }}
+                    className={`relative w-20 h-24 flex-shrink-0 overflow-hidden rounded-sm border-2 transition-colors ${
+                      mediaTab === "video" ? "border-neutral-900" : "border-neutral-200 hover:border-neutral-400"
+                    }`}
+                    style={{ backgroundImage: `url(${allImages[0]})`, backgroundSize: "cover", backgroundPosition: "center" }}
+                    title="ویدیو محصول"
+                    aria-label="ویدیو محصول"
+                  >
+                    <span className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/90">
+                        <Play className="h-4 w-4 text-neutral-900 fill-neutral-900 ml-0.5" />
+                      </span>
+                    </span>
+                    <span className="absolute bottom-1 right-1 text-[10px] font-medium text-white drop-shadow">ویدیو</span>
+                  </button>
+                )}
                 {allImages.map((img, index) => (
                   <button
                     key={index}
-                    onClick={() => setSelectedImage(index)}
+                    onClick={() => { setSelectedImage(index); setMediaTab("image"); }}
+                    onMouseEnter={() => setSelectedImage(index)}
                     className={`relative w-20 h-24 flex-shrink-0 overflow-hidden rounded-sm border-2 transition-colors ${
-                      safeSelectedImage === index ? "border-neutral-900" : "border-neutral-200 hover:border-neutral-400"
+                      mediaTab === "image" && safeSelectedImage === index
+                        ? "border-neutral-900"
+                        : "border-neutral-200 hover:border-neutral-400"
                     }`}
                   >
                     <Image
@@ -350,22 +428,21 @@ export default function ProductDetailPage() {
               )}
               <div>
                 <p className="text-xs text-neutral-500">موجودی</p>
-                <p className={`text-sm font-medium ${currentStock > 0 ? "text-green-600" : "text-red-600"}`}>
-                  {currentStock > 0 ? `موجود (${currentStock} عدد)` : "ناموجود"}
+                <p className={`text-sm font-medium ${STOCK_TEXT_COLORS[currentStockLevel]}`}>
+                  {STOCK_LABELS[currentStockLevel]}
+                  {currentStock > 0 ? ` (${currentStock.toLocaleString("fa-IR")} عدد)` : ""}
                 </p>
               </div>
-              {product.sizeChart && (
-                <div>
-                  <p className="text-xs text-neutral-500">راهنمای سایز</p>
-                  <Button
-                    variant="link"
-                    className="text-xs text-neutral-600 hover:text-neutral-900 p-0 h-auto"
-                    onClick={() => setIsSizeGuideOpen(true)}
-                  >
-                    مشاهده جدول سایز
-                  </Button>
-                </div>
-              )}
+              <div>
+                <p className="text-xs text-neutral-500">راهنمای سایز</p>
+                <Button
+                  variant="link"
+                  className="text-xs text-neutral-600 hover:text-neutral-900 p-0 h-auto"
+                  onClick={() => setIsSizeGuideOpen(true)}
+                >
+                  مشاهده جدول سایز
+                </Button>
+              </div>
             </div>
 
             {/* Color Selector */}
@@ -378,20 +455,31 @@ export default function ProductDetailPage() {
                   )}
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {availableColors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`w-8 h-8 rounded-full border-2 transition-transform ${
-                        selectedColor === color
-                          ? "border-neutral-900 scale-110"
-                          : "border-neutral-300 hover:border-neutral-400"
-                      }`}
-                      style={{ backgroundColor: color, boxShadow: selectedColor === color ? "0 0 0 3px rgba(23,23,23,0.15)" : undefined }}
-                      title={getColorName(color)}
-                      aria-label={getColorName(color)}
-                    />
-                  ))}
+                  {availableColors.map((color) => {
+                    const colorStock = getColorStock(color);
+                    const colorOut = colorStock === 0;
+                    const colorLabel = colorOut ? `${getColorName(color)} (ناموجود)` : getColorName(color);
+                    return (
+                      <button
+                        key={color}
+                        onClick={() => setSelectedColor(color)}
+                        className={`relative w-8 h-8 rounded-full border-2 transition-transform ${
+                          selectedColor === color
+                            ? "border-neutral-900 scale-110"
+                            : "border-neutral-300 hover:border-neutral-400"
+                        } ${colorOut ? "opacity-50" : ""}`}
+                        style={{ backgroundColor: color, boxShadow: selectedColor === color ? "0 0 0 3px rgba(23,23,23,0.15)" : undefined }}
+                        title={colorLabel}
+                        aria-label={colorLabel}
+                      >
+                        {colorOut && (
+                          <span className="absolute inset-0 flex items-center justify-center">
+                            <span className="w-px h-7 bg-red-600 rotate-45" />
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -401,45 +489,51 @@ export default function ProductDetailPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold text-neutral-900">انتخاب سایز</span>
-                  {product.sizeChart && (
-                    <Button
-                      variant="link"
-                      className="text-xs text-neutral-600 hover:text-neutral-900 p-0 h-auto"
-                      onClick={() => setIsSizeGuideOpen(true)}
-                    >
-                      راهنمای سایز
-                    </Button>
-                  )}
+                  <Button
+                    variant="link"
+                    className="flex items-center gap-1 text-xs text-neutral-600 hover:text-neutral-900 p-0 h-auto"
+                    onClick={() => setIsSizeGuideOpen(true)}
+                  >
+                    <Ruler className="h-4 w-4" />
+                    جدول سایز
+                  </Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {availableSizes.map((size) => {
-                    let sizeIsOutOfStock = false;
-                    if (!selectedColor) {
-                      const sizeVariants = product.variants.filter(v => v.size === size);
-                      if (sizeVariants.length > 0) sizeIsOutOfStock = sizeVariants.every(v => v.stock === 0);
-                    } else {
-                      const variant = product.variants.find(v => v.size === size && v.color === selectedColor);
-                      if (variant) sizeIsOutOfStock = variant.stock === 0;
-                    }
+                    const sizeStock = getSizeStock(size);
+                    const sizeLevel = getStockLevel(sizeStock);
+                    const isOutOfStock = sizeLevel === "out";
                     return (
                       <button
                         key={size}
-                        onClick={() => !sizeIsOutOfStock && setSelectedSize(size)}
-                        disabled={sizeIsOutOfStock}
-                        className={`px-4 py-2.5 text-sm font-medium border rounded-sm transition-all ${
+                        onClick={() => !isOutOfStock && setSelectedSize(size)}
+                        disabled={isOutOfStock}
+                        className={`flex flex-col items-center min-w-[68px] px-3 py-2 text-sm font-medium border rounded-sm transition-all ${
                           selectedSize === size
                             ? "border-neutral-900 bg-neutral-900 text-white"
-                            : sizeIsOutOfStock
-                              ? "border-neutral-200 text-neutral-400 cursor-not-allowed"
+                            : isOutOfStock
+                              ? "border-neutral-200 text-neutral-400 cursor-not-allowed opacity-60"
                               : "border-neutral-300 text-neutral-700 hover:border-neutral-900 hover:text-neutral-900"
                         }`}
                       >
-                        {size}
-                        {sizeIsOutOfStock && " (ناموجود)"}
+                        <span>{size}</span>
+                        <span className={`text-[10px] mt-0.5 font-normal ${
+                          selectedSize === size ? "text-white/80" : STOCK_TEXT_COLORS[sizeLevel]
+                        }`}>
+                          {STOCK_LABELS[sizeLevel]}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
+                {selectedSizeStock !== null && (
+                  <p className={`text-xs font-medium ${STOCK_TEXT_COLORS[selectedSizeLevel]}`}>
+                    {STOCK_LABELS[selectedSizeLevel]}
+                    {selectedSizeStock > 0
+                      ? ` - ${selectedSizeStock.toLocaleString("fa-IR")} عدد موجود`
+                      : " - این سایز فعلاً موجود نیست"}
+                  </p>
+                )}
               </div>
             )}
 
@@ -712,7 +806,7 @@ export default function ProductDetailPage() {
       </div>
 
       {/* Size Guide Modal */}
-      <SizeGuideModal open={isSizeGuideOpen} onOpenChange={setIsSizeGuideOpen} />
+      <SizeGuideModal open={isSizeGuideOpen} onOpenChange={setIsSizeGuideOpen} sizeChartUrl={product.sizeChart} />
     </div>
   );
 }
