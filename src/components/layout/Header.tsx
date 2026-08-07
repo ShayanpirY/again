@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ShoppingBag, Search, Heart, User, Menu } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCart";
+import { useWishlistStore } from "@/store/useWishlist";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState, useEffect } from "react";
 import { MegaMenu } from "@/components/modules/MegaMenu";
@@ -15,7 +16,7 @@ const announcementText = "ارسال رایگان برای سفارشات بال
 const mainNavItems = [
   {
     label: "نوزاد",
-    href: "/category/newborn",
+    href: "/products?age=newborn",
     age: "۰ تا ۱۸ ماه",
     categoryKey: "newborn",
     hoverBg: "hover:bg-amber-50",
@@ -25,7 +26,7 @@ const mainNavItems = [
   },
   {
     label: "کودک",
-    href: "/category/baby",
+    href: "/products?age=baby",
     age: "۶ تا ۳۶ ماه",
     categoryKey: "baby",
     hoverBg: "hover:bg-emerald-50",
@@ -35,7 +36,7 @@ const mainNavItems = [
   },
   {
     label: "دختر",
-    href: "/category/girl",
+    href: "/products?age=girl",
     age: "۲ تا ۹ سال",
     categoryKey: "girl",
     hoverBg: "hover:bg-pink-50",
@@ -45,7 +46,7 @@ const mainNavItems = [
   },
   {
     label: "پسر",
-    href: "/category/boy",
+    href: "/products?age=boy",
     age: "۲ تا ۹ سال",
     categoryKey: "boy",
     hoverBg: "hover:bg-sky-50",
@@ -55,7 +56,7 @@ const mainNavItems = [
   },
   {
     label: "نوجوان",
-    href: "/category/pre-teen",
+    href: "/products?age=pre-teen",
     age: "۸ تا ۱۶ سال",
     categoryKey: "pre-teen",
     hoverBg: "hover:bg-violet-50",
@@ -81,6 +82,8 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { toggleCart, getTotalItems } = useCartStore();
   const totalItems = getTotalItems();
+  const { getTotalItems: getWishlistCount } = useWishlistStore();
+  const wishlistCount = getWishlistCount();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -154,6 +157,12 @@ export function Header() {
                   </div>
                 ))}
                 <Link
+                  href="/products"
+                  className="flex items-center text-xs font-semibold tracking-[0.15em] transition-colors px-3 py-6 text-neutral-900 hover:bg-neutral-100"
+                >
+                  همه محصولات
+                </Link>
+                <Link
                   href="/sale"
                   className={`text-xs font-semibold tracking-[0.15em] transition-colors px-3 py-6 ${saleNavItem.hoverBg} ${saleNavItem.hoverText} text-red-600`}
                 >
@@ -178,9 +187,22 @@ export function Header() {
                 <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setIsSearchOpen(true)}>
                   <Search className="h-5 w-5" />
                 </Button>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Link
+                  href="/wishlist"
+                  aria-label="علاقه‌مندی‌ها"
+                  className={buttonVariants({
+                    variant: "ghost",
+                    size: "icon",
+                    className: "h-9 w-9 relative",
+                  })}
+                >
                   <Heart className="h-5 w-5" />
-                </Button>
+                  {mounted && wishlistCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-pink-500 text-white text-[10px] font-bold flex items-center justify-center">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Link>
                 <Button variant="ghost" size="icon" className="h-9 w-9">
                   <User className="h-5 w-5" />
                 </Button>

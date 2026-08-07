@@ -8,6 +8,7 @@ import { Heart, ShoppingBag, Eye } from "lucide-react";
 import { Product } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCart";
+import { useWishlistStore } from "@/store/useWishlist";
 import { getColorName } from "@/lib/colorNames";
 
 interface ProductCardProps {
@@ -29,29 +30,36 @@ interface ProductCardProps {
 
 export function ProductCard({ product, variant = "default" }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const { addItem, openCart } = useCartStore();
+  const { toggleItem, isInWishlist } = useWishlistStore();
+  const isWishlisted = isInWishlist(product.id);
   const router = useRouter();
 
   const isThemed = variant !== "default";
 
+  const toFullProduct = (): Product => ({
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    image: product.image || (product.images && product.images[0]) || "",
+    images: product.images || [],
+    colors: product.colors || [],
+    sizes: product.sizes || [],
+    category: product.category || "",
+    subcategory: "",
+    ageRange: "",
+    gender: "unisex",
+  });
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    const fullProduct: Product = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image || (product.images && product.images[0]) || "",
-      images: product.images || [],
-      colors: product.colors || [],
-      sizes: product.sizes || [],
-      category: product.category || "",
-      subcategory: "",
-      ageRange: "",
-      gender: "unisex",
-    };
-    addItem(fullProduct, 1);
+    addItem(toFullProduct(), 1);
     openCart();
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    toggleItem(toFullProduct());
   };
 
   const discount = product.originalPrice
@@ -59,16 +67,16 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
     : 0;
 
   const cardClass = variant === "child"
-    ? "bg-white shadow-sm rounded-2xl overflow-hidden"
+    ? "bg-white shadow-sm rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
     : variant === "girl"
-      ? "bg-white shadow-sm rounded-2xl overflow-hidden border border-rose-100"
+      ? "bg-white shadow-sm rounded-2xl overflow-hidden border border-rose-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
       : variant === "boy"
-        ? "bg-white shadow-sm rounded-2xl overflow-hidden border border-emerald-100"
+        ? "bg-white shadow-sm rounded-2xl overflow-hidden border border-emerald-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
         : variant === "teen"
-          ? "bg-white shadow-sm rounded-2xl overflow-hidden border border-purple-50"
+          ? "bg-white shadow-sm rounded-2xl overflow-hidden border border-purple-50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
           : variant === "sale"
-            ? "bg-white shadow-sm rounded-2xl overflow-hidden border border-red-100"
-            : "bg-white";
+            ? "bg-white shadow-sm rounded-2xl overflow-hidden border border-red-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+            : "bg-white shadow-sm rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1";
 
   return (
     <div
@@ -103,10 +111,8 @@ export function ProductCard({ product, variant = "default" }: ProductCardProps) 
 
         {/* Wishlist Button */}
         <button
-          onClick={(e) => {
-            e.preventDefault();
-            setIsWishlisted(!isWishlisted);
-          }}
+          onClick={handleToggleWishlist}
+          aria-label={isWishlisted ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"}
           className="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-white/80 hover:bg-white transition-all duration-200 hover:scale-110"
         >
           <Heart

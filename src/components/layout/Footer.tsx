@@ -19,11 +19,11 @@ export function Footer() {
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-900 mb-4">فروشگاه</h3>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/category/newborn" className="text-neutral-600 hover:text-black transition-colors">نوزاد</Link></li>
-              <li><Link href="/category/baby" className="text-neutral-600 hover:text-black transition-colors">کودک</Link></li>
-              <li><Link href="/category/girl" className="text-neutral-600 hover:text-black transition-colors">دختر</Link></li>
-              <li><Link href="/category/boy" className="text-neutral-600 hover:text-black transition-colors">پسر</Link></li>
-              <li><Link href="/category/pre-teen" className="text-neutral-600 hover:text-black transition-colors">نوجوان</Link></li>
+              <li><Link href="/products?age=newborn" className="text-neutral-600 hover:text-black transition-colors">نوزاد</Link></li>
+              <li><Link href="/products?age=baby" className="text-neutral-600 hover:text-black transition-colors">کودک</Link></li>
+              <li><Link href="/products?age=girl" className="text-neutral-600 hover:text-black transition-colors">دختر</Link></li>
+              <li><Link href="/products?age=boy" className="text-neutral-600 hover:text-black transition-colors">پسر</Link></li>
+              <li><Link href="/products?age=pre-teen" className="text-neutral-600 hover:text-black transition-colors">نوجوان</Link></li>
             </ul>
           </div>
 

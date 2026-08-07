@@ -7,31 +7,31 @@ import { megaMenuData } from "@/data/mega-menu";
 const mainNavItems = [
   {
     label: "نوزاد",
-    href: "/category/newborn",
+    href: "/products?age=newborn",
     age: "۰ تا ۱۸ ماه",
     categoryKey: "newborn",
   },
   {
     label: "کودک",
-    href: "/category/baby",
+    href: "/products?age=baby",
     age: "۶ تا ۳۶ ماه",
     categoryKey: "baby",
   },
   {
     label: "دختر",
-    href: "/category/girl",
+    href: "/products?age=girl",
     age: "۲ تا ۹ سال",
     categoryKey: "girl",
   },
   {
     label: "پسر",
-    href: "/category/boy",
+    href: "/products?age=boy",
     age: "۲ تا ۹ سال",
     categoryKey: "boy",
   },
   {
     label: "نوجوان",
-    href: "/category/pre-teen",
+    href: "/products?age=pre-teen",
     age: "۸ تا ۱۶ سال",
     categoryKey: "pre-teen",
   },
