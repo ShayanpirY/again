@@ -9,8 +9,8 @@ import { getColorName } from "@/lib/colorNames";
 export const AGE_GROUPS = [
   { id: "newborn", label: "نوزاد" },
   { id: "baby", label: "کودک نوپا" },
-  { id: "girl", label: "دختر" },
-  { id: "boy", label: "پسر" },
+  { id: "girl", label: "دخترانه" },
+  { id: "boy", label: "پسرانه" },
   { id: "pre-teen", label: "نوجوان" },
 ];
 

@@ -34,8 +34,8 @@ interface Product {
 const slugToCategoryMap: Record<string, string> = {
   newborn: "نوزاد",
   baby: "کودک",
-  girl: "دختر",
-  boy: "پسر",
+  girl: "دخترانه",
+  boy: "پسرانه",
   "pre-teen": "نوجوان",
 };
 

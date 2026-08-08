@@ -18,13 +18,13 @@ const mainNavItems = [
     categoryKey: "baby",
   },
   {
-    label: "دختر",
+    label: "دخترانه",
     href: "/products?age=girl",
     age: "۲ تا ۹ سال",
     categoryKey: "girl",
   },
   {
-    label: "پسر",
+    label: "پسرانه",
     href: "/products?age=boy",
     age: "۲ تا ۹ سال",
     categoryKey: "boy",

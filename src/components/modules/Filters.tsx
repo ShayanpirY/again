@@ -15,7 +15,7 @@ interface FiltersProps {
 }
 
 const categories = ["دخترانه", "پسرانه", "نوزاد", "اکسسوری"];
-const genders = ["دختر", "پسر"];
+const genders = ["دخترانه", "پسرانه"];
 const ageRanges = ["۰-۱ سال", "۱-۳ سال", "۳-۶ سال", "۶-۱۰ سال", "۱۰-۱۴ سال"];
 
 function FilterContent({ localFilters, updateFilter, toggleArrayFilter, clearFilters }: {

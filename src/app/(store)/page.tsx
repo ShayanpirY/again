@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Baby, Footprints, Heart, Rocket, Sparkles, Star, Sun } from "lucide-react";
 import { LatestProducts } from "@/components/modules/LatestProducts";
 import { HeroSection } from "@/components/modules/HeroSection";
+import ProductStories from "@/components/modules/ProductStories";
 
 const ageCategories = [
   {
@@ -30,7 +31,7 @@ const ageCategories = [
     patternColor: "rgba(52,211,153,0.45)",
   },
   {
-    name: "دختر",
+    name: "دخترانه",
     age: "۲ تا ۹ سال",
     href: "/products?age=girl",
     image: "https://images.unsplash.com/photo-1621452773781-0f992fd1f5cb?q=80&w=800&auto=format&fit=crop",
@@ -42,7 +43,7 @@ const ageCategories = [
     patternColor: "rgba(244,114,182,0.45)",
   },
   {
-    name: "پسر",
+    name: "پسرانه",
     age: "۲ تا ۹ سال",
     href: "/products?age=boy",
     image: "https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?q=80&w=800&auto=format&fit=crop",
@@ -72,6 +73,9 @@ export default function Home() {
     <div>
       {/* Hero Section */}
       <HeroSection />
+
+      {/* Product Stories */}
+      <ProductStories />
 
       {/* Age Categories */}
       <section className="relative overflow-hidden bg-gradient-to-b from-pink-50 via-white to-sky-50 py-16 lg:py-24">

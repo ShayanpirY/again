@@ -35,7 +35,7 @@ const mainNavItems = [
     activeText: "text-emerald-700",
   },
   {
-    label: "دختر",
+    label: "دخترانه",
     href: "/products?age=girl",
     age: "۲ تا ۹ سال",
     categoryKey: "girl",
@@ -45,7 +45,7 @@ const mainNavItems = [
     activeText: "text-pink-700",
   },
   {
-    label: "پسر",
+    label: "پسرانه",
     href: "/products?age=boy",
     age: "۲ تا ۹ سال",
     categoryKey: "boy",

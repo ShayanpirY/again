@@ -35,7 +35,7 @@ export const useProductStore = create<ProductStore>()(
         {
           id: "2",
           name: "پیراهن دخترانه طرح گل",
-          category: "دختر",
+          category: "دخترانه",
           subcategory: "پیراهن",
           price: 620000,
           image: "https://images.unsplash.com/photo-1621452773781-0f992fd1f5cb?q=80&w=600&auto=format&fit=crop",
@@ -52,7 +52,7 @@ export const useProductStore = create<ProductStore>()(
         {
           id: "3",
           name: "تی‌شرت پسرانه طرح ماشین",
-          category: "پسر",
+          category: "پسرانه",
           subcategory: "تی‌شرت",
           price: 340000,
           originalPrice: 450000,
