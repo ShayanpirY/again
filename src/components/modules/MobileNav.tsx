@@ -43,7 +43,7 @@ interface MobileNavProps {
 
 export function MobileNav({ onClose }: MobileNavProps) {
   return (
-    <nav className="flex flex-col gap-1" dir="rtl">
+    <nav className="flex flex-col" dir="rtl">
       {mainNavItems.map((item) => {
         const data = megaMenuData[item.categoryKey as keyof typeof megaMenuData];
         if (!data) return null;
@@ -55,7 +55,7 @@ export function MobileNav({ onClose }: MobileNavProps) {
                 <div className="flex flex-col items-start gap-0.5">
                   <Link
                     href={item.href}
-                    className="text-base font-semibold tracking-wide hover:text-neutral-600 transition-colors"
+                    className="text-base font-semibold tracking-wide text-neutral-900 hover:text-neutral-600 transition-colors"
                     onClick={onClose}
                   >
                     {item.label}
@@ -63,17 +63,17 @@ export function MobileNav({ onClose }: MobileNavProps) {
                   <span className="text-xs text-neutral-500">{item.age}</span>
                 </div>
               </AccordionTrigger>
-              <AccordionContent>
-                <div className="pr-8 pb-4 space-y-4">
+              <AccordionContent className="pr-8 pb-4 [&_a]:no-underline!">
+                <div className="space-y-4">
                   {/* Main Categories */}
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider">پوشاک اصلی</h4>
-                    <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <h4 className="text-xs font-bold text-neutral-900 tracking-wider">پوشاک اصلی</h4>
+                    <div className="mt-1 flex flex-col">
                       {data.clothing.map((sub) => (
                         <Link
                           key={sub.name}
                           href={sub.href}
-                          className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors py-1"
+                          className="flex items-center rounded-lg px-4 py-3 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition-colors"
                           onClick={onClose}
                         >
                           {sub.name}
@@ -83,14 +83,14 @@ export function MobileNav({ onClose }: MobileNavProps) {
                   </div>
 
                   {/* Shoes & Accessories */}
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider">کفش و اکسسوری</h4>
-                    <div className="grid grid-cols-2 gap-2">
+                  <div className="mt-4 pt-4 border-t border-neutral-100">
+                    <h4 className="text-xs font-bold text-neutral-900 tracking-wider">کفش و اکسسوری</h4>
+                    <div className="mt-1 flex flex-col">
                       {data.shoesAccessories.map((sub) => (
                         <Link
                           key={sub.name}
                           href={sub.href}
-                          className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors py-1"
+                          className="flex items-center rounded-lg px-4 py-3 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition-colors"
                           onClick={onClose}
                         >
                           {sub.name}
@@ -100,14 +100,14 @@ export function MobileNav({ onClose }: MobileNavProps) {
                   </div>
 
                   {/* Collections */}
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-semibold text-neutral-900 uppercase tracking-wider">کالکشن‌ها</h4>
-                    <div className="grid grid-cols-2 gap-2">
+                  <div className="mt-4 pt-4 border-t border-neutral-100">
+                    <h4 className="text-xs font-bold text-neutral-900 tracking-wider">کالکشن‌ها</h4>
+                    <div className="mt-1 flex flex-col">
                       {data.collections.map((sub) => (
                         <Link
                           key={sub.name}
                           href={sub.href}
-                          className="text-xs text-neutral-500 hover:text-neutral-900 transition-colors py-1"
+                          className="flex items-center rounded-lg px-4 py-3 text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition-colors"
                           onClick={onClose}
                         >
                           {sub.name}
@@ -125,7 +125,7 @@ export function MobileNav({ onClose }: MobileNavProps) {
       {/* Sale Link */}
       <Link
         href="/sale"
-        className="px-4 py-3 text-base font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors mt-2"
+        className="mt-2 flex items-center px-4 py-3 text-base font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors"
         onClick={onClose}
       >
         حراج ویژه

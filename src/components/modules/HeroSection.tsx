@@ -29,7 +29,7 @@ export const HeroSection = () => {
       <div className="absolute inset-0 z-20 bg-gradient-to-l from-black/20 via-transparent to-transparent" />
 
       <div className="relative z-30 max-w-7xl mx-auto h-full px-6 flex items-center justify-end" dir="rtl">
-        <div className="text-right max-w-md space-y-4 rounded-3xl bg-white/80 backdrop-blur-md border border-white/50 shadow-xl p-6 mr-8 md:mr-16 my-auto">
+        <div className="text-right max-w-md space-y-4 rounded-3xl bg-white/30 backdrop-blur-md border border-white/50 shadow-xl p-6 mr-8 md:mr-16 my-auto">
 
           <span className="inline-flex items-center gap-2 rounded-full bg-rose-500 text-white px-4 py-1.5 text-[11px] font-bold shadow-md shadow-rose-300">
             ✨ بهار و تابستان ۱۴۰۵
@@ -39,7 +39,7 @@ export const HeroSection = () => {
             کالکشن جدید
           </h1>
 
-          <p className="text-sm sm:text-base text-neutral-600 font-medium leading-relaxed">
+          <p className="text-sm sm:text-base text-neutral-700 font-medium leading-relaxed">
             استایل‌های مدرن و دوست‌داشتنی برای نوزادان، کودکان و نوجوانان
           </p>
 

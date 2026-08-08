@@ -110,7 +110,7 @@ export function Header() {
 <SheetTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "h-9 w-9" })}>
   <Menu className="h-5 w-5" />
 </SheetTrigger>
-                <SheetContent side="right" className="w-[300px] sm:w-[400px] overflow-y-auto">
+                <SheetContent side="right" className="data-[side=right]:w-full data-[side=right]:max-w-xs data-[side=right]:sm:max-w-sm overflow-y-auto">
                   <div className="mt-8">
                     <MobileNav onClose={() => setIsMobileMenuOpen(false)} />
                   </div>
