@@ -171,6 +171,39 @@ const DESCRIPTIONS = [
   "طراحی شیک و رنگ‌بندی متنوع برای سلیقه‌های مختلف.",
 ];
 
+const STORIES = [
+  {
+    title: "حراجی تابستانه",
+    badge: "حراجی",
+    mediaUrl: "https://images.unsplash.com/photo-1604004555489-723a93d6ce74?q=80&w=600&auto=format&fit=crop",
+  },
+  {
+    title: "جدیدترین شومیزها",
+    badge: "جدید",
+    mediaUrl: "https://images.unsplash.com/photo-1503846622024-4f3e8d4a0a1d?q=80&w=600&auto=format&fit=crop",
+  },
+  {
+    title: "ست تولد",
+    badge: "ست تولد",
+    mediaUrl: "https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=600&auto=format&fit=crop",
+  },
+  {
+    title: "لباس خواب",
+    badge: "شگفت‌انگیز",
+    mediaUrl: "https://images.unsplash.com/photo-1616509091215-57bbece0ae6b?q=80&w=600&auto=format&fit=crop",
+  },
+  {
+    title: "کاپشن و پالتو",
+    badge: "کالکشن",
+    mediaUrl: "https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=600&auto=format&fit=crop",
+  },
+  {
+    title: "پرفروش‌ترین‌ها",
+    badge: "پرفروش",
+    mediaUrl: "https://images.unsplash.com/photo-1471286174890-9c112ffca5b4?q=80&w=600&auto=format&fit=crop",
+  },
+];
+
 function mulberry32(seed) {
   return function () {
     let t = (seed += 0x6d2b79f5);
@@ -362,6 +395,39 @@ async function main() {
     const total = await client.query('SELECT count(*)::int AS count FROM "Product"');
     console.log(`Seeded ${created} new product(s). Total products: ${total.rows[0].count}`);
     console.log(`Normalized colors: ${productsFixed} product(s), ${variantsFixed} variant(s). Expanded images: ${expandedImages} product(s).`);
+
+    const storyRes = await client.query('SELECT count(*)::int AS count FROM "Story"');
+    const existingStories = storyRes.rows[0].count;
+    if (existingStories === 0 && STORIES.length > 0) {
+      const productRes = await client.query(
+        `SELECT id, title FROM "Product" WHERE "isActive" = true ORDER BY random() LIMIT $1`,
+        [STORIES.length]
+      );
+      const candidates = productRes.rows;
+      let storyCount = 0;
+      for (let i = 0; i < STORIES.length && i < candidates.length; i++) {
+        const now = new Date();
+        await client.query(
+          `INSERT INTO "Story" (id, title, "mediaUrl", badge, "productId", "isActive", "order", "createdAt", "updatedAt")
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+          [
+            randomUUID(),
+            STORIES[i].title,
+            STORIES[i].mediaUrl,
+            STORIES[i].badge,
+            candidates[i].id,
+            true,
+            i,
+            now,
+            now,
+          ]
+        );
+        storyCount += 1;
+      }
+      console.log(`Seeded ${storyCount} story(ies).`);
+    } else {
+      console.log(`Stories already seeded (${existingStories}).`);
+    }
   } finally {
     client.release();
     await pool.end();

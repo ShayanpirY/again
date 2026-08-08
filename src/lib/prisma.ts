@@ -1,4 +1,4 @@
-import { PrismaClient } from "@/generated/prisma/client";
+import { PrismaClient } from "@/generated/prisma";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = globalThis as unknown as {
@@ -14,3 +14,24 @@ export const prisma =
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+const requiredModels = [
+  "story",
+  "product",
+  "category",
+  "order",
+  "orderItem",
+  "variant",
+  "review",
+  "question",
+] as const;
+
+for (const model of requiredModels) {
+  if (typeof (prisma as unknown as Record<string, unknown>)[model] === "undefined") {
+    console.error(
+      `[prisma] Model delegate "${model}" is missing from the generated Prisma Client. ` +
+        "The generated client is out of date with prisma/schema.prisma. " +
+        "Run `npx prisma generate` and restart the dev server."
+    );
+  }
+}

@@ -7,37 +7,57 @@ import { X, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 interface Story {
   id: string;
   title: string;
+  mediaUrl: string;
+  badge: string | null;
   productId: string;
   productTitle: string;
   price: number;
-  slides: string[];
+  productImage: string;
 }
 
 const SLIDE_DURATION = 4500;
+
+const VIDEO_EXT = /\.(mp4|webm|ogg|mov|m3u8)(\?.*)?$/i;
+
+const isVideoUrl = (url: string) => VIDEO_EXT.test(url);
 
 export default function ProductStories() {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const [slideIndex, setSlideIndex] = useState(0);
 
   useEffect(() => {
     const fetchStories = async () => {
       try {
-        const res = await fetch("/api/products?limit=10&sort=best-selling");
-        const data: { id: string; title: string; price: number; images: string[] }[] =
-          await res.json();
+        const res = await fetch("/api/stories");
+        const data: {
+          id: string;
+          title: string;
+          mediaUrl: string;
+          badge: string | null;
+          product: {
+            id: string;
+            title: string;
+            price: number;
+            images: string[];
+          };
+        }[] = await res.json();
         if (Array.isArray(data)) {
           const mapped = data
-            .map((p) => ({
-              id: p.id,
-              title: p.title,
-              productId: p.id,
-              productTitle: p.title,
-              price: p.price,
-              slides: (p.images || []).filter((img) => typeof img === "string" && img.length > 0),
-            }))
-            .filter((s) => s.slides.length > 0);
+            .filter((s) => s.mediaUrl && s.product)
+            .map((s) => ({
+              id: s.id,
+              title: s.title,
+              mediaUrl: s.mediaUrl,
+              badge: s.badge,
+              productId: s.product.id,
+              productTitle: s.product.title,
+              price: s.product.price,
+              productImage:
+                s.product.images && s.product.images.length > 0
+                  ? s.product.images[0]
+                  : "",
+            }));
           setStories(mapped);
         }
       } catch (error) {
@@ -52,36 +72,19 @@ export default function ProductStories() {
 
   const closeViewer = useCallback(() => {
     setOpenIndex(null);
-    setSlideIndex(0);
   }, []);
 
   const goNext = useCallback(() => {
     if (openIndex === null) return;
-    const story = stories[openIndex];
-    if (slideIndex < story.slides.length - 1) {
-      setSlideIndex((i) => i + 1);
-    } else if (openIndex < stories.length - 1) {
-      setOpenIndex((i) => (i === null ? i : i + 1));
-      setSlideIndex(0);
-    } else {
-      setOpenIndex(0);
-      setSlideIndex(0);
-    }
-  }, [openIndex, slideIndex, stories]);
+    setOpenIndex((i) => (i === null ? i : (i + 1) % stories.length));
+  }, [openIndex, stories.length]);
 
   const goPrev = useCallback(() => {
     if (openIndex === null) return;
-    if (slideIndex > 0) {
-      setSlideIndex((i) => i - 1);
-    } else if (openIndex > 0) {
-      setOpenIndex((i) => (i === null ? i : i - 1));
-      setSlideIndex(stories[openIndex - 1].slides.length - 1);
-    } else {
-      const last = stories.length - 1;
-      setOpenIndex(last);
-      setSlideIndex(stories[last].slides.length - 1);
-    }
-  }, [openIndex, slideIndex, stories]);
+    setOpenIndex((i) =>
+      i === null ? i : (i - 1 + stories.length) % stories.length
+    );
+  }, [openIndex, stories.length]);
 
   useEffect(() => {
     if (openIndex === null) return;
@@ -89,7 +92,7 @@ export default function ProductStories() {
       goNext();
     }, SLIDE_DURATION);
     return () => clearTimeout(timer);
-  }, [openIndex, slideIndex, goNext]);
+  }, [openIndex, goNext]);
 
   useEffect(() => {
     if (openIndex === null) return;
@@ -138,6 +141,9 @@ export default function ProductStories() {
 
   const activeStory = openIndex === null ? null : stories[openIndex];
 
+  const bubbleImage = (story: Story) =>
+    isVideoUrl(story.mediaUrl) ? story.productImage : story.mediaUrl;
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-amber-50/60 via-white to-rose-50/60 py-4">
       <div aria-hidden className="absolute top-6 left-10 h-24 w-24 rounded-full bg-rose-100/70 blur-2xl" />
@@ -155,18 +161,15 @@ export default function ProductStories() {
             <button
               key={story.id}
               type="button"
-              onClick={() => {
-                setOpenIndex(index);
-                setSlideIndex(0);
-              }}
+              onClick={() => setOpenIndex(index)}
               className="group flex flex-col items-center gap-2.5 flex-shrink-0 w-20 lg:w-24 snap-start"
-              aria-label={`مشاهده استوری ${story.productTitle}`}
+              aria-label={`مشاهده استوری ${story.title}`}
             >
               <span className="rounded-full bg-gradient-to-tr from-rose-400 via-amber-400 to-sky-400 p-[3px] group-hover:scale-105 transition-transform duration-200">
                 <span className="block rounded-full bg-white p-[3px]">
                   <img
-                    src={story.slides[0]}
-                    alt={story.productTitle}
+                    src={bubbleImage(story)}
+                    alt={story.title}
                     className="h-16 w-16 lg:h-20 lg:w-20 rounded-full object-cover aspect-square"
                   />
                 </span>
@@ -199,20 +202,14 @@ export default function ProductStories() {
               handleTouch(start, end);
             }}
           >
-            {/* Progress bars */}
+            {/* Progress bar */}
             <div className="absolute top-3 inset-x-3 z-20 flex gap-1.5">
-              {activeStory.slides.map((_, i) => (
-                <div key={i} className="h-[3px] flex-1 rounded-full bg-white/25 overflow-hidden">
-                  {i < slideIndex && <div className="h-full bg-white" />}
-                  {i === slideIndex && (
-                    <div
-                      key={`${openIndex}-${slideIndex}`}
-                      className="h-full bg-white rounded-full"
-                      style={{ animation: `storyProgress ${SLIDE_DURATION}ms linear forwards` }}
-                    />
-                  )}
-                </div>
-              ))}
+              <div key={activeStory.id} className="h-[3px] flex-1 rounded-full bg-white/25 overflow-hidden">
+                <div
+                  className="h-full bg-white rounded-full"
+                  style={{ animation: `storyProgress ${SLIDE_DURATION}ms linear forwards` }}
+                />
+              </div>
             </div>
 
             {/* Close */}
@@ -227,12 +224,24 @@ export default function ProductStories() {
 
             {/* Media */}
             <div className="absolute inset-0">
-              <img
-                key={`${openIndex}-${slideIndex}`}
-                src={activeStory.slides[slideIndex]}
-                alt={activeStory.productTitle}
-                className="h-full w-full object-cover"
-              />
+              {isVideoUrl(activeStory.mediaUrl) ? (
+                <video
+                  key={activeStory.id}
+                  src={activeStory.mediaUrl}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <img
+                  key={activeStory.id}
+                  src={activeStory.mediaUrl}
+                  alt={activeStory.title}
+                  className="h-full w-full object-cover"
+                />
+              )}
             </div>
 
             {/* Prev / Next */}
@@ -255,6 +264,11 @@ export default function ProductStories() {
 
             {/* Product overlay */}
             <div className="absolute bottom-0 inset-x-0 z-20 bg-gradient-to-t from-black/85 via-black/45 to-transparent p-4 pt-12">
+              {activeStory.badge && (
+                <span className="mb-2 inline-block rounded-full bg-rose-500 px-3 py-1 text-[11px] font-bold text-white">
+                  {activeStory.badge}
+                </span>
+              )}
               <p className="text-white text-sm font-bold line-clamp-1 mb-0.5">
                 {activeStory.productTitle}
               </p>

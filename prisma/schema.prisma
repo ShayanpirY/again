@@ -16,6 +16,19 @@ model Category {
   products  Product[]
 }
 
+model Story {
+  id        String   @id @default(cuid())
+  title     String
+  mediaUrl  String
+  badge     String?
+  productId String
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
 model Product {
   id          String    @id @default(cuid())
   title       String
@@ -41,6 +54,7 @@ model Product {
   variants    Variant[]
   reviews     Review[]
   questions   Question[]
+  stories     Story[]
 }
 
 model Order {
