@@ -120,13 +120,13 @@ export default function ProductStories() {
 
   if (loading) {
     return (
-      <section className="relative overflow-hidden bg-gradient-to-b from-amber-50/60 via-white to-rose-50/60 py-4">
-        <div className="container mx-auto px-4 relative">
-          <div className="flex gap-5 overflow-hidden">
+      <section className="bg-white py-4 border-b border-neutral-100">
+        <div className="container mx-auto px-4">
+          <div className="flex gap-6 overflow-hidden justify-center">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="flex flex-col items-center gap-2 animate-pulse">
-                <div className="h-20 w-20 rounded-full bg-neutral-200" />
-                <div className="h-3 w-16 rounded-full bg-neutral-200" />
+              <div key={i} className="flex flex-col items-center gap-2.5 animate-pulse">
+                <div className="h-20 w-20 lg:h-24 lg:w-24 rounded-full bg-neutral-100 ring-1 ring-neutral-200" />
+                <div className="h-3 w-16 rounded-full bg-neutral-100" />
               </div>
             ))}
           </div>
@@ -145,17 +145,13 @@ export default function ProductStories() {
     isVideoUrl(story.mediaUrl) ? story.productImage : story.mediaUrl;
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-amber-50/60 via-white to-rose-50/60 py-4">
-      <div aria-hidden className="absolute top-6 left-10 h-24 w-24 rounded-full bg-rose-100/70 blur-2xl" />
-      <div aria-hidden className="absolute bottom-4 right-10 h-28 w-28 rounded-full bg-sky-100/70 blur-2xl" />
-      <div aria-hidden className="absolute top-1/2 right-1/4 h-16 w-16 rounded-full border-2 border-dashed border-amber-300/60 animate-[spin_35s_linear_infinite]" />
-
+    <section className="bg-white py-6 border-b border-neutral-100">
       <style>{`@keyframes storyProgress { from { width: 0% } to { width: 100% } }`}</style>
 
-      <div className="container mx-auto px-4 relative">
+      <div className="container mx-auto px-4">
         <div
           dir="rtl"
-          className="flex gap-4 lg:gap-6 overflow-x-auto pb-4 px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory"
+          className="flex gap-4 lg:gap-7 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory"
         >
           {stories.map((story, index) => (
             <button
@@ -165,16 +161,14 @@ export default function ProductStories() {
               className="group flex flex-col items-center gap-2.5 flex-shrink-0 w-20 lg:w-24 snap-start"
               aria-label={`مشاهده استوری ${story.title}`}
             >
-              <span className="rounded-full bg-gradient-to-tr from-rose-400 via-amber-400 to-sky-400 p-[3px] group-hover:scale-105 transition-transform duration-200">
-                <span className="block rounded-full bg-white p-[3px]">
-                  <img
-                    src={bubbleImage(story)}
-                    alt={story.title}
-                    className="h-16 w-16 lg:h-20 lg:w-20 rounded-full object-cover aspect-square"
-                  />
-                </span>
+              <span className="rounded-full ring-1 ring-neutral-200 p-0.5 transition-transform duration-300 group-hover:scale-105 group-hover:ring-neutral-400">
+                <img
+                  src={bubbleImage(story)}
+                  alt={story.title}
+                  className="h-16 w-16 lg:h-20 lg:w-20 rounded-full object-cover aspect-square"
+                />
               </span>
-              <span className="w-full text-center text-[11px] lg:text-xs font-semibold text-neutral-700 line-clamp-2 leading-snug">
+              <span className="w-full text-center text-[11px] lg:text-xs font-medium text-neutral-600 line-clamp-2 leading-snug group-hover:text-neutral-900 transition-colors">
                 {story.title}
               </span>
             </button>

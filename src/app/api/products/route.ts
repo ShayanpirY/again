@@ -1,6 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+const QUERY_TIMEOUT_MS = 8000;
+
+async function withTimeout<T>(promise: Promise<T>, ms = QUERY_TIMEOUT_MS): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`Database query timed out after ${ms}ms`)),
+      ms
+    );
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+function emptyResponse(message: string) {
+  return NextResponse.json([], {
+    status: 200,
+    headers: {
+      "X-Total-Count": "0",
+      "X-Error": message,
+    },
+  });
+}
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -24,12 +51,14 @@ export async function GET(request: NextRequest) {
     };
 
     if (categorySlugs.length > 0) {
-      const categories = await prisma.category.findMany({
-        where: { slug: { in: categorySlugs } },
-      });
+      const categories = await withTimeout(
+        prisma.category.findMany({
+          where: { slug: { in: categorySlugs } },
+        })
+      );
 
       if (categories.length === 0) {
-        return NextResponse.json([]);
+        return emptyResponse("No matching categories found");
       }
       where.categoryId = { in: categories.map((category) => category.id) };
     }
@@ -89,17 +118,19 @@ export async function GET(request: NextRequest) {
         break;
     }
 
-    const [total, products] = await prisma.$transaction([
-      prisma.product.count({ where }),
-      prisma.product.findMany({
-        where,
-        include: {
-          category: true,
-        },
-        orderBy,
-        take: limit,
-        skip,
-      }),
+    const [total, products] = await Promise.all([
+      withTimeout(prisma.product.count({ where })),
+      withTimeout(
+        prisma.product.findMany({
+          where,
+          include: {
+            category: { select: { name: true } },
+          },
+          orderBy,
+          take: limit,
+          skip,
+        })
+      ),
     ]);
 
     return NextResponse.json(products, {
@@ -109,9 +140,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Failed to fetch products:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch products" },
-      { status: 500 }
-    );
+    return emptyResponse("Failed to fetch products");
   }
 }

@@ -257,11 +257,11 @@ export function ProductFilters() {
   return (
     <>
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-<SheetTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 cursor-pointer md:hidden">
-  <Filter className="h-4 w-4 ml-2" />
-  فیلترها
-  {activeCount > 0 && <Badge className="mr-2 bg-neutral-900 text-white">{activeCount}</Badge>}
-</SheetTrigger>
+        <SheetTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 cursor-pointer lg:hidden">
+          <Filter className="h-4 w-4 ml-2" />
+          فیلترها
+          {activeCount > 0 && <Badge className="mr-2 bg-neutral-900 text-white">{activeCount}</Badge>}
+        </SheetTrigger>
         <SheetContent side="bottom" className="h-[80vh] overflow-y-auto rounded-t-2xl">
           <SheetHeader>
             <SheetTitle>فیلترها</SheetTitle>

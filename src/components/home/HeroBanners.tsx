@@ -1,0 +1,174 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+
+export default function HeroBanners() {
+  return (
+    <section className="w-full flex flex-col bg-white" dir="rtl">
+      
+      {/* =========================================
+          بخش اول: بنر اصلی 
+      ========================================= */}
+      <div className="relative w-full h-[70vh] md:h-[85vh] overflow-hidden group">
+        <img
+          src="/images/back-to-school.jpg"
+          alt="شیک بپوش"
+          className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[10s] ease-out group-hover:scale-105"
+        />
+        
+        <div className="absolute inset-0 bg-black/20 transition-colors duration-500 group-hover:bg-black/30" />
+
+        <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 md:pb-16 text-white z-10 px-4">
+          {/* متن شیک بپوش با فونت بزرگ‌تر، ضخیم‌تر و سایه جذاب‌تر */}
+          <h2 className="text-5xl md:text-7xl font-extrabold mb-8 tracking-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)]">
+            شیک بپوش
+          </h2>
+          
+          <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-4 text-[10px] md:text-[11px] font-bold tracking-widest uppercase drop-shadow-md">
+            <Link href="/category/girl" className="hover:text-gray-300 transition-colors">دخترانه</Link>
+            <Link href="/category/boy" className="hover:text-gray-300 transition-colors">پسرانه</Link>
+            <Link href="/category/baby-girl" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
+            <Link href="/category/baby-boy" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
+            <Link href="/category/preteen-girl" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
+            <Link href="/category/preteen-boy" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
+          </div>
+        </div>
+      </div>
+
+      {/* =========================================
+          بخش دوم: دو بنر کنار هم (T-shirts & Pants)
+      ========================================= */}
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-1 bg-white mt-1">
+        
+        {/* بنر سمت راست: تی‌شرت */}
+        <div className="relative w-full h-[50vh] md:h-[65vh] overflow-hidden group">
+          <img
+            src="/images/t-shirts.jpg"
+            alt="تی‌شرت"
+            className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[10s] ease-out group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-black/20 transition-colors duration-500 group-hover:bg-black/30" />
+          
+          <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 text-white z-10 px-4">
+            <h2 className="text-3xl md:text-4xl font-normal mb-6 tracking-wide drop-shadow-md">
+              تی‌شرت
+            </h2>
+            <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 text-[10px] font-bold tracking-widest uppercase">
+              <Link href="/category/girl" className="hover:text-gray-300 transition-colors">دخترانه</Link>
+              <Link href="/category/boy" className="hover:text-gray-300 transition-colors">پسرانه</Link>
+              <Link href="/category/baby-girl" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
+              <Link href="/category/baby-boy" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
+              <Link href="/category/preteen-girl" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
+              <Link href="/category/preteen-boy" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
+            </div>
+          </div>
+        </div>
+
+        {/* بنر سمت چپ: شلوار */}
+        <div className="relative w-full h-[50vh] md:h-[65vh] overflow-hidden group">
+          <img
+            src="/images/pants.jpg"
+            alt="شلوار"
+            className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[10s] ease-out group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-black/20 transition-colors duration-500 group-hover:bg-black/30" />
+          
+          <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 text-white z-10 px-4">
+            <h2 className="text-3xl md:text-4xl font-normal mb-6 tracking-wide drop-shadow-md">
+              شلوار
+            </h2>
+            <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 text-[10px] font-bold tracking-widest uppercase">
+              <Link href="/category/girl" className="hover:text-gray-300 transition-colors">دخترانه</Link>
+              <Link href="/category/boy" className="hover:text-gray-300 transition-colors">پسرانه</Link>
+              <Link href="/category/baby-girl" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
+              <Link href="/category/baby-boy" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
+              <Link href="/category/preteen-girl" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
+              <Link href="/category/preteen-boy" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+     {/* =========================================
+          بخش سوم: بنر کالکشن جدید
+      ========================================= */}
+      <div className="relative w-full h-[70vh] md:h-[85vh] overflow-hidden group mt-1 bg-[#f1ece5]">
+        <img
+          src="/images/new-collection.jpg"
+          alt="کالکشن جدید"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[10s] ease-out group-hover:scale-105"
+        />
+        
+        <div className="absolute inset-0 bg-black/20 transition-colors duration-500 group-hover:bg-black/30" />
+
+        <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 md:pb-16 text-white z-10 px-4">
+          <span className="text-[10px] md:text-xs font-bold tracking-[0.2em] uppercase mb-3 opacity-90 drop-shadow-md">
+            پیشگامِ ترندها باشید!
+          </span>
+          <h2 className="text-4xl md:text-5xl font-normal mb-8 tracking-wide drop-shadow-lg">
+            کالکشن جدید
+          </h2>
+          
+          <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-4 text-[10px] md:text-[11px] font-bold tracking-widest uppercase drop-shadow-md">
+            <Link href="/category/newborn-girl" className="hover:text-gray-300 transition-colors">تازه متولد شده دختر</Link>
+            <Link href="/category/newborn-boy" className="hover:text-gray-300 transition-colors">تازه متولد شده پسر</Link>
+            <Link href="/category/baby-girl" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
+            <Link href="/category/baby-boy" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
+            <Link href="/category/girl" className="hover:text-gray-300 transition-colors">دخترانه</Link>
+            <Link href="/category/boy" className="hover:text-gray-300 transition-colors">پسرانه</Link>
+            <Link href="/category/preteen-girl" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
+            <Link href="/category/preteen-boy" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
+          </div>
+        </div>
+      </div>
+
+      {/* =========================================
+          بخش چهارم: گرید ۴ ستونه
+      ========================================= */}
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1 p-1 bg-white mt-1">
+        
+        {/* ستون ۱ */}
+        <Link href="#" className="relative w-full h-[450px] lg:h-[550px] overflow-hidden group">
+          <img src="/images/unisex.jpg" alt="لباس‌های یونیسکس" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+          <div className="absolute bottom-0 right-0 p-8 text-white z-10 flex flex-col items-start text-right">
+            <span className="text-[10px] md:text-[11px] tracking-widest font-bold mb-1 opacity-90 uppercase">لباس‌های یونیسکس</span>
+            <strong className="text-xl md:text-2xl font-normal drop-shadow-md">برای همه</strong>
+          </div>
+        </Link>
+
+        {/* ستون ۲ */}
+        <Link href="#" className="relative w-full h-[450px] lg:h-[550px] overflow-hidden group">
+          <img src="/images/newborn-boy-layette.jpg" alt="تازه متولد شده پسر" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+          <div className="absolute bottom-0 right-0 p-8 text-white z-10 flex flex-col items-start text-right">
+            <span className="text-[10px] md:text-[11px] tracking-widest font-bold mb-1 opacity-90 uppercase">تازه متولد شده پسر</span>
+            <strong className="text-xl md:text-2xl font-normal drop-shadow-md">سیسمونی</strong>
+          </div>
+        </Link>
+
+        {/* ستون ۳ */}
+        <Link href="#" className="relative w-full h-[450px] lg:h-[550px] overflow-hidden group">
+          <img src="/images/newborn-girl-layette.jpg" alt="تازه متولد شده دختر" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+          <div className="absolute bottom-0 right-0 p-8 text-white z-10 flex flex-col items-start text-right">
+            <span className="text-[10px] md:text-[11px] tracking-widest font-bold mb-1 opacity-90 uppercase">تازه متولد شده دختر</span>
+            <strong className="text-xl md:text-2xl font-normal drop-shadow-md">سیسمونی</strong>
+          </div>
+        </Link>
+
+        {/* ستون ۴ */}
+        <Link href="#" className="relative w-full h-[450px] lg:h-[550px] overflow-hidden group">
+          <img src="/images/maternity-accessories.jpg" alt="اکسسوری‌های مادر و نوزاد" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+          <div className="absolute bottom-0 right-0 p-8 text-white z-10 flex flex-col items-start text-right">
+            <strong className="text-xl md:text-2xl font-normal drop-shadow-md pb-1">اکسسوری‌های مادر و نوزاد</strong>
+          </div>
+        </Link>
+
+      </div>
+    </section>
+  );
+}

@@ -4,21 +4,21 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 
+const quickLinks = [
+  { label: "دخترانه", href: "/products?age=girl" },
+  { label: "پسرانه", href: "/products?age=boy" },
+  { label: "نوزاد دختر", href: "/products?age=newborn" },
+  { label: "نوزاد پسر", href: "/products?age=newborn" },
+  { label: "نوجوان", href: "/products?age=pre-teen" },
+];
+
 export const HeroSection = () => {
   return (
-    <section className="relative w-full h-[500px] md:h-[550px] overflow-hidden bg-slate-900">
-      
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-rose-300/80 blur-3xl" />
-        <div className="absolute top-0 left-0 w-1/2 h-full bg-sky-300/80 blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-1/2 h-2/3 bg-amber-200/80 blur-3xl" />
-        <div className="absolute bottom-0 left-1/4 w-1/3 h-2/3 bg-emerald-200/80 blur-3xl" />
-      </div>
-
-      <div className="absolute inset-0 z-10 w-full h-full opacity-90">
+    <section className="relative w-full h-[560px] md:h-[680px] overflow-hidden bg-slate-900">
+      <div className="absolute inset-0 z-10">
         <Image
           src="https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=1920&q=80"
-          alt="کودکان شاد با لباس‌های مد روز"
+          alt="کالکشن جدید"
           fill
           priority
           unoptimized
@@ -26,39 +26,34 @@ export const HeroSection = () => {
         />
       </div>
 
-      <div className="absolute inset-0 z-20 bg-gradient-to-l from-black/20 via-transparent to-transparent" />
+      <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/55 via-black/15 to-black/20" />
 
-      <div className="relative z-30 max-w-7xl mx-auto h-full px-6 flex items-center justify-end" dir="rtl">
-        <div className="text-right max-w-md space-y-4 rounded-3xl bg-white/30 backdrop-blur-md border border-white/50 shadow-xl p-6 mr-8 md:mr-16 my-auto">
+      <div
+        className="absolute inset-x-0 bottom-0 z-30 pb-10 md:pb-14 px-6 text-center"
+        dir="rtl"
+      >
+        <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+          کالکشن جدید
+        </h1>
 
-          <span className="inline-flex items-center gap-2 rounded-full bg-rose-500 text-white px-4 py-1.5 text-[11px] font-bold shadow-md shadow-rose-300">
-            ✨ بهار و تابستان ۱۴۰۵
-          </span>
-
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-neutral-900">
-            کالکشن جدید
-          </h1>
-
-          <p className="text-sm sm:text-base text-neutral-700 font-medium leading-relaxed">
-            استایل‌های مدرن و دوست‌داشتنی برای نوزادان، کودکان و نوجوانان
-          </p>
-
-          <div className="pt-1">
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 group"
-            >
-              <span>مشاهده کالکشن جدید</span>
-              <span className="group-hover:-translate-x-1 transition-transform duration-300">
-                ←
-              </span>
-            </Link>
-          </div>
-
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm lg:text-base text-white/90">
+          {quickLinks.map((link, index) => (
+            <React.Fragment key={link.label}>
+              {index > 0 && (
+                <span aria-hidden className="text-white/40 select-none">
+                  |
+                </span>
+              )}
+              <Link
+                href={link.href}
+                className="font-medium tracking-[0.08em] hover:text-white hover:underline underline-offset-4 transition-colors"
+              >
+                {link.label}
+              </Link>
+            </React.Fragment>
+          ))}
         </div>
       </div>
-
-      <div className="absolute bottom-0 left-0 w-full h-2.5 z-30 bg-gradient-to-r from-rose-500 via-sky-400 via-amber-400 via-emerald-400 to-purple-500" />
     </section>
   );
 };
