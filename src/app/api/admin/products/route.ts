@@ -24,9 +24,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, price, stock, category, description, images, sizes, colors, variants } = body;
+    const { name, price, stock, category, description, images, sizes, colors, variants, gender, type } = body;
 
-    console.log("POST /api/admin/products payload:", { name, price, stock, category, description, images, sizes, colors, variants });
+    console.log("POST /api/admin/products payload:", { name, price, stock, category, description, images, sizes, colors, variants, gender, type });
 
     if (!name || !price || !category) {
       return NextResponse.json(
@@ -40,6 +40,20 @@ export async function POST(request: NextRequest) {
     if (!Number.isInteger(parsedPrice) || parsedPrice < 0) {
       return NextResponse.json(
         { error: "قیمت باید عدد صحیح و بزرگ‌تر یا مساوی صفر باشد." },
+        { status: 400 }
+      );
+    }
+
+    if (gender !== undefined && gender !== null && gender !== "" && !["girl", "boy", "unisex"].includes(gender)) {
+      return NextResponse.json(
+        { error: "مقدار جنسیت نامعتبر است. باید girl، boy یا unisex باشد." },
+        { status: 400 }
+      );
+    }
+
+    if (type !== undefined && type !== null && type !== "" && !["dress", "set", "tshirt", "jeans", "knitwear", "pants"].includes(type)) {
+      return NextResponse.json(
+        { error: "مقدار نوع لباس نامعتبر است. باید dress، set، tshirt، jeans، knitwear یا pants باشد." },
         { status: 400 }
       );
     }
@@ -81,6 +95,8 @@ export async function POST(request: NextRequest) {
         images: Array.isArray(images) ? images : images ? [images] : [],
         sizes: Array.isArray(sizes) ? sizes : [],
         colors: Array.isArray(colors) ? colors : [],
+        gender: gender || null,
+        type: type || null,
         categoryId: categoryRecord.id,
         isActive: true,
         variants: {

@@ -5,39 +5,9 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import Header from '@/components/layout/Header';
 
-// دیتای محصولات (حالا هر محصول یک نوع type هم دارد تا از مگامنو فیلتر شود)
-const mockProducts = [
-  { 
-    id: 1, name: 'پیراهن نخی گلدوزی شده', price: '۸۹۰,۰۰۰ تومان', rawPrice: 890000, 
-    hasColors: true, gender: 'girl', type: 'dress', // نوع: پیراهن
-    img1: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=600&auto=format&fit=crop',
-    img2: 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop'
-  },
-  { 
-    id: 2, name: 'ست تیشرت و شلوارک جین', price: '۱,۴۵۰,۰۰۰ تومان', rawPrice: 1450000, 
-    hasColors: false, gender: 'boy', type: 'set', // نوع: ست
-    img1: 'https://images.unsplash.com/photo-1611428522646-04289895df87?q=80&w=600&auto=format&fit=crop',
-    img2: 'https://images.unsplash.com/photo-1519238380205-0819126cb726?q=80&w=600&auto=format&fit=crop'
-  },
-  { 
-    id: 3, name: 'ژاکت بافتنی دکمه‌دار', price: '۱,۱۰۰,۰۰۰ تومان', rawPrice: 1100000, 
-    hasColors: true, gender: 'boy', type: 'knitwear', // نوع: بافت
-    img1: 'https://images.unsplash.com/photo-1622290319146-7b63df48a635?q=80&w=600&auto=format&fit=crop',
-    img2: 'https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=600&auto=format&fit=crop'
-  },
-  { 
-    id: 4, name: 'اورال جین نوزادی', price: '۹۵۰,۰۰۰ تومان', rawPrice: 950000, 
-    hasColors: true, gender: 'girl', type: 'jeans', // نوع: شلوار جین
-    img1: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=600&auto=format&fit=crop',
-    img2: 'https://images.unsplash.com/photo-1522771930-78848d92871d?q=80&w=600&auto=format&fit=crop'
-  },
-];
-
-// کامپوننت اصلی که محتوا رو نمایش میده
-function KidsCategoryContent() {
+function BabyCategoryContent() {
   const searchParams = useSearchParams();
   
-  // خواندن اطلاعات از آدرسی که مگامنو فرستاده
   const urlGender = (searchParams.get('gender') as 'all' | 'girl' | 'boy') || 'all';
   const urlType = searchParams.get('type') || 'all';
 
@@ -47,14 +17,46 @@ function KidsCategoryContent() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
 
-  // اگر آدرس URL عوض شد، فیلترها هم آپدیت بشن
+  // اضافه کردن استیت محصولات دیتابیس بدون تغییر ظاهر دیزاین
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     setActiveGender(urlGender);
     setActiveType(urlType);
   }, [urlGender, urlType]);
 
-  // فیلتر کردن هوشمند محصولات بر اساس جنسیت و نوع لباس
-  let displayedProducts = [...mockProducts];
+  // لود کردن محصولات واقعی از دیتابیسِ خودت
+  useEffect(() => {
+    async function loadProductsFromDB() {
+      try {
+        const res = await fetch('/api/products?category=baby', { cache: 'no-store' });
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          // مپ کردن محصولات دیتابیس به همون ساختاری که دیزاینت انتظار داره
+          const formatted = data.map((p: any) => ({
+            id: p.id,
+            name: p.title || p.name,
+            price: p.price ? `${p.price.toLocaleString()} تومان` : '۰ تومان',
+            rawPrice: p.price || 0,
+            hasColors: Boolean(p.colors && p.colors.length > 0),
+            gender: p.ageGroup || 'girl',
+            type: 'dress',
+            img1: p.images?.[0] || 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=600&auto=format&fit=crop',
+            img2: p.images?.[1] || p.images?.[0] || 'https://images.unsplash.com/photo-1522771930-78848d92871d?q=80&w=600&auto=format&fit=crop',
+          }));
+          setProducts(formatted);
+        }
+      } catch (error) {
+        console.error("Error loading products:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProductsFromDB();
+  }, []);
+
+  let displayedProducts = [...products];
   if (activeGender !== 'all') {
     displayedProducts = displayedProducts.filter(product => product.gender === activeGender);
   }
@@ -62,12 +64,11 @@ function KidsCategoryContent() {
     displayedProducts = displayedProducts.filter(product => product.type === activeType);
   }
 
-  // مرتب‌سازی
   if (sortBy === 'price-asc') displayedProducts.sort((a, b) => a.rawPrice - b.rawPrice);
   else if (sortBy === 'price-desc') displayedProducts.sort((a, b) => b.rawPrice - a.rawPrice);
 
   return (
-    <div className="min-h-screen bg-[#e0f7fa] text-[#1a1a1a] font-sans pb-20" dir="rtl">
+    <div className="min-h-screen bg-[#e8f5e9] text-[#1a1a1a] font-sans pb-20" dir="rtl">
       
       <Header />
 
@@ -76,14 +77,19 @@ function KidsCategoryContent() {
         <div className="text-[11px] md:text-xs text-gray-500 flex items-center gap-2 tracking-wide mb-4 font-medium">
           <Link href="/" className="hover:text-black transition-colors uppercase">خانه</Link>
           <span className="text-gray-400">/</span>
-          <span className="text-black uppercase">پوشاک کودک (۲ تا ۱۰ سال)</span>
+          <span className="text-black uppercase">پوشاک نوزاد (۶ ماه تا ۴ سال)</span>
         </div>
-        <h1 className="text-5xl md:text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#0284c7] via-[#38bdf8] to-[#f43f5e] drop-shadow-[0_4px_10px_rgba(0,0,0,0.1)] px-2 py-1 mb-4">
-          <span>🎈</span>
-          {activeType === 'tshirt' ? 'تی‌شرت و بلوز' : activeType === 'jeans' ? 'شلوار جین' : activeType === 'set' ? 'ست‌های دوتکه' : activeType === 'dress' ? 'پیراهن و سرهمی' : 'پوشاک کودک'}
-          <span>✨</span>
+        <h1 className="text-5xl md:text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#15803d] via-[#4ade80] to-[#0ea5e9] drop-shadow-[0_4px_10px_rgba(0,0,0,0.1)] px-2 py-1 mb-4">
+          <span>🧸</span>
+          {activeType === 'dress' ? 'پیراهن و سرهمی' : 
+           activeType === 'set' ? 'ست نوزادی' : 
+           activeType === 'tshirt' ? 'تی‌شرت و بلوز' : 
+           activeType === 'pants' ? 'شلوار و شورت' : 
+           activeType === 'knitwear' ? 'ژاکت' : 
+           activeType === 'socks' ? 'جوراب و پاپوش' : 'پوشاک نوزاد'}
+          <span>🌱</span>
         </h1>
-        <span className="text-sm font-bold text-gray-600 bg-white/80 px-5 py-2 rounded-full shadow-sm border border-gray-200">۲ تا ۱۰ سال</span>
+        <span className="text-sm font-bold text-gray-600 bg-white/80 px-5 py-2 rounded-full shadow-sm border border-gray-200">۶ ماه تا ۴ سال</span>
       </div>
 
       {/* دکمه‌های دخترانه / پسرانه */}
@@ -105,14 +111,13 @@ function KidsCategoryContent() {
       </div>
 
       {/* نوار فیلتر و مرتب‌سازی */}
-      <div className="sticky top-0 z-30 w-full bg-[#fef9f0]/95 backdrop-blur-md border-y border-gray-200/60 px-4 md:px-12 py-3 shadow-sm">
+      <div className="sticky top-0 z-30 w-full bg-[#f4f7f6]/95 backdrop-blur-md border-y border-gray-200/60 px-4 md:px-12 py-3 shadow-sm">
         <div className="flex justify-between items-center text-[12px]">
           <div className="flex items-center gap-6 md:gap-8">
             <button onClick={() => setIsFilterOpen(!isFilterOpen)} className={`flex items-center gap-2 font-bold transition-colors ${isFilterOpen ? 'text-[#ff6b6b]' : 'text-gray-800 hover:text-[#ff6b6b]'}`}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
               فیلترها
             </button>
-            {/* دکمه لغو فیلتر نوع لباس */}
             {activeType !== 'all' && (
               <button onClick={() => setActiveType('all')} className="text-red-500 hover:text-red-600 font-bold">نمایش همه دسته‌ها ✕</button>
             )}
@@ -143,8 +148,9 @@ function KidsCategoryContent() {
             <div>
               <h4 className="font-bold mb-3 text-sm text-gray-800">سایز</h4>
               <div className="flex flex-col gap-2 text-xs text-gray-600 font-medium">
+                <label className="flex items-center gap-2 cursor-pointer hover:text-black"><input type="checkbox" className="rounded" /> ۶ تا ۱۲ ماه</label>
+                <label className="flex items-center gap-2 cursor-pointer hover:text-black"><input type="checkbox" className="rounded" /> ۱۲ تا ۲۴ ماه</label>
                 <label className="flex items-center gap-2 cursor-pointer hover:text-black"><input type="checkbox" className="rounded" /> ۲ تا ۴ سال</label>
-                <label className="flex items-center gap-2 cursor-pointer hover:text-black"><input type="checkbox" className="rounded" /> ۴ تا ۶ سال</label>
               </div>
             </div>
           </div>
@@ -153,7 +159,9 @@ function KidsCategoryContent() {
 
       {/* محصولات */}
       <div className="w-full px-4 md:px-12 py-10">
-        {displayedProducts.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-20 text-gray-500 font-medium text-lg">در حال بارگذاری محصولات...</div>
+        ) : displayedProducts.length === 0 ? (
           <div className="text-center py-20 text-gray-500 font-medium text-lg">محصولی در این دسته‌بندی یافت نشد.</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -186,11 +194,10 @@ function KidsCategoryContent() {
   );
 }
 
-// برای استفاده از useSearchParams در Next.js باید کامپوننت را داخل Suspense بگذاریم
-export default function KidsCategoryPage() {
+export default function BabyCategoryPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center items-center h-screen font-bold text-gray-500">در حال بارگذاری محصولات...</div>}>
-      <KidsCategoryContent />
+    <Suspense fallback={<div className="flex justify-center items-center h-screen font-bold text-gray-500">در حال بارگذاری...</div>}>
+      <BabyCategoryContent />
     </Suspense>
   );
 }

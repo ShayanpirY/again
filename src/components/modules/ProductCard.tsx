@@ -72,7 +72,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="group relative bg-white">
       {/* Image */}
-      <div className="relative aspect-[3/4] overflow-hidden rounded-[6px] bg-neutral-100">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-neutral-100">
         <Link href={productUrl} className="absolute inset-0 block">
           {/* Main image */}
           <Image
@@ -127,33 +127,50 @@ export function ProductCard({ product }: ProductCardProps) {
               ? "حذف از علاقه‌مندی‌ها"
               : "افزودن به علاقه‌مندی‌ها"
           }
-          className="absolute bottom-2 left-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/85 text-neutral-500 transition-all duration-200 hover:bg-white hover:text-[#d97757]"
+          className="group/btn absolute left-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 text-neutral-500 shadow-sm backdrop-blur transition-all duration-200 hover:bg-red-500 hover:text-white"
         >
           <Heart
-            className={`h-4 w-4 transition-colors ${
+            className={`h-[18px] w-[18px] transition-colors ${
               isWishlisted
-                ? "fill-[#d97757] text-[#d97757]"
-                : "text-neutral-500"
+                ? "fill-red-500 text-red-500"
+                : "text-neutral-500 group-hover/btn:text-white"
             }`}
           />
         </button>
       </div>
 
       {/* Product Info */}
-      <div className="pt-2.5">
+      <div className="pt-3">
         <Link href={productUrl}>
-          <h3 className="line-clamp-1 text-[13px] font-medium leading-6 text-neutral-900 transition-colors hover:text-neutral-600">
+          <h3 className="line-clamp-1 text-sm font-bold text-neutral-700 transition-colors hover:text-neutral-900">
             {product.name}
           </h3>
         </Link>
 
-        <div className="mt-0.5 flex items-center gap-2">
-          <span className="text-[13px] font-bold text-neutral-950">
+        {product.colors && product.colors.length > 0 && (
+          <div className="mt-2 flex items-center gap-1.5">
+            {product.colors.slice(0, 4).map((color) => (
+              <span
+                key={color}
+                className="h-3.5 w-3.5 rounded-full ring-1 ring-black/10"
+                style={{ backgroundColor: color }}
+              />
+            ))}
+            {product.colors.length > 4 && (
+              <span className="text-[10px] font-semibold text-neutral-400">
+                +{product.colors.length - 4}
+              </span>
+            )}
+          </div>
+        )}
+
+        <div className="mt-2 flex items-center gap-2">
+          <span className="text-base font-black text-neutral-900">
             {product.price.toLocaleString("fa-IR")} تومان
           </span>
 
           {product.originalPrice && (
-            <span className="text-[12px] text-neutral-400 line-through">
+            <span className="text-xs text-neutral-400 line-through">
               {product.originalPrice.toLocaleString("fa-IR")}
             </span>
           )}

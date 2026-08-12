@@ -43,6 +43,8 @@ model Product {
   updatedAt   DateTime  @updatedAt
   colors      String[]
   stock       Int       @default(0)
+  gender      String?
+  type        String?
   brand       String?
   ageGroup    String?
   season      String?

@@ -59,6 +59,8 @@ type ProductRow = {
   image: string;
   images?: string[];
   description?: string;
+  gender?: string;
+  type?: string;
 };
 
 type CategoryRow = {
@@ -83,6 +85,8 @@ interface ApiProduct {
   colors?: string[];
   images?: string[];
   description?: string;
+  gender?: string;
+  type?: string;
   variants?: { color?: string; size?: string; stock: number }[];
 }
 
@@ -105,6 +109,8 @@ export default function AdminProductsPage() {
     stock: "",
     category: "",
     description: "",
+    gender: "",
+    type: "",
   });
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -142,6 +148,8 @@ export default function AdminProductsPage() {
         image: (p.images && p.images[0]) || "",
         images: p.images || [],
         description: p.description || "",
+        gender: p.gender || "",
+        type: p.type || "",
       }));
       setProducts(mapped);
     } catch (error) {
@@ -177,7 +185,7 @@ export default function AdminProductsPage() {
     setSelectedColors([]);
     setMainImagePreview("");
     setAdditionalImagePreviews([]);
-    setFormData({ name: "", price: "", stock: "", category: "", description: "" });
+    setFormData({ name: "", price: "", stock: "", category: "", description: "", gender: "", type: "" });
     setVariantStocks({});
     setIsDialogOpen(true);
   };
@@ -194,6 +202,8 @@ export default function AdminProductsPage() {
       stock: product.stock.toString(),
       category: product.category,
       description: product.description || "",
+      gender: product.gender || "",
+      type: product.type || "",
     });
     setIsDialogOpen(true);
   };
@@ -258,6 +268,8 @@ export default function AdminProductsPage() {
       stock: parseInt(formData.stock) || 0,
       category: formData.category,
       description: formData.description.trim(),
+      gender: formData.gender || null,
+      type: formData.type || null,
       images: [mainImagePreview, ...additionalImagePreviews].filter(Boolean),
       sizes: selectedSizes,
       colors: selectedColors,
@@ -289,7 +301,7 @@ export default function AdminProductsPage() {
         return;
       }
 
-      setFormData({ name: "", price: "", stock: "", category: "", description: "" });
+      setFormData({ name: "", price: "", stock: "", category: "", description: "", gender: "", type: "" });
       setSelectedSizes([]);
       setSelectedColors([]);
       setVariantStocks({});
@@ -351,6 +363,8 @@ export default function AdminProductsPage() {
               <TableHead className="text-right">قیمت</TableHead>
               <TableHead className="text-right">موجودی</TableHead>
               <TableHead className="text-right">دسته‌بندی</TableHead>
+              <TableHead className="text-right">جنسیت</TableHead>
+              <TableHead className="text-right">نوع</TableHead>
               <TableHead className="text-right">رنگ‌ها</TableHead>
               <TableHead className="text-right">عملیات</TableHead>
             </TableRow>
@@ -358,13 +372,13 @@ export default function AdminProductsPage() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-neutral-600 py-8">
+                <TableCell colSpan={9} className="text-center text-neutral-600 py-8">
                   در حال بارگذاری...
                 </TableCell>
               </TableRow>
             ) : products.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-neutral-600 py-8">
+                <TableCell colSpan={9} className="text-center text-neutral-600 py-8">
                   هیچ محصولی یافت نشد.
                 </TableCell>
               </TableRow>
@@ -386,6 +400,16 @@ export default function AdminProductsPage() {
                   <TableCell>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-800">
                       {product.category}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-neutral-700">
+                      {product.gender === "girl" ? "دخترانه" : product.gender === "boy" ? "پسرانه" : product.gender === "unisex" ? "هر دو" : "—"}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-neutral-700">
+                      {product.type === "dress" ? "پیراهن" : product.type === "set" ? "ست" : product.type === "tshirt" ? "تی‌شرت" : product.type === "jeans" ? "جین" : product.type === "knitwear" ? "بافت" : product.type === "pants" ? "شلوار" : "—"}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -482,6 +506,67 @@ export default function AdminProductsPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-neutral-900">جنسیت</Label>
+                <div className="flex gap-2">
+                  {[
+                    { value: "girl", label: "دخترانه", active: "bg-[#ff6b6b] text-white border-[#ff6b6b]" },
+                    { value: "boy", label: "پسرانه", active: "bg-[#4dabf7] text-white border-[#4dabf7]" },
+                    { value: "unisex", label: "دخترانه و پسرانه", active: "bg-neutral-900 text-white border-neutral-900" },
+                  ].map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          gender: formData.gender === item.value ? "" : item.value,
+                        })
+                      }
+                      className={`px-4 py-2 text-xs font-bold border rounded-full transition-all ${
+                        formData.gender === item.value
+                          ? item.active
+                          : "border-neutral-300 text-neutral-700 hover:border-neutral-900"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-neutral-900">نوع لباس</Label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { value: "dress", label: "پیراهن" },
+                    { value: "set", label: "ست" },
+                    { value: "tshirt", label: "تی‌شرت" },
+                    { value: "jeans", label: "جین" },
+                    { value: "knitwear", label: "بافت" },
+                    { value: "pants", label: "شلوار" },
+                  ].map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          type: formData.type === item.value ? "" : item.value,
+                        })
+                      }
+                      className={`px-4 py-2 text-xs font-bold border rounded-full transition-all ${
+                        formData.type === item.value
+                          ? "bg-neutral-900 text-white border-neutral-900"
+                          : "border-neutral-300 text-neutral-700 hover:border-neutral-900"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 

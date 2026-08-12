@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 const QUERY_TIMEOUT_MS = 8000;
 
 async function withTimeout<T>(promise: Promise<T>, ms = QUERY_TIMEOUT_MS): Promise<T> {
@@ -32,8 +34,12 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const categorySlugs = searchParams.get("category")?.split(",").filter(Boolean) || [];
+    
+    // اصلاح صفحه‌بندی برای هماهنگی با فرانت‌اند
     const limit = parseInt(searchParams.get("limit") || "20");
-    const skip = parseInt(searchParams.get("skip") || "0");
+    const page = parseInt(searchParams.get("page") || "1");
+    const skip = (page - 1) * limit;
+    
     const sale = searchParams.get("sale");
     const sort = searchParams.get("sort") || "newest";
     const colors = searchParams.get("colors")?.split(",").filter(Boolean) || [];
@@ -141,5 +147,42 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Failed to fetch products:", error);
     return emptyResponse("Failed to fetch products");
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+
+    // ایجاد محصول جدید در دیتابیس
+    const newProduct = await prisma.product.create({
+      data: {
+        title: body.title,
+        price: Number(body.price),
+        description: body.description || "",
+        categoryId: body.categoryId,
+        images: body.images || [],
+        sizes: body.sizes || [],
+        colors: body.colors || [],
+        stock: Number(body.stock || 0),
+        gender: body.gender || null,
+        type: body.type || null,
+        brand: body.brand || null,
+        ageGroup: body.ageGroup || null,
+        season: body.season || null,
+        fabric: body.fabric || null,
+        isActive: body.isActive ?? true,
+        isSale: body.isSale ?? false,
+        isNew: body.isNew ?? true,
+      },
+    });
+
+    return NextResponse.json(newProduct, { status: 201 });
+  } catch (error) {
+    console.error("Failed to create product:", error);
+    return NextResponse.json(
+      { error: "خطا در ذخیره محصول" },
+      { status: 500 }
+    );
   }
 }
