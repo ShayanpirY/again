@@ -77,13 +77,16 @@ export default function AdminCategoriesPage() {
       .replace(/^-+|-+$/g, "");
   };
 
+  // پیشنهادهای به‌روز شده منطبق بر مگامنو و بخش‌های جدید سایت
   const suggestedCategories = [
-    { name: "نوزاد", slug: "نوزاد" },
-    { name: "کودک", slug: "کودک" },
-    { name: "نوجوان", slug: "نوجوان" },
-    { name: "دخترانه", slug: "دخترانه" },
-    { name: "پسرانه", slug: "پسرانه" },
-    { name: "سرهمی", slug: "سرهمی" },
+    { name: "تازه متولد شده", slug: "newborn" },
+    { name: "نوزاد", slug: "baby" },
+    { name: "کودک", slug: "kids" },
+    { name: "نوجوان", slug: "preteen" },
+    { name: "دخترانه", slug: "girl" },
+    { name: "پسرانه", slug: "boy" },
+    { name: "لوازم ضروری", slug: "essentials" },
+    { name: "حراج ویژه", slug: "sale" },
   ];
 
   useEffect(() => {
@@ -263,10 +266,10 @@ export default function AdminCategoriesPage() {
                   id="slug"
                   value={formData.slug}
                   onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  placeholder="مثلاً: لباس-نوجوانان یا خالی بگذارید تا خودکار ساخته شود"
+                  placeholder="مثلاً: newborn یا خالی بگذارید تا خودکار ساخته شود"
                   className="border-neutral-300 focus:border-neutral-900 focus:ring-neutral-900"
                 />
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 pt-2">
                   {suggestedCategories.map((item) => (
                     <Button
                       key={item.slug}

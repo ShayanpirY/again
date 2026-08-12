@@ -12,7 +12,8 @@ const promoMessages = [
 ];
 
 export function Header() {
-  const [activeMenu, setActiveMenu] = useState<'kids' | 'baby' | 'preteen' | null>(null);
+  // تایپ newborn رو به استیت اضافه کردیم تا هدر بشناسدش
+  const [activeMenu, setActiveMenu] = useState<'kids' | 'baby' | 'preteen' | 'newborn' | null>(null);
   const [promoIndex, setPromoIndex] = useState(0);
   const [fade, setFade] = useState(true);
 
@@ -120,10 +121,15 @@ export function Header() {
                   </Link>
                 </div>
 
-                <div className="h-full flex items-center">
+                {/* استایل اکتیو و رویداد هاور برای تازه متولد شده اضافه شد */}
+                <div className="h-full flex items-center" onMouseEnter={() => setActiveMenu('newborn')}>
                   <Link
                     href="/category/newborn"
-                    className="text-[14px] text-gray-700 hover:text-black font-medium"
+                    className={`text-[14px] transition-colors relative h-full flex items-center ${
+                      activeMenu === 'newborn'
+                        ? 'text-black font-bold after:absolute after:bottom-[-1px] after:left-0 after:right-0 after:h-[2px] after:bg-[#d97757]'
+                        : 'text-gray-700 hover:text-black font-medium'
+                    }`}
                   >
                     تازه متولد شده
                   </Link>
@@ -151,10 +157,12 @@ export function Header() {
                   </Link>
                 </div>
 
-                {/* مگامنوها در سطح نویگیشن برای رفع باگ پوزیشنینگ */}
+                {/* مگامنوها در سطح نویگیشن */}
                 <MegaMenu type="kids" isOpen={activeMenu === 'kids'} />
                 <MegaMenu type="baby" isOpen={activeMenu === 'baby'} />
                 <MegaMenu type="preteen" isOpen={activeMenu === 'preteen'} />
+                {/* فراخوانی مگامنوی جدید */}
+                <MegaMenu type="newborn" isOpen={activeMenu === 'newborn'} />
               </nav>
             </div>
 

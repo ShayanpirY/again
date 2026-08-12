@@ -1,117 +1,52 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { ProductCard } from "@/components/modules/ProductCard";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import React, { useState, Suspense } from 'react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image?: string;
-  images?: string[];
-  colors?: string[];
-  category?: string;
-  isSale?: boolean;
-  originalPrice?: number;
-}
+// محصولات تخفیف‌دار
+const saleProducts = [
+  { id: 1, name: 'تی‌شرت تابستانه', price: '۳۵۰,۰۰۰ تومان', oldPrice: '۵۰۰,۰۰۰', img1: 'https://images.unsplash.com/photo-1519238380205-0819126cb726?q=80&w=600', img2: 'https://images.unsplash.com/photo-1611428522646-04289895df87?q=80&w=600' },
+  { id: 2, name: 'شلوار جین راحتی', price: '۷۵۰,۰۰۰ تومان', oldPrice: '۱,۱۰۰,۰۰۰', img1: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=600', img2: 'https://images.unsplash.com/photo-1522771930-78848d92871d?q=80&w=600' },
+];
 
-export default function SalePage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchSaleProducts = async () => {
-      try {
-        const res = await fetch("/api/products?sale=true");
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          const mapped = data.map((p) => ({
-            id: p.id,
-            name: p.title,
-            price: p.price,
-            image: (p.images && p.images[0]) || "",
-            images: p.images || [],
-            colors: p.colors || [],
-            category: p.category?.name || "",
-            isSale: p.isSale,
-            originalPrice: p.originalPrice,
-          }));
-          setProducts(mapped);
-        }
-      } catch (error) {
-        console.error("Failed to fetch sale products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSaleProducts();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-red-200/60 via-orange-100/30 to-white" dir="rtl">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <div className="w-8 h-8 border-2 border-neutral-900 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-neutral-600">در حال بارگذاری...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+function SaleContent() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-200/60 via-orange-100/30 to-white relative" dir="rtl">
-      <div className="fixed inset-0 bg-white/30 backdrop-blur-[2px] pointer-events-none" />
-      <div className="container mx-auto px-4 py-8 relative">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-neutral-600 mb-8">
-          <Link href="/" className="hover:text-neutral-900 transition-colors">خانه</Link>
-          <span>/</span>
-          <span className="text-neutral-900">حراج ویژه</span>
-        </nav>
-
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-neutral-900 mb-3">حراج ویژه</h1>
-          <p className="text-neutral-600 text-sm">
-            {products.length} محصول با تخفیف ویژه
-          </p>
+    // تم رنگی داغ و حراجی (bg-[#fff5f2])
+    <div className="min-h-screen bg-[#fff5f2] text-[#1a1a1a] font-sans pb-20" dir="rtl">
+      <div className="w-full px-4 md:px-12 pt-20 flex flex-col items-center">
+        {/* عنوان فانتزی حراج */}
+        <div className="relative inline-flex items-center justify-center gap-3">
+          <span className="text-4xl animate-bounce">🔥</span>
+          <h1 className="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#ff4d4d] to-[#f97316] drop-shadow-md">
+            حراج ویژه
+          </h1>
+          <span className="text-4xl animate-pulse">⚡</span>
         </div>
+        <p className="mt-6 text-gray-600 font-bold text-lg">فرصت را از دست نده! تخفیف‌های باورنکردنی تا ۵۰٪</p>
+      </div>
 
-        {products.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} variant="sale" />
-            ))}
+      <div className="w-full px-4 md:px-12 py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {saleProducts.map((p) => (
+          <div key={p.id} className="bg-white rounded-[32px] p-3 border-2 border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:scale-[1.03] transition-all duration-300">
+            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100">
+              <img src={p.img1} className="w-full h-full object-cover" />
+              <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-black px-3 py-1 rounded-full">۵۰٪ تخفیف</div>
+            </div>
+            <div className="p-2">
+              <h3 className="font-bold text-sm text-gray-700">{p.name}</h3>
+              <div className="flex items-center gap-2 mt-2">
+                <p className="text-lg font-black text-red-600">{p.price}</p>
+                <p className="text-xs text-gray-400 line-through">{p.oldPrice}</p>
+              </div>
+            </div>
           </div>
-        ) : (
-          <div className="text-center py-16">
-            <p className="text-neutral-600">در حال حاضر هیچ محصولی در حراج ویژه وجود ندارد.</p>
-            <Link href="/products">
-              <Button className="mt-4 bg-neutral-900 text-white hover:bg-neutral-800">
-                مشاهده همه محصولات
-              </Button>
-            </Link>
-          </div>
-        )}
-
-        <div className="text-center mt-12">
-          <Link href="/products">
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-none px-8 py-6 text-xs font-semibold uppercase tracking-[0.15em] border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white"
-            >
-              <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
-              بازگشت به همه محصولات
-            </Button>
-          </Link>
-        </div>
+        ))}
       </div>
     </div>
   );
+}
+
+export default function SalePage() {
+  return <Suspense fallback={<div>Loading...</div>}><SaleContent /></Suspense>;
 }

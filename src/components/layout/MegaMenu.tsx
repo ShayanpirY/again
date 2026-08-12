@@ -17,7 +17,7 @@ interface Category {
 }
 
 interface MegaMenuProps {
-  type: 'kids' | 'baby' | 'preteen';
+  type: 'kids' | 'baby' | 'preteen' | 'newborn';
   isOpen: boolean;
 }
 
@@ -48,15 +48,15 @@ const menuData: Record<
         title: 'پوشاک',
         hasChildren: true,
         subCategories: [
-          { title: 'پیراهن و سرهمی', href: '#' },
-          { title: 'ست‌ها', href: '#', star: true },
-          { title: 'تی‌شرت و بلوز', href: '#' },
-          { title: 'شلوار و دامن', href: '#' },
-          { title: 'ژاکت و بافت', href: '#' },
-          { title: 'لگینگ', href: '#' },
-          { title: 'شلوار جین', href: '#' },
-          { title: 'کاپشن و پالتو', href: '#' },
-          { title: 'هودی و سویشرت', href: '#' },
+          { title: 'پیراهن و سرهمی', href: '&type=dress' },
+          { title: 'ست‌ها', href: '&type=set', star: true },
+          { title: 'تی‌شرت و بلوز', href: '&type=tshirt' },
+          { title: 'شلوار و دامن', href: '&type=pants' },
+          { title: 'ژاکت و بافت', href: '&type=knitwear' },
+          { title: 'لگینگ', href: '&type=legging' },
+          { title: 'شلوار جین', href: '&type=jeans' },
+          { title: 'کاپشن و پالتو', href: '&type=coat' },
+          { title: 'هودی و سویشرت', href: '&type=hoodie' },
         ],
       },
       { id: 'shoes', title: 'کفش' },
@@ -82,12 +82,12 @@ const menuData: Record<
         title: 'پوشاک نوزاد',
         hasChildren: true,
         subCategories: [
-          { title: 'پیراهن و سرهمی', href: '#' },
-          { title: 'ست نوزادی', href: '#', star: true },
-          { title: 'تی‌شرت و بلوز', href: '#' },
-          { title: 'شلوار و شورت', href: '#' },
-          { title: 'ژاکت', href: '#' },
-          { title: 'جوراب و پاپوش', href: '#' },
+          { title: 'پیراهن و سرهمی', href: '&type=dress' },
+          { title: 'ست نوزادی', href: '&type=set', star: true },
+          { title: 'تی‌شرت و بلوز', href: '&type=tshirt' },
+          { title: 'شلوار و شورت', href: '&type=pants' },
+          { title: 'ژاکت', href: '&type=knitwear' },
+          { title: 'جوراب و پاپوش', href: '&type=socks' },
         ],
       },
       { id: 'shoes', title: 'کفش نوزاد' },
@@ -112,23 +112,75 @@ const menuData: Record<
         title: 'پوشاک نوجوان',
         hasChildren: true,
         subCategories: [
-          { title: 'تی‌شرت و پولوشرت', href: '#' },
-          { title: 'پیراهن نوجوان', href: '#' },
-          { title: 'شلوار و هودی', href: '#' },
-          { title: 'لباس ورزشی', href: '#' },
+          // آدرس‌های بخش نوجوان اینجا اضافه شد
+          { title: 'تی‌شرت و پولوشرت', href: '&type=tshirt' },
+          { title: 'پیراهن نوجوان', href: '&type=dress' },
+          { title: 'شلوار و هودی', href: '&type=pants' },
+          { title: 'لباس ورزشی', href: '&type=sport' },
         ],
       },
       { id: 'shoes', title: 'کفش' },
       { id: 'accessories', title: 'اکسسوری' },
     ],
   },
+  newborn: {
+    age: '۰ تا ۱۸ ماه',
+    promo1: {
+      title: 'نوزاد دختر و پسر',
+      subtitle: 'محبوب‌ترین‌های این ماه',
+      img: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=600&h=800&q=80',
+    },
+    promo2: {
+      img: 'https://images.unsplash.com/photo-1522771930-78848d92871d?auto=format&fit=crop&w=400&h=800&q=80',
+    },
+    categories: [
+      { id: 'new-collection', title: 'کالکشن جدید' },
+      { id: 'layette', title: 'سیسمونی' },
+      { id: 'maternity-bags', title: 'ساک لوازم نوزاد' },
+      {
+        id: 'clothing',
+        title: 'پوشاک',
+        hasChildren: true,
+        subCategories: [
+          { title: 'بادی و سرهمی', href: '&type=body' },
+          { title: 'ست‌های نوزادی', href: '&type=set' },
+          { title: 'شلوار و لگ', href: '&type=pants' },
+          { title: 'ژاکت و پلیور', href: '&type=knitwear' },
+          { title: 'لباس خواب', href: '&type=sleepwear' },
+        ],
+      },
+      {
+        id: 'shoes',
+        title: 'کفش',
+        hasChildren: true,
+        subCategories: [
+          { title: 'پاپوش نوزادی', href: '&type=booties' },
+          { title: 'کفش راحتی', href: '&type=casual' },
+        ]
+      },
+      {
+        id: 'accessories',
+        title: 'اکسسوری',
+        hasChildren: true,
+        subCategories: [
+          { title: 'کلاه و پیش‌بند', href: '&type=bibs' },
+          { title: 'جوراب', href: '&type=socks' },
+          { title: 'پتو و روانداز', href: '&type=blankets' },
+        ]
+      },
+      { id: 'collections', title: 'مجموعه‌ها' },
+    ],
+  },
 };
 
 export default function MegaMenu({ type, isOpen }: MegaMenuProps) {
-  const [activeGender, setActiveGender] = useState<'girl' | 'boy'>('girl');
+  const [activeTab, setActiveTab] = useState<'girl' | 'boy' | 'essentials'>('girl');
   const [activeCategory, setActiveCategory] = useState<string>('clothing');
 
   const currentData = menuData[type];
+  
+  if (!currentData) return null;
+
   const selectedCat = currentData.categories.find((c) => c.id === activeCategory);
 
   return (
@@ -144,9 +196,9 @@ export default function MegaMenu({ type, isOpen }: MegaMenuProps) {
         <div className="flex items-center gap-2 border-b border-gray-100 pb-4">
           <button
             type="button"
-            onClick={() => setActiveGender('girl')}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
-              activeGender === 'girl'
+            onClick={() => setActiveTab('girl')}
+            className={`px-3 py-1.5 rounded-full text-[11px] md:text-xs font-bold transition-all ${
+              activeTab === 'girl'
                 ? 'bg-[#d97757] text-white shadow-sm'
                 : 'text-gray-500 hover:text-black border border-transparent hover:border-gray-200'
             }`}
@@ -155,16 +207,31 @@ export default function MegaMenu({ type, isOpen }: MegaMenuProps) {
           </button>
           <button
             type="button"
-            onClick={() => setActiveGender('boy')}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
-              activeGender === 'boy'
+            onClick={() => setActiveTab('boy')}
+            className={`px-3 py-1.5 rounded-full text-[11px] md:text-xs font-bold transition-all ${
+              activeTab === 'boy'
                 ? 'bg-[#d97757] text-white shadow-sm'
                 : 'text-gray-500 hover:text-black border border-transparent hover:border-gray-200'
             }`}
           >
             پسرانه
           </button>
-          <span className="text-[11px] text-gray-400 mr-auto whitespace-nowrap font-medium">
+          
+          {type === 'newborn' && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('essentials')}
+              className={`px-3 py-1.5 rounded-full text-[11px] md:text-xs font-bold transition-all ${
+                activeTab === 'essentials'
+                  ? 'bg-[#d97757] text-white shadow-sm'
+                  : 'text-gray-500 hover:text-black border border-transparent hover:border-gray-200'
+              }`}
+            >
+              لوازم ضروری
+            </button>
+          )}
+
+          <span className="text-[10px] md:text-[11px] text-gray-400 mr-auto whitespace-nowrap font-medium">
             {currentData.age}
           </span>
         </div>
@@ -194,13 +261,20 @@ export default function MegaMenu({ type, isOpen }: MegaMenuProps) {
       <div className="w-56 flex flex-col gap-3 shrink-0 min-h-[320px] border-l border-gray-100 pl-6">
         {selectedCat?.hasChildren && (
           <div className="flex flex-col gap-2">
-            {selectedCat.subCategories?.map((sub, idx) => (
-              <Link className="text-sm text-gray-600 hover:text-black hover:translate-x-[-4px] transition-all py-1.5 flex items-center justify-between group" href={sub.href} key={idx}>
-                <span>{sub.title}</span>
-                {sub.star && <span className="text-amber-400 text-xs">★</span>}
-              </Link>
-            ))}
-            <Link className="text-sm font-bold text-black pt-4 hover:underline" href="#">
+            {selectedCat.subCategories?.map((sub, idx) => {
+              const linkPath = sub.href.startsWith('&') 
+                ? `/category/${type}?gender=${activeTab}${sub.href}` 
+                : `/category/${type}?gender=${activeTab}`;
+
+              return (
+                <Link className="text-sm text-gray-600 hover:text-black hover:translate-x-[-4px] transition-all py-1.5 flex items-center justify-between group" href={linkPath} key={idx}>
+                  <span>{sub.title}</span>
+                  {sub.star && <span className="text-amber-400 text-xs">★</span>}
+                </Link>
+              );
+            })}
+            
+            <Link className="text-sm font-bold text-black pt-4 hover:underline" href={`/category/${type}?gender=${activeTab}`}>
               مشاهده همه
             </Link>
           </div>
