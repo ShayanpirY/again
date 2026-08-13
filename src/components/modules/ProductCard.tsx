@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Heart } from "lucide-react";
@@ -25,23 +26,43 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { toggleItem, isInWishlist } = useWishlistStore();
-
   const isWishlisted = isInWishlist(product.id);
-
   const productUrl = `/products/${product.id}`;
 
-  const mainImage =
-    product.image ||
-    product.images?.[0] ||
-    "/placeholder.png";
+  const gallery =
+    product.images && product.images.length > 0
+      ? product.images
+      : product.image
+      ? [product.image]
+      : ["/placeholder.png"];
 
-  const hoverImage =
-    product.images?.[1] ||
-    product.images?.[0] ||
-    product.image ||
-    "/placeholder.png";
+  const [index, setIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
 
-  const hasHoverImage = hoverImage && hoverImage !== mainImage;
+  const mainImage = gallery[0];
+  const hoverImage = gallery[1] || gallery[0];
+  const hasHoverImage = gallery.length > 1 && hoverImage !== mainImage;
+  const currentMobile = gallery[index] || mainImage;
+
+  const goTo = (i: number) => {
+    if (gallery.length < 2) return;
+    setIndex((i + gallery.length) % gallery.length);
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || gallery.length < 2) return;
+    const diff = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(diff) > 40) {
+      // RTL: انگشت به چپ = بعدی
+      if (diff < 0) goTo(index + 1);
+      else goTo(index - 1);
+    }
+    touchStartX.current = null;
+  };
 
   const toFullProduct = (): Product => ({
     id: product.id,
@@ -71,37 +92,48 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div className="group relative bg-white">
-      {/* Image */}
-      <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-neutral-100">
+      <div
+        className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-neutral-100"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
         <Link href={productUrl} className="absolute inset-0 block">
-          {/* Main image */}
+          {/* موبایل: عکس فعلی بر اساس index */}
+          <Image
+            src={currentMobile}
+            alt={product.name}
+            fill
+            className="object-cover transition-opacity duration-300 md:hidden"
+            sizes="(max-width: 768px) 50vw, 25vw"
+            unoptimized
+          />
+
+          {/* دسکتاپ: عکس اصلی + hover */}
           <Image
             src={mainImage}
             alt={product.name}
             fill
-            className={`object-cover transition-all duration-500 ease-out ${
+            className={`object-cover transition-all duration-500 ease-out hidden md:block ${
               hasHoverImage
                 ? "opacity-100 group-hover:opacity-0"
                 : "group-hover:scale-[1.03]"
             }`}
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            sizes="(max-width: 1200px) 33vw, 25vw"
             unoptimized
           />
 
-          {/* Hover image */}
           {hasHoverImage && (
             <Image
               src={hoverImage}
               alt={product.name}
               fill
-              className="object-cover opacity-0 transition-all duration-500 ease-out group-hover:opacity-100 group-hover:scale-[1.02]"
-              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              className="object-cover opacity-0 transition-all duration-500 ease-out group-hover:opacity-100 group-hover:scale-[1.02] hidden md:block"
+              sizes="(max-width: 1200px) 33vw, 25vw"
               unoptimized
             />
           )}
         </Link>
 
-        {/* Badges */}
         {(product.isNew || product.isSale) && (
           <div className="absolute right-2 top-2 z-10 flex flex-col gap-1.5">
             {product.isNew && (
@@ -109,7 +141,6 @@ export function ProductCard({ product }: ProductCardProps) {
                 جدید
               </span>
             )}
-
             {product.isSale && discount > 0 && (
               <span className="bg-[#d97757] px-2 py-1 text-[10px] font-semibold text-white shadow-sm">
                 -{discount}٪
@@ -118,14 +149,11 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
 
-        {/* Wishlist */}
         <button
           type="button"
           onClick={handleToggleWishlist}
           aria-label={
-            isWishlisted
-              ? "حذف از علاقه‌مندی‌ها"
-              : "افزودن به علاقه‌مندی‌ها"
+            isWishlisted ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"
           }
           className="group/btn absolute left-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 text-neutral-500 shadow-sm backdrop-blur transition-all duration-200 hover:bg-red-500 hover:text-white"
         >
@@ -137,9 +165,29 @@ export function ProductCard({ product }: ProductCardProps) {
             }`}
           />
         </button>
+
+        {/* نقاط — موبایل (و کمی دسکتاپ روی hover) */}
+        {gallery.length > 1 && (
+          <div className="absolute bottom-3 left-0 right-0 z-10 flex justify-center gap-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+            {gallery.slice(0, 5).map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`تصویر ${i + 1}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIndex(i);
+                }}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === index ? "w-4 bg-white shadow" : "w-1.5 bg-white/70"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Product Info */}
       <div className="pt-3">
         <Link href={productUrl}>
           <h3 className="line-clamp-1 text-sm font-bold text-neutral-700 transition-colors hover:text-neutral-900">
@@ -168,7 +216,6 @@ export function ProductCard({ product }: ProductCardProps) {
           <span className="text-base font-black text-neutral-900">
             {product.price.toLocaleString("fa-IR")} تومان
           </span>
-
           {product.originalPrice && (
             <span className="text-xs text-neutral-400 line-through">
               {product.originalPrice.toLocaleString("fa-IR")}

@@ -113,9 +113,8 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Prisma Error:", error);
     console.error("Failed to create product:", error);
-    const errorMessage = error instanceof Error ? error.message : "خطا در ایجاد محصول. لطفاً دوباره تلاش کنید.";
     return NextResponse.json(
-      { error: errorMessage },
+      { error: "خطا در ایجاد محصول. لطفاً دوباره تلاش کنید." },
       { status: 500 }
     );
   }

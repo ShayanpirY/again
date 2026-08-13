@@ -26,12 +26,12 @@ export default function HeroBanners() {
           </h2>
           
           <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-4 text-[10px] md:text-[11px] font-bold tracking-widest uppercase drop-shadow-md">
-            <Link href="/category/girl" className="hover:text-gray-300 transition-colors">دخترانه</Link>
-            <Link href="/category/boy" className="hover:text-gray-300 transition-colors">پسرانه</Link>
-            <Link href="/category/baby-girl" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
-            <Link href="/category/baby-boy" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
-            <Link href="/category/preteen-girl" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
-            <Link href="/category/preteen-boy" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
+            <Link href="/category/kids?gender=girl" className="hover:text-gray-300 transition-colors">دخترانه</Link>
+            <Link href="/category/kids?gender=boy" className="hover:text-gray-300 transition-colors">پسرانه</Link>
+            <Link href="/category/baby?gender=girl" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
+            <Link href="/category/baby?gender=boy" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
+            <Link href="/category/preteen?gender=girl" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
+            <Link href="/category/preteen?gender=boy" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
           </div>
         </div>
       </div>
@@ -55,12 +55,12 @@ export default function HeroBanners() {
               تی‌شرت
             </h2>
             <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 text-[10px] font-bold tracking-widest uppercase">
-              <Link href="/category/girl" className="hover:text-gray-300 transition-colors">دخترانه</Link>
-              <Link href="/category/boy" className="hover:text-gray-300 transition-colors">پسرانه</Link>
-              <Link href="/category/baby-girl" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
-              <Link href="/category/baby-boy" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
-              <Link href="/category/preteen-girl" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
-              <Link href="/category/preteen-boy" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
+              <Link href="/category/kids?gender=girl&type=tshirt" className="hover:text-gray-300 transition-colors">دخترانه</Link>
+              <Link href="/category/kids?gender=boy&type=tshirt" className="hover:text-gray-300 transition-colors">پسرانه</Link>
+              <Link href="/category/baby?gender=girl&type=tshirt" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
+              <Link href="/category/baby?gender=boy&type=tshirt" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
+              <Link href="/category/preteen?gender=girl&type=tshirt" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
+              <Link href="/category/preteen?gender=boy&type=tshirt" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
             </div>
           </div>
         </div>
@@ -79,12 +79,12 @@ export default function HeroBanners() {
               شلوار
             </h2>
             <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 text-[10px] font-bold tracking-widest uppercase">
-              <Link href="/category/girl" className="hover:text-gray-300 transition-colors">دخترانه</Link>
-              <Link href="/category/boy" className="hover:text-gray-300 transition-colors">پسرانه</Link>
-              <Link href="/category/baby-girl" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
-              <Link href="/category/baby-boy" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
-              <Link href="/category/preteen-girl" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
-              <Link href="/category/preteen-boy" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
+              <Link href="/category/kids?gender=girl&type=pants" className="hover:text-gray-300 transition-colors">دخترانه</Link>
+              <Link href="/category/kids?gender=boy&type=pants" className="hover:text-gray-300 transition-colors">پسرانه</Link>
+              <Link href="/category/baby?gender=girl&type=pants" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
+              <Link href="/category/baby?gender=boy&type=pants" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
+              <Link href="/category/preteen?gender=girl&type=pants" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
+              <Link href="/category/preteen?gender=boy&type=pants" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
             </div>
           </div>
         </div>
@@ -112,14 +112,14 @@ export default function HeroBanners() {
           </h2>
           
           <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-4 text-[10px] md:text-[11px] font-bold tracking-widest uppercase drop-shadow-md">
-            <Link href="/category/newborn-girl" className="hover:text-gray-300 transition-colors">تازه متولد شده دختر</Link>
-            <Link href="/category/newborn-boy" className="hover:text-gray-300 transition-colors">تازه متولد شده پسر</Link>
-            <Link href="/category/baby-girl" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
-            <Link href="/category/baby-boy" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
-            <Link href="/category/girl" className="hover:text-gray-300 transition-colors">دخترانه</Link>
-            <Link href="/category/boy" className="hover:text-gray-300 transition-colors">پسرانه</Link>
-            <Link href="/category/preteen-girl" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
-            <Link href="/category/preteen-boy" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
+            <Link href="/category/newborn?gender=girl" className="hover:text-gray-300 transition-colors">تازه متولد شده دختر</Link>
+            <Link href="/category/newborn?gender=boy" className="hover:text-gray-300 transition-colors">تازه متولد شده پسر</Link>
+            <Link href="/category/baby?gender=girl" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
+            <Link href="/category/baby?gender=boy" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
+            <Link href="/category/kids?gender=girl" className="hover:text-gray-300 transition-colors">دخترانه</Link>
+            <Link href="/category/kids?gender=boy" className="hover:text-gray-300 transition-colors">پسرانه</Link>
+            <Link href="/category/preteen?gender=girl" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
+            <Link href="/category/preteen?gender=boy" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
           </div>
         </div>
       </div>

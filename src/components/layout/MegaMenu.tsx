@@ -262,9 +262,17 @@ export default function MegaMenu({ type, isOpen }: MegaMenuProps) {
         {selectedCat?.hasChildren && (
           <div className="flex flex-col gap-2">
             {selectedCat.subCategories?.map((sub, idx) => {
-              const linkPath = sub.href.startsWith('&') 
-                ? `/category/${type}?gender=${activeTab}${sub.href}` 
-                : `/category/${type}?gender=${activeTab}`;
+              const genderParam =
+                activeTab === 'girl' || activeTab === 'boy'
+                  ? `?gender=${activeTab}`
+                  : '';
+              const typeParam =
+                sub.href.startsWith('&type=') &&
+                ['dress', 'set', 'tshirt', 'jeans', 'knitwear', 'pants'].includes(sub.href.slice(6))
+                  ? sub.href
+                  : '';
+
+              const linkPath = `/category/${type}${genderParam}${typeParam}`;
 
               return (
                 <Link className="text-sm text-gray-600 hover:text-black hover:translate-x-[-4px] transition-all py-1.5 flex items-center justify-between group" href={linkPath} key={idx}>
@@ -274,7 +282,10 @@ export default function MegaMenu({ type, isOpen }: MegaMenuProps) {
               );
             })}
             
-            <Link className="text-sm font-bold text-black pt-4 hover:underline" href={`/category/${type}?gender=${activeTab}`}>
+            <Link
+              className="text-sm font-bold text-black pt-4 hover:underline"
+              href={`/category/${type}${activeTab === 'girl' || activeTab === 'boy' ? `?gender=${activeTab}` : ''}`}
+            >
               مشاهده همه
             </Link>
           </div>

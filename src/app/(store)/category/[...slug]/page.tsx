@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense, use } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { redirect, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ProductCard } from "@/components/modules/ProductCard";
 
@@ -73,6 +73,17 @@ const categoryConfig: Record<
   },
 };
 
+const GENDER_SLUG_REDIRECTS: Record<string, string> = {
+  girl: "/category/kids?gender=girl",
+  boy: "/category/kids?gender=boy",
+  "baby-girl": "/category/baby?gender=girl",
+  "baby-boy": "/category/baby?gender=boy",
+  "preteen-girl": "/category/preteen?gender=girl",
+  "preteen-boy": "/category/preteen?gender=boy",
+  "newborn-girl": "/category/newborn?gender=girl",
+  "newborn-boy": "/category/newborn?gender=boy",
+};
+
 function CategoryContent({
   params,
 }: {
@@ -80,6 +91,12 @@ function CategoryContent({
 }) {
   const resolvedParams = use(params);
   const slug = resolvedParams.slug?.[0] || "kids";
+
+  const redirectTarget = GENDER_SLUG_REDIRECTS[slug];
+  if (redirectTarget) {
+    redirect(redirectTarget);
+  }
+
   const config = categoryConfig[slug] || {
     title: slug,
     ageRange: "",
@@ -107,7 +124,7 @@ function CategoryContent({
 
   const setGenderFilter = (value: "girl" | "boy") => {
     if (slug === "girl" || slug === "boy") {
-      router.push(`/category/${value}`);
+      router.push(`/category/kids?gender=${value}`);
       return;
     }
     const params = new URLSearchParams(searchParams.toString());

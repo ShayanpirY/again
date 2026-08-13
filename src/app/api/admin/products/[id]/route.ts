@@ -110,9 +110,8 @@ export async function PUT(
   } catch (error) {
     console.error("Prisma Error:", error);
     console.error("Failed to update product:", error);
-    const errorMessage = error instanceof Error ? error.message : "خطا در ویرایش محصول. لطفاً دوباره تلاش کنید.";
     return NextResponse.json(
-      { error: errorMessage },
+      { error: "خطا در ویرایش محصول. لطفاً دوباره تلاش کنید." },
       { status: 500 }
     );
   }
