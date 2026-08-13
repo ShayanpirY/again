@@ -5,6 +5,7 @@ import Link from 'next/link';
 import MegaMenu from './MegaMenu';
 import { SearchModal } from '@/components/modules/SearchModal';
 import { useCartStore } from '@/store/useCart';
+import { useWishlistStore } from '@/store/useWishlist';
 
 const promoMessages = [
   '۱۰٪ تخفیف با کد B2510',
@@ -32,6 +33,7 @@ export function Header() {
   const [fade, setFade] = useState(true);
   const cartItems = useCartStore((state) => state.items);
   const openCart = useCartStore((state) => state.openCart);
+  const wishlistCount = useWishlistStore((state) => state.items.length);
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   useEffect(() => {
@@ -257,11 +259,16 @@ export function Header() {
                   <path d="m21 21-4.3-4.3" />
                 </svg>
               </button>
-              <button type="button" aria-label="علاقه‌مندی‌ها" className="hover:text-black transition-colors hidden sm:block">
+              <Link href="/wishlist" aria-label="علاقه‌مندی‌ها" className="hover:text-black transition-colors hidden sm:block relative">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
                 </svg>
-              </button>
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-1.5 -right-2 bg-[#d97757] text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                    {wishlistCount > 99 ? "۹۹+" : wishlistCount.toLocaleString("fa-IR")}
+                  </span>
+                )}
+              </Link>
               <button type="button" aria-label="حساب کاربری" className="hover:text-black transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
