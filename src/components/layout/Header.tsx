@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import MegaMenu from './MegaMenu';
+import { SearchModal } from '@/components/modules/SearchModal';
 import { useCartStore } from '@/store/useCart';
 
 const promoMessages = [
@@ -17,7 +18,7 @@ const mobileLinks = [
   { href: '/category/kids?gender=girl', label: 'کودک دخترانه' },
   { href: '/category/kids?gender=boy', label: 'کودک پسرانه' },
   { href: '/category/baby', label: 'نوزاد' },
-  { href: '/category/newborn', label: 'تازه متولد شده' },
+  { href: '/category/sisooni', label: 'سیسمونی' },
   { href: '/category/preteen', label: 'نوجوان' },
   { href: '/sale', label: 'حراج ویژه', highlight: true },
   { href: '/products', label: 'همه محصولات' },
@@ -26,6 +27,7 @@ const mobileLinks = [
 export function Header() {
   const [activeMenu, setActiveMenu] = useState<'kids' | 'baby' | 'preteen' | 'newborn' | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [promoIndex, setPromoIndex] = useState(0);
   const [fade, setFade] = useState(true);
   const cartItems = useCartStore((state) => state.items);
@@ -198,14 +200,14 @@ export function Header() {
 
                 <div className="h-full flex items-center" onMouseEnter={() => setActiveMenu('newborn')}>
                   <Link
-                    href="/category/newborn"
+                    href="/category/sisooni"
                     className={`text-[14px] transition-colors relative h-full flex items-center ${
                       activeMenu === 'newborn'
                         ? 'text-black font-bold after:absolute after:bottom-[-1px] after:left-0 after:right-0 after:h-[2px] after:bg-[#d97757]'
                         : 'text-gray-700 hover:text-black font-medium'
                     }`}
                   >
-                    تازه متولد شده
+                    سیسمونی
                   </Link>
                 </div>
 
@@ -249,7 +251,7 @@ export function Header() {
 
             {/* آیکون‌ها */}
             <div className="flex items-center gap-4 md:gap-5 text-gray-700">
-              <button type="button" aria-label="جستجو" className="hover:text-black transition-colors">
+              <button type="button" aria-label="جستجو" onClick={() => setSearchOpen(true)} className="hover:text-black transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8" />
                   <path d="m21 21-4.3-4.3" />
@@ -287,6 +289,8 @@ export function Header() {
           </div>
         </header>
       </div>
+
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

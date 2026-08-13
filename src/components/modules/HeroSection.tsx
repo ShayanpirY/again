@@ -5,11 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 
 const quickLinks = [
-  { label: "دخترانه", href: "/products?age=girl" },
-  { label: "پسرانه", href: "/products?age=boy" },
-  { label: "نوزاد دختر", href: "/products?age=newborn" },
-  { label: "نوزاد پسر", href: "/products?age=newborn" },
-  { label: "نوجوان", href: "/products?age=pre-teen" },
+  { label: "دخترانه", href: "/category/kids?gender=girl" },
+  { label: "پسرانه", href: "/category/kids?gender=boy" },
+  { label: "نوزاد دختر", href: "/category/baby?gender=girl" },
+  { label: "نوزاد پسر", href: "/category/baby?gender=boy" },
+  { label: "نوجوان", href: "/category/preteen" },
 ];
 
 export const HeroSection = () => {

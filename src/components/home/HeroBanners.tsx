@@ -112,8 +112,8 @@ export default function HeroBanners() {
           </h2>
           
           <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-4 text-[10px] md:text-[11px] font-bold tracking-widest uppercase drop-shadow-md">
-            <Link href="/category/newborn?gender=girl" className="hover:text-gray-300 transition-colors">تازه متولد شده دختر</Link>
-            <Link href="/category/newborn?gender=boy" className="hover:text-gray-300 transition-colors">تازه متولد شده پسر</Link>
+            <Link href="/category/sisooni?gender=girl" className="hover:text-gray-300 transition-colors">سیسمونی دخترانه</Link>
+            <Link href="/category/sisooni?gender=boy" className="hover:text-gray-300 transition-colors">سیسمونی پسرانه</Link>
             <Link href="/category/baby?gender=girl" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
             <Link href="/category/baby?gender=boy" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
             <Link href="/category/kids?gender=girl" className="hover:text-gray-300 transition-colors">دخترانه</Link>
@@ -130,7 +130,7 @@ export default function HeroBanners() {
       <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1 p-1 bg-white mt-1">
         
         {/* ستون ۱ */}
-        <Link href="#" className="relative w-full h-[450px] lg:h-[550px] overflow-hidden group">
+        <Link href="/category/unisex" className="relative w-full h-[450px] lg:h-[550px] overflow-hidden group">
           <img src="/images/unisex.jpg" alt="لباس‌های یونیسکس" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
           <div className="absolute bottom-0 right-0 p-8 text-white z-10 flex flex-col items-start text-right">
@@ -140,27 +140,27 @@ export default function HeroBanners() {
         </Link>
 
         {/* ستون ۲ */}
-        <Link href="#" className="relative w-full h-[450px] lg:h-[550px] overflow-hidden group">
-          <img src="/images/newborn-boy-layette.jpg" alt="تازه متولد شده پسر" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-105" />
+        <Link href="/category/sisooni?gender=boy" className="relative w-full h-[450px] lg:h-[550px] overflow-hidden group">
+          <img src="/images/newborn-boy-layette.jpg" alt="سیسمونی پسرانه" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
           <div className="absolute bottom-0 right-0 p-8 text-white z-10 flex flex-col items-start text-right">
-            <span className="text-[10px] md:text-[11px] tracking-widest font-bold mb-1 opacity-90 uppercase">تازه متولد شده پسر</span>
+            <span className="text-[10px] md:text-[11px] tracking-widest font-bold mb-1 opacity-90 uppercase">سیسمونی پسرانه</span>
             <strong className="text-xl md:text-2xl font-normal drop-shadow-md">سیسمونی</strong>
           </div>
         </Link>
 
         {/* ستون ۳ */}
-        <Link href="#" className="relative w-full h-[450px] lg:h-[550px] overflow-hidden group">
-          <img src="/images/newborn-girl-layette.jpg" alt="تازه متولد شده دختر" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-105" />
+        <Link href="/category/sisooni?gender=girl" className="relative w-full h-[450px] lg:h-[550px] overflow-hidden group">
+          <img src="/images/newborn-girl-layette.jpg" alt="سیسمونی دخترانه" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
           <div className="absolute bottom-0 right-0 p-8 text-white z-10 flex flex-col items-start text-right">
-            <span className="text-[10px] md:text-[11px] tracking-widest font-bold mb-1 opacity-90 uppercase">تازه متولد شده دختر</span>
+            <span className="text-[10px] md:text-[11px] tracking-widest font-bold mb-1 opacity-90 uppercase">سیسمونی دخترانه</span>
             <strong className="text-xl md:text-2xl font-normal drop-shadow-md">سیسمونی</strong>
           </div>
         </Link>
 
         {/* ستون ۴ */}
-        <Link href="#" className="relative w-full h-[450px] lg:h-[550px] overflow-hidden group">
+        <Link href="/category/accessories" className="relative w-full h-[450px] lg:h-[550px] overflow-hidden group">
           <img src="/images/maternity-accessories.jpg" alt="اکسسوری‌های مادر و نوزاد" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
           <div className="absolute bottom-0 right-0 p-8 text-white z-10 flex flex-col items-start text-right">

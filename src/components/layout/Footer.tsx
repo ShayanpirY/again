@@ -30,7 +30,8 @@ export function Footer() {
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-900 mb-4">راهنما</h3>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/shipping" className="text-neutral-600 hover:text-black transition-colors">شرایط ارسال و بازگشت</Link></li>
+              <li><Link href="/shipping" className="text-neutral-600 hover:text-black transition-colors">شرایط ارسال</Link></li>
+              <li><Link href="/returns" className="text-neutral-600 hover:text-black transition-colors">مرجوعی و تعویض</Link></li>
               <li><Link href="/size-guide" className="text-neutral-600 hover:text-black transition-colors">راهنمای سایز</Link></li>
               <li><Link href="/faq" className="text-neutral-600 hover:text-black transition-colors">سوالات متداول</Link></li>
               <li><Link href="/contact" className="text-neutral-600 hover:text-black transition-colors">تماس با ما</Link></li>
@@ -40,9 +41,7 @@ export function Footer() {
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-900 mb-4">درباره ما</h3>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/about" className="text-neutral-600 hover:text-black transition-colors">داستان ما</Link></li>
-              <li><Link href="/sustainability" className="text-neutral-600 hover:text-black transition-colors">پایداری</Link></li>
-              <li><Link href="/careers" className="text-neutral-600 hover:text-black transition-colors">فرصت‌های شغلی</Link></li>
+              <li><Link href="/about" className="text-neutral-600 hover:text-black transition-colors">درباره ما</Link></li>
               <li><Link href="/press" className="text-neutral-600 hover:text-black transition-colors">رسانه‌ها</Link></li>
             </ul>
           </div>

@@ -13,14 +13,26 @@ const categoryConfig: Record<
     bg: string;
     gradient: string;
     emoji: string;
+    girl?: { title: string; bg: string; gradient: string };
+    boy?: { title: string; bg: string; gradient: string };
   }
 > = {
-  newborn: {
-    title: "تازه متولد شده",
-    ageRange: "۰ تا ۱۸ ماه",
-    bg: "bg-[#f3e5f5]",
-    gradient: "from-[#7e22ce] via-[#c084fc] to-[#f43f5e]",
-    emoji: "🍼",
+  sisooni: {
+    title: "سیسمونی",
+    ageRange: "۰ تا ۱۲ ماه",
+    bg: "bg-gradient-to-br from-violet-100 via-rose-50 to-sky-100",
+    gradient: "from-[#7c3aed] via-[#ec4899] to-[#0284c7]",
+    emoji: "🎁",
+    girl: {
+      title: "سیسمونی دخترانه",
+      bg: "bg-gradient-to-br from-violet-100 via-fuchsia-50 to-pink-50",
+      gradient: "from-[#a21caf] via-[#d946ef] to-[#ec4899]",
+    },
+    boy: {
+      title: "سیسمونی پسرانه",
+      bg: "bg-gradient-to-br from-sky-100 via-cyan-50 to-blue-50",
+      gradient: "from-[#0284c7] via-[#0ea5e9] to-[#2563eb]",
+    },
   },
   baby: {
     title: "پوشاک نوزاد",
@@ -71,6 +83,20 @@ const categoryConfig: Record<
     gradient: "from-[#dc2626] via-[#f97316] to-[#fbbf24]",
     emoji: "🔥",
   },
+  unisex: {
+    title: "لباس‌های یونیسکس",
+    ageRange: "",
+    bg: "bg-gradient-to-br from-rose-100 via-orange-50 to-amber-50",
+    gradient: "from-[#e11d48] via-[#f97316] to-[#f59e0b]",
+    emoji: "👕",
+  },
+  accessories: {
+    title: "اکسسوری‌های مادر و نوزاد",
+    ageRange: "",
+    bg: "bg-gradient-to-br from-emerald-100 via-teal-50 to-green-50",
+    gradient: "from-[#047857] via-[#0d9488] to-[#16a34a]",
+    emoji: "👜",
+  },
 };
 
 const GENDER_SLUG_REDIRECTS: Record<string, string> = {
@@ -80,8 +106,9 @@ const GENDER_SLUG_REDIRECTS: Record<string, string> = {
   "baby-boy": "/category/baby?gender=boy",
   "preteen-girl": "/category/preteen?gender=girl",
   "preteen-boy": "/category/preteen?gender=boy",
-  "newborn-girl": "/category/newborn?gender=girl",
-  "newborn-boy": "/category/newborn?gender=boy",
+  newborn: "/category/sisooni",
+  "newborn-boy": "/category/sisooni?gender=boy",
+  "newborn-girl": "/category/sisooni?gender=girl",
 };
 
 function CategoryContent({
@@ -113,6 +140,15 @@ function CategoryContent({
 
   const type = searchParams.get("type") || "all";
   const gender = (searchParams.get("gender") || "").toLowerCase();
+
+  const genderTheme =
+    gender === "girl" ? config.girl : gender === "boy" ? config.boy : undefined;
+
+  const displayConfig = {
+    title: genderTheme?.title ?? config.title,
+    bg: genderTheme?.bg ?? config.bg,
+    gradient: genderTheme?.gradient ?? config.gradient,
+  };
 
   const setTypeFilter = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -176,20 +212,20 @@ function CategoryContent({
   }, [slug, type, gender]);
 
   return (
-    <div className={`min-h-screen ${config.bg} text-[#1a1a1a] pb-20`} dir="rtl">
+    <div className={`min-h-screen ${displayConfig.bg} text-[#1a1a1a] pb-20`} dir="rtl">
       <div className="w-full px-4 md:px-12 pt-12 pb-8 flex flex-col items-center">
         <div className="text-[11px] md:text-xs text-gray-500 flex items-center gap-2 mb-4">
           <Link href="/" className="hover:text-black transition-colors">
             خانه
           </Link>
           <span>/</span>
-          <span className="text-black">{config.title}</span>
+          <span className="text-black">{displayConfig.title}</span>
         </div>
 
         <h1
-          className={`text-5xl md:text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r ${config.gradient} mb-4`}
+          className={`text-5xl md:text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r ${displayConfig.gradient} mb-4`}
         >
-          {config.emoji} {config.title} {config.emoji}
+          {config.emoji} {displayConfig.title} {config.emoji}
         </h1>
 
         {config.ageRange && (
@@ -273,8 +309,20 @@ function CategoryContent({
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-20 text-gray-500 font-medium text-lg">
-            محصولی در این دسته‌بندی یافت نشد.
+          <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
+            <div className="text-8xl mb-8 opacity-90">{config.emoji}</div>
+            <h2 className="text-2xl md:text-3xl font-black text-gray-800 mb-3">
+              هنوز محصولی در «{displayConfig.title}» نیست
+            </h2>
+            <p className="text-gray-500 text-base font-medium leading-relaxed max-w-md mb-10">
+              محصولات این دسته‌بندی به‌زودی اضافه می‌شوند؛ فعلاً از سایر دسته‌بندی‌های فروشگاه دیدن کنید.
+            </p>
+            <Link
+              href="/products"
+              className="inline-flex items-center justify-center rounded-full bg-[#d97757] text-white px-8 py-3 text-sm font-bold transition-all hover:bg-[#c86a4c] shadow-[0_8px_20px_rgba(217,119,87,0.3)]"
+            >
+              مشاهده همه محصولات
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-7">
@@ -291,7 +339,7 @@ function CategoryContent({
                     image: product.images?.[0] || "",
                     images: product.images || [],
                     colors: product.colors || [],
-                    category: product.category?.name || config.title,
+                    category: product.category?.name || displayConfig.title,
                   }}
                 />
               </div>

@@ -79,7 +79,7 @@ export default function AdminCategoriesPage() {
 
   // پیشنهادهای به‌روز شده منطبق بر مگامنو و بخش‌های جدید سایت
   const suggestedCategories = [
-    { name: "تازه متولد شده", slug: "newborn" },
+    { name: "سیسمونی", slug: "sisooni" },
     { name: "نوزاد", slug: "baby" },
     { name: "کودک", slug: "kids" },
     { name: "نوجوان", slug: "preteen" },
@@ -87,6 +87,8 @@ export default function AdminCategoriesPage() {
     { name: "پسرانه", slug: "boy" },
     { name: "لوازم ضروری", slug: "essentials" },
     { name: "حراج ویژه", slug: "sale" },
+    { name: "لباس‌های یونیسکس", slug: "unisex" },
+    { name: "اکسسوری‌های مادر و نوزاد", slug: "accessories" },
   ];
 
   useEffect(() => {
