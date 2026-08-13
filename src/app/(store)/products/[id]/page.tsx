@@ -4,13 +4,15 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Share2, Truck, Shield, ChevronLeft, ChevronRight, Star, MessageSquare, HelpCircle, Play, Ruler, BadgeCheck, ChevronDown, MessageCircleQuestion } from "lucide-react";
+import { Share2, Truck, Shield, ChevronLeft, ChevronRight, Star, MessageSquare, HelpCircle, Play, Ruler, BadgeCheck, ChevronDown, MessageCircleQuestion, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCartStore } from "@/store/useCart";
+import { useWishlistStore } from "@/store/useWishlist";
+import { Product as StoreProduct } from "@/types";
 import { SizeGuideModal } from "@/components/modules/SizeGuideModal";
 import { getColorName } from "@/lib/colorNames";
 
@@ -18,15 +20,19 @@ interface Product {
   id: string;
   title: string;
   price: number;
+  originalPrice?: number;
+  isSale?: boolean;
   description?: string;
   images: string[];
   colors: string[];
   sizes: string[];
-  category?: { name: string };
+  category?: { name: string; slug?: string };
   brand?: string;
   ageGroup?: string;
   season?: string;
   fabric?: string;
+  gender?: string;
+  type?: string;
   videoUrl?: string;
   sizeChart?: string;
   stock: number;
@@ -72,6 +78,121 @@ interface RelatedProduct {
   category?: { name: string };
 }
 
+type RawRecord = Record<string, unknown>;
+
+function normalizeProduct(raw: unknown): Product | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const r = raw as RawRecord;
+  const id = typeof r.id === "string" ? r.id : "";
+  const title = (typeof r.title === "string" ? r.title : typeof r.name === "string" ? r.name : "") as string;
+  if (!id || !title) return null;
+
+  let images: string[] = [];
+  if (Array.isArray(r.images)) {
+    images = (r.images as unknown[]).filter((i): i is string => typeof i === "string" && Boolean(i));
+  } else if (typeof r.image === "string" && r.image) {
+    images = [r.image];
+  }
+
+  const categoryName =
+    r.category && typeof r.category === "object"
+      ? (r.category as RawRecord).name
+      : typeof r.category === "string"
+      ? r.category
+      : "";
+  const categorySlug =
+    r.category && typeof r.category === "object"
+      ? (r.category as RawRecord).slug
+      : undefined;
+
+  return {
+    id,
+    title,
+    price: Number(r.price) || 0,
+    originalPrice: r.originalPrice != null ? Number(r.originalPrice) : undefined,
+    isSale: Boolean(r.isSale),
+    description: typeof r.description === "string" ? r.description : "",
+    images,
+    colors: Array.isArray(r.colors) ? (r.colors as unknown[]).filter((c): c is string => typeof c === "string") : [],
+    sizes: Array.isArray(r.sizes) ? (r.sizes as unknown[]).filter((s): s is string => typeof s === "string") : [],
+    gender: typeof r.gender === "string" ? r.gender : "",
+    type: typeof r.type === "string" ? r.type : "",
+    category: { name: typeof categoryName === "string" ? categoryName : "", slug: typeof categorySlug === "string" ? categorySlug : undefined },
+    brand: typeof r.brand === "string" ? r.brand : "",
+    ageGroup: typeof r.ageGroup === "string" ? r.ageGroup : "",
+    season: typeof r.season === "string" ? r.season : "",
+    fabric: typeof r.fabric === "string" ? r.fabric : "",
+    videoUrl: typeof r.videoUrl === "string" ? r.videoUrl : undefined,
+    sizeChart: typeof r.sizeChart === "string" ? r.sizeChart : undefined,
+    stock: Number(r.stock) || 0,
+    variants: Array.isArray(r.variants) ? (r.variants as Variant[]) : [],
+    reviews: Array.isArray(r.reviews) ? (r.reviews as Review[]) : [],
+    questions: Array.isArray(r.questions) ? (r.questions as Question[]) : [],
+  };
+}
+
+function normalizeRelatedProduct(raw: unknown): RelatedProduct | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const r = raw as RawRecord;
+  const id = typeof r.id === "string" ? r.id : "";
+  const title = (typeof r.title === "string" ? r.title : typeof r.name === "string" ? r.name : "") as string;
+  if (!id || !title) return null;
+
+  let images: string[] = [];
+  if (Array.isArray(r.images)) {
+    images = (r.images as unknown[]).filter((i): i is string => typeof i === "string" && Boolean(i));
+  } else if (typeof r.image === "string" && r.image) {
+    images = [r.image];
+  }
+
+  const categoryName =
+    r.category && typeof r.category === "object"
+      ? (r.category as RawRecord).name
+      : typeof r.category === "string"
+      ? r.category
+      : "";
+
+  return {
+    id,
+    title,
+    price: Number(r.price) || 0,
+    images,
+    colors: Array.isArray(r.colors) ? (r.colors as unknown[]).filter((c): c is string => typeof c === "string") : [],
+    category: { name: typeof categoryName === "string" ? categoryName : "" },
+  };
+}
+
+const GENDER_LABELS: Record<string, string> = {
+  girl: "دخترانه",
+  female: "دخترانه",
+  boy: "پسرانه",
+  male: "پسرانه",
+  unisex: "یونیسکس",
+};
+
+const TYPE_LABELS: Record<string, string> = {
+  tshirt: "تی‌شرت",
+  dress: "پیراهن",
+  pants: "شلوار",
+  jeans: "جین",
+  set: "ست",
+  knitwear: "بافت",
+  outerwear: "بیرونی",
+  shoes: "کفش",
+};
+
+const normalizeGender = (gender?: string): string => {
+  if (!gender) return "";
+  const g = gender.trim().toLowerCase();
+  return GENDER_LABELS[g] || gender;
+};
+
+const normalizeType = (type?: string): string => {
+  if (!type) return "";
+  const t = type.trim().toLowerCase();
+  return TYPE_LABELS[t] || type;
+};
+
 const defaultColors = ["#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF"];
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -112,25 +233,49 @@ export default function ProductDetailPage() {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [submittingQuestion, setSubmittingQuestion] = useState(false);
   const [openQuestionId, setOpenQuestionId] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const { addItem, openCart } = useCartStore();
+  const { toggleItem: toggleWishlistItem, isInWishlist } = useWishlistStore();
   const [isZoomed, setIsZoomed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
   const fetchProduct = useCallback(async () => {
+    setFetchError(null);
     try {
       const res = await fetch(`/api/products/${productId}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.product) {
-          setProduct(data.product);
-          setRelatedProducts(data.relatedProducts || []);
-        } else {
-          setProduct(data);
+        const normalized = normalizeProduct(data?.product ?? data);
+        if (normalized) {
+          setProduct(normalized);
+          const related: unknown[] = Array.isArray(data?.relatedProducts) ? data.relatedProducts : [];
+          setRelatedProducts(related.map((p) => normalizeRelatedProduct(p)).filter((p): p is RelatedProduct => Boolean(p)));
+          return;
         }
       }
+
+      const listRes = await fetch("/api/products?limit=1000");
+      if (listRes.ok) {
+        const list: unknown = await listRes.json();
+        if (Array.isArray(list)) {
+          const found = list.find((p) => {
+            const id = p && typeof p === "object" ? (p as RawRecord).id : undefined;
+            return String(id) === String(productId);
+          });
+          const normalized = normalizeProduct(found);
+          if (normalized) {
+            setProduct(normalized);
+            return;
+          }
+        }
+      }
+
+      setProduct(null);
     } catch (error) {
       console.error("Failed to fetch product:", error);
+      setProduct(null);
+      setFetchError("خطا در دریافت اطلاعات محصول. لطفاً دوباره تلاش کنید.");
     }
   }, [productId]);
 
@@ -240,9 +385,33 @@ export default function ProductDetailPage() {
       subcategory: "",
       sizes: availableSizes,
       ageRange: product!.ageGroup || "",
-      gender: "unisex",
+      gender: (normalizeGender(product!.gender) || "unisex").toLowerCase() as "girl" | "boy" | "unisex",
     }, 1, selectedColor || undefined, selectedSize || undefined);
     openCart();
+  };
+
+  const toWishlistProduct = (): StoreProduct => ({
+    id: product!.id,
+    name: product!.title,
+    category: product!.category?.name || "",
+    subcategory: "",
+    price: product!.price,
+    image: product!.images?.[0] || "",
+    images: product!.images || [],
+    colors: availableColors,
+    sizes: availableSizes,
+    ageRange: product!.ageGroup || "",
+    gender: (normalizeGender(product!.gender) || "unisex").toLowerCase() as "girl" | "boy" | "unisex",
+    originalPrice: product!.originalPrice,
+    isSale: product!.isSale,
+    description: product!.description,
+  });
+
+  const isWishlisted = product ? isInWishlist(product.id) : false;
+
+  const handleToggleWishlist = () => {
+    if (!product) return;
+    toggleWishlistItem(toWishlistProduct());
   };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
@@ -289,9 +458,9 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center bg-[#faf9f7]" dir="rtl">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-neutral-900 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-8 h-8 border-2 border-[#d97757] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-neutral-600">در حال بارگذاری...</p>
         </div>
       </div>
@@ -300,30 +469,59 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white" dir="rtl">
+      <div className="min-h-screen flex items-center justify-center bg-[#faf9f7]" dir="rtl">
         <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold text-neutral-900">محصول یافت نشد</h1>
-          <p className="text-neutral-600">متأسفانه محصول مورد نظر شما وجود ندارد.</p>
-          <Link href="/products">
-            <Button className="bg-neutral-900 text-white hover:bg-neutral-800">
-              بازگشت به فروشگاه
-            </Button>
-          </Link>
+          {fetchError ? (
+            <>
+              <h1 className="text-2xl font-bold text-neutral-900">خطا در دریافت محصول</h1>
+              <p className="text-neutral-600">{fetchError}</p>
+              <Button
+                className="rounded-full bg-[#d97757] text-white hover:bg-[#c86a4c]"
+                onClick={() => { setLoading(true); fetchProduct().finally(() => setLoading(false)); }}
+              >
+                تلاش مجدد
+              </Button>
+            </>
+          ) : (
+            <>
+              <h1 className="text-2xl font-bold text-neutral-900">محصول یافت نشد</h1>
+              <p className="text-neutral-600">متأسفانه محصول مورد نظر شما وجود ندارد.</p>
+            </>
+          )}
+          <div>
+            <Link href="/products">
+              <Button className="rounded-full bg-[#d97757] text-white hover:bg-[#c86a4c]">
+                بازگشت به فروشگاه
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white" dir="rtl">
+    <div className="min-h-screen bg-[#faf9f7]" dir="rtl">
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-neutral-600 mb-8">
-          <Link href="/" className="hover:text-neutral-900 transition-colors">خانه</Link>
+        <nav className="flex items-center gap-2 text-sm text-neutral-600 mb-8 flex-wrap">
+          <Link href="/" className="hover:text-[#d97757] transition-colors">خانه</Link>
           <span>/</span>
-          <Link href="/products" className="hover:text-neutral-900 transition-colors">محصولات</Link>
-          <span>/</span>
-          <span className="text-neutral-600">{product.category?.name}</span>
+          <Link href="/products" className="font-bold text-neutral-900 hover:text-[#d97757] transition-colors">
+            همه محصولات
+          </Link>
+          {product.category?.name && (
+            <>
+              <span>/</span>
+              {product.category?.slug ? (
+                <Link href={`/category/${product.category.slug}`} className="text-neutral-600 hover:text-[#d97757] transition-colors">
+                  {product.category.name}
+                </Link>
+              ) : (
+                <span className="text-neutral-600">{product.category.name}</span>
+              )}
+            </>
+          )}
           <span>/</span>
           <span className="text-neutral-900 line-clamp-1">{product.title}</span>
         </nav>
@@ -334,7 +532,7 @@ export default function ProductDetailPage() {
             {/* Main Image/Video */}
             <div 
               ref={imageContainerRef}
-              className={`relative aspect-[3/4] overflow-hidden bg-neutral-100 rounded-sm ${mediaTab === "video" ? "" : "cursor-crosshair"}`}
+              className={`relative aspect-[3/4] overflow-hidden bg-neutral-100 rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.06)] ${mediaTab === "video" ? "" : "cursor-crosshair"}`}
               onMouseEnter={() => mediaTab !== "video" && setIsZoomed(true)}
               onMouseLeave={() => setIsZoomed(false)}
               onMouseMove={handleMouseMove}
@@ -370,8 +568,8 @@ export default function ProductDetailPage() {
                   <button
                     key="video-tab"
                     onClick={() => { setMediaTab("video"); setIsZoomed(false); }}
-                    className={`relative w-20 h-24 flex-shrink-0 overflow-hidden rounded-sm border-2 transition-colors ${
-                      mediaTab === "video" ? "border-neutral-900" : "border-neutral-200 hover:border-neutral-400"
+                    className={`relative w-20 h-24 flex-shrink-0 overflow-hidden rounded-2xl border-2 transition-colors ${
+                      mediaTab === "video" ? "border-[#d97757]" : "border-neutral-200 hover:border-[#d97757]"
                     }`}
                     style={{ backgroundImage: `url(${allImages[0]})`, backgroundSize: "cover", backgroundPosition: "center" }}
                     title="ویدیو محصول"
@@ -390,10 +588,10 @@ export default function ProductDetailPage() {
                     key={index}
                     onClick={() => { setSelectedImage(index); setMediaTab("image"); }}
                     onMouseEnter={() => setSelectedImage(index)}
-                    className={`relative w-20 h-24 flex-shrink-0 overflow-hidden rounded-sm border-2 transition-colors ${
+                    className={`relative w-20 h-24 flex-shrink-0 overflow-hidden rounded-2xl border-2 transition-colors ${
                       mediaTab === "image" && safeSelectedImage === index
-                        ? "border-neutral-900"
-                        : "border-neutral-200 hover:border-neutral-400"
+                        ? "border-[#d97757]"
+                        : "border-neutral-200 hover:border-[#d97757]"
                     }`}
                   >
                     <Image
@@ -434,11 +632,39 @@ export default function ProductDetailPage() {
                 <span className="text-2xl font-bold text-neutral-900">
                   {product.price.toLocaleString("fa-IR")} <span className="text-base font-normal text-neutral-600">تومان</span>
                 </span>
+                {product.isSale && product.originalPrice && product.originalPrice > product.price && (
+                  <span className="text-base text-neutral-400 line-through">
+                    {product.originalPrice.toLocaleString("fa-IR")}
+                  </span>
+                )}
+                {product.isSale && product.originalPrice && product.originalPrice > product.price && (
+                  <span className="px-2.5 py-1 bg-[#d97757] text-white text-xs font-semibold rounded-full">
+                    ٪{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}
+                  </span>
+                )}
               </div>
             </div>
 
             {/* Product Features */}
-            <div className="grid grid-cols-2 gap-3 p-4 bg-neutral-50 rounded-sm">
+            <div className="grid grid-cols-2 gap-3 p-5 bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.06)]">
+              {product.category?.name && (
+                <div>
+                  <p className="text-xs text-neutral-500">دسته‌بندی</p>
+                  <p className="text-sm font-medium text-neutral-900">{product.category.name}</p>
+                </div>
+              )}
+              {product.gender && (
+                <div>
+                  <p className="text-xs text-neutral-500">جنسیت</p>
+                  <p className="text-sm font-medium text-neutral-900">{normalizeGender(product.gender)}</p>
+                </div>
+              )}
+              {product.type && (
+                <div>
+                  <p className="text-xs text-neutral-500">نوع</p>
+                  <p className="text-sm font-medium text-neutral-900">{normalizeType(product.type)}</p>
+                </div>
+              )}
               {product.fabric && (
                 <div>
                   <p className="text-xs text-neutral-500">جنس پارچه</p>
@@ -462,13 +688,21 @@ export default function ProductDetailPage() {
                 <p className="text-xs text-neutral-500">راهنمای سایز</p>
                 <Button
                   variant="link"
-                  className="text-xs text-neutral-600 hover:text-neutral-900 p-0 h-auto"
+                  className="text-xs text-neutral-600 hover:text-[#d97757] p-0 h-auto"
                   onClick={() => setIsSizeGuideOpen(true)}
                 >
                   مشاهده جدول سایز
                 </Button>
               </div>
             </div>
+
+            {/* Description */}
+            {product.description && (
+              <div className="bg-white rounded-2xl p-5 shadow-[0_10px_40px_rgba(0,0,0,0.06)]">
+                <h2 className="text-sm font-semibold text-neutral-900 mb-2">توضیحات محصول</h2>
+                <p className="text-sm text-neutral-600 leading-relaxed whitespace-pre-line">{product.description}</p>
+              </div>
+            )}
 
             {/* Color Selector */}
             {availableColors.length > 0 && (
@@ -490,10 +724,10 @@ export default function ProductDetailPage() {
                         onClick={() => setSelectedColor(color)}
                         className={`relative w-8 h-8 rounded-full border-2 transition-transform ${
                           selectedColor === color
-                            ? "border-neutral-900 scale-110"
-                            : "border-neutral-300 hover:border-neutral-400"
+                            ? "border-[#d97757] scale-110"
+                            : "border-neutral-300 hover:border-[#d97757]"
                         } ${colorOut ? "opacity-50" : ""}`}
-                        style={{ backgroundColor: color, boxShadow: selectedColor === color ? "0 0 0 3px rgba(23,23,23,0.15)" : undefined }}
+                        style={{ backgroundColor: color, boxShadow: selectedColor === color ? "0 0 0 3px rgba(217,119,87,0.25)" : undefined }}
                         title={colorLabel}
                         aria-label={colorLabel}
                       >
@@ -516,7 +750,7 @@ export default function ProductDetailPage() {
                   <span className="text-sm font-semibold text-neutral-900">انتخاب سایز</span>
                   <Button
                     variant="link"
-                    className="flex items-center gap-1 text-xs text-neutral-600 hover:text-neutral-900 p-0 h-auto"
+                    className="flex items-center gap-1 text-xs text-neutral-600 hover:text-[#d97757] p-0 h-auto"
                     onClick={() => setIsSizeGuideOpen(true)}
                   >
                     <Ruler className="h-4 w-4" />
@@ -533,12 +767,12 @@ export default function ProductDetailPage() {
                         key={size}
                         onClick={() => !isOutOfStock && setSelectedSize(size)}
                         disabled={isOutOfStock}
-                        className={`flex flex-col items-center min-w-[68px] px-3 py-2 text-sm font-medium border rounded-sm transition-all ${
+                        className={`flex flex-col items-center min-w-[68px] px-3 py-2 text-sm font-medium border rounded-full transition-all ${
                           selectedSize === size
-                            ? "border-neutral-900 bg-neutral-900 text-white"
+                            ? "border-[#d97757] bg-[#d97757] text-white shadow-[0_4px_12px_rgba(217,119,87,0.35)]"
                             : isOutOfStock
                               ? "border-neutral-200 text-neutral-400 cursor-not-allowed opacity-60"
-                              : "border-neutral-300 text-neutral-700 hover:border-neutral-900 hover:text-neutral-900"
+                              : "border-neutral-200 text-neutral-700 hover:border-[#d97757] hover:text-[#d97757]"
                         }`}
                       >
                         <span>{size}</span>
@@ -567,14 +801,42 @@ export default function ProductDetailPage() {
               <Button
                 onClick={handleAddToCart}
                 disabled={currentStock === 0}
-                className="w-full bg-neutral-900 text-white hover:bg-neutral-800 rounded-none py-6 text-sm font-semibold tracking-wider disabled:bg-neutral-400"
+                className="w-full rounded-full bg-[#d97757] text-white hover:bg-[#c86a4c] py-6 text-sm font-semibold tracking-wider shadow-[0_8px_20px_rgba(217,119,87,0.3)] transition-all disabled:bg-neutral-300 disabled:shadow-none"
               >
                 {currentStock > 0 ? "افزودن به سبد خرید" : "ناموجود"}
               </Button>
-              <Button variant="outline" className="w-full border-neutral-300 text-neutral-700 hover:bg-neutral-50 rounded-none py-6">
+              <Button variant="outline" className="w-full rounded-full border-neutral-200 text-neutral-700 hover:bg-neutral-50 hover:text-[#d97757] py-6">
                 <Share2 className="h-5 w-5 ml-2" />
                 اشتراک‌گذاری
               </Button>
+              <Button
+                variant="outline"
+                onClick={handleToggleWishlist}
+                className={`w-full rounded-full py-6 ${
+                  isWishlisted
+                    ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-50"
+                    : "border-neutral-200 text-neutral-700 hover:bg-neutral-50 hover:text-[#d97757]"
+                }`}
+              >
+                <Heart className={`h-5 w-5 ml-2 ${isWishlisted ? "fill-red-500 text-red-500" : ""}`} />
+                {isWishlisted ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"}
+              </Button>
+
+              {/* Category Links */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <Link
+                  href={product.category?.slug ? `/category/${product.category.slug}` : "/products"}
+                  className="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-white px-5 py-3 text-sm font-bold text-neutral-800 hover:border-[#d97757] hover:text-[#d97757] transition-colors"
+                >
+                  همه محصولات این بخش
+                </Link>
+                <Link
+                  href="/products"
+                  className="inline-flex items-center justify-center rounded-full border border-neutral-200 bg-white px-5 py-3 text-sm font-bold text-neutral-800 hover:border-[#d97757] hover:text-[#d97757] transition-colors"
+                >
+                  مشاهده همه محصولات فروشگاه
+                </Link>
+              </div>
             </div>
 
             {/* Trust Badges */}
@@ -604,17 +866,17 @@ export default function ProductDetailPage() {
         {/* Tabs Section */}
         <div className="mt-12 border-t border-neutral-200 pt-8">
           <Tabs defaultValue="reviews" className="w-full" dir="rtl">
-            <TabsList className="w-full justify-start border-b border-neutral-200 rounded-none bg-transparent p-0 h-auto">
+            <TabsList className="w-full sm:w-auto justify-start sm:justify-start gap-1 inline-flex p-1.5 bg-white rounded-full border border-neutral-200 shadow-[0_6px_20px_rgba(0,0,0,0.04)] h-auto">
               <TabsTrigger 
                 value="reviews" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 data-[state=active]:bg-transparent data-[state=active]:text-neutral-900 text-neutral-600 hover:text-neutral-900 px-4 py-3"
+                className="rounded-full px-5 py-2.5 text-sm font-semibold data-[state=active]:bg-[#d97757] data-[state=active]:text-white data-[state=active]:shadow-[0_4px_12px_rgba(217,119,87,0.35)] text-neutral-600 hover:text-[#d97757]"
               >
                 <MessageSquare className="h-4 w-4 ml-2" />
                 نظرات کاربران ({product.reviews.length})
               </TabsTrigger>
               <TabsTrigger 
                 value="questions"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-neutral-900 data-[state=active]:bg-transparent data-[state=active]:text-neutral-900 text-neutral-600 hover:text-neutral-900 px-4 py-3"
+                className="rounded-full px-5 py-2.5 text-sm font-semibold data-[state=active]:bg-[#d97757] data-[state=active]:text-white data-[state=active]:shadow-[0_4px_12px_rgba(217,119,87,0.35)] text-neutral-600 hover:text-[#d97757]"
               >
                 <HelpCircle className="h-4 w-4 ml-2" />
                 سوالات متداول ({product.questions.length})
@@ -626,7 +888,7 @@ export default function ProductDetailPage() {
               <div className="grid lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-6">
                   {/* Rating Summary */}
-                  <div className="flex flex-col sm:flex-row gap-6 p-6 bg-neutral-50 rounded-sm">
+                  <div className="flex flex-col sm:flex-row gap-6 p-6 bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.06)]">
                     <div className="sm:w-40 shrink-0 flex flex-col items-center justify-center">
                       <p className="text-5xl font-bold text-neutral-900">
                         {averageRating.toLocaleString("fa-IR")}
@@ -651,7 +913,7 @@ export default function ProductDetailPage() {
                           <div key={star} className="flex items-center gap-3">
                             <span className="w-6 text-sm text-neutral-700 shrink-0">{star.toLocaleString("fa-IR")}</span>
                             <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400 shrink-0" />
-                            <div className="flex-1 h-2 bg-neutral-200 rounded-full overflow-hidden">
+                            <div className="flex-1 h-2 bg-neutral-100 rounded-full overflow-hidden">
                               <div className="h-full bg-amber-400 rounded-full" style={{ width: `${pct}%` }} />
                             </div>
                             <span className="w-8 text-xs text-neutral-600 shrink-0 text-left">{count.toLocaleString("fa-IR")}</span>
@@ -665,7 +927,7 @@ export default function ProductDetailPage() {
                   {product.reviews.length > 0 ? (
                     <div className="space-y-4">
                       {product.reviews.map((review) => (
-                        <div key={review.id} className="border-b border-neutral-100 pb-4">
+                        <div key={review.id} className="bg-white rounded-2xl p-5 shadow-[0_6px_20px_rgba(0,0,0,0.05)]">
                           <div className="flex flex-wrap items-center gap-2 mb-2">
                             <div className="flex items-center gap-1">
                               {[1, 2, 3, 4, 5].map((star) => (
@@ -691,7 +953,7 @@ export default function ProductDetailPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 border border-dashed border-neutral-200 rounded-sm">
+                    <div className="text-center py-8 border border-dashed border-neutral-200 bg-white rounded-2xl">
                       <MessageSquare className="h-8 w-8 text-neutral-300 mx-auto mb-2" />
                       <p className="text-neutral-500 text-sm">هنوز نظری ثبت نشده است. اولین نظر را ثبت کنید.</p>
                     </div>
@@ -699,7 +961,7 @@ export default function ProductDetailPage() {
                 </div>
 
                 <div className="lg:col-span-1">
-                  <div className="bg-neutral-50 p-6 rounded-sm">
+                  <div className="bg-white p-6 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.06)]">
                     <h3 className="text-sm font-semibold text-neutral-900 mb-4">ثبت نظر</h3>
                     <form onSubmit={handleSubmitReview} className="space-y-4">
                       <div>
@@ -738,7 +1000,7 @@ export default function ProductDetailPage() {
                           rows={3}
                         />
                       </div>
-                      <Button type="submit" disabled={submittingReview} className="w-full bg-neutral-900 text-white hover:bg-neutral-800">
+                      <Button type="submit" disabled={submittingReview} className="w-full rounded-full bg-[#d97757] text-white hover:bg-[#c86a4c]">
                         {submittingReview ? "در حال ثبت..." : "ثبت نظر"}
                       </Button>
                     </form>
@@ -756,7 +1018,7 @@ export default function ProductDetailPage() {
                       const isOpen = openQuestionId === question.id || (openQuestionId === null && index === 0);
                       const isAnswered = !!question.answer;
                       return (
-                        <div key={question.id} className="border border-neutral-200 rounded-sm overflow-hidden">
+                        <div key={question.id} className="border border-neutral-200 bg-white rounded-2xl overflow-hidden shadow-[0_6px_20px_rgba(0,0,0,0.04)]">
                           <button
                             type="button"
                             onClick={() => toggleQuestion(question.id)}
@@ -798,7 +1060,7 @@ export default function ProductDetailPage() {
                       );
                     })
                   ) : (
-                    <div className="text-center py-8 border border-dashed border-neutral-200 rounded-sm">
+                    <div className="text-center py-8 border border-dashed border-neutral-200 bg-white rounded-2xl">
                       <MessageCircleQuestion className="h-8 w-8 text-neutral-300 mx-auto mb-2" />
                       <p className="text-neutral-500 text-sm">هنوز سوالی پرسیده نشده است. اولین سوال را ثبت کنید.</p>
                     </div>
@@ -806,7 +1068,7 @@ export default function ProductDetailPage() {
                 </div>
 
                 <div className="lg:col-span-1">
-                  <div className="bg-neutral-50 p-6 rounded-sm">
+                  <div className="bg-white p-6 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.06)]">
                     <h3 className="text-sm font-semibold text-neutral-900 mb-4">ثبت سوال</h3>
                     <form onSubmit={handleSubmitQuestion} className="space-y-4">
                       <div>
@@ -830,7 +1092,7 @@ export default function ProductDetailPage() {
                           rows={3}
                         />
                       </div>
-                      <Button type="submit" disabled={submittingQuestion} className="w-full bg-neutral-900 text-white hover:bg-neutral-800">
+                      <Button type="submit" disabled={submittingQuestion} className="w-full rounded-full bg-[#d97757] text-white hover:bg-[#c86a4c]">
                         {submittingQuestion ? "در حال ثبت..." : "ثبت سوال"}
                       </Button>
                     </form>
@@ -844,13 +1106,19 @@ export default function ProductDetailPage() {
         {/* Related Products */}
         {relatedProducts.length > 0 && (
           <div className="mt-16 border-t border-neutral-200 pt-12">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
               <h2 className="text-2xl lg:text-3xl font-bold text-neutral-900">محصولات مشابه</h2>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/products"
+                  className="inline-flex items-center rounded-full border border-neutral-200 bg-white px-4 py-2 text-xs font-bold text-neutral-700 hover:border-[#d97757] hover:text-[#d97757] transition-colors"
+                >
+                  همه محصولات
+                </Link>
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-10 w-10 border-neutral-300 text-neutral-700 hover:bg-neutral-50"
+                  className="h-10 w-10 rounded-full border-neutral-200 text-neutral-700 hover:bg-neutral-50 hover:text-[#d97757] hover:border-[#d97757]"
                   onClick={() => {
                     const container = document.getElementById('related-products');
                     container?.scrollBy({ left: -300, behavior: 'smooth' });
@@ -861,7 +1129,7 @@ export default function ProductDetailPage() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-10 w-10 border-neutral-300 text-neutral-700 hover:bg-neutral-50"
+                  className="h-10 w-10 rounded-full border-neutral-200 text-neutral-700 hover:bg-neutral-50 hover:text-[#d97757] hover:border-[#d97757]"
                   onClick={() => {
                     const container = document.getElementById('related-products');
                     container?.scrollBy({ left: 300, behavior: 'smooth' });
@@ -882,7 +1150,7 @@ export default function ProductDetailPage() {
                   href={`/products/${relatedProduct.id}`}
                   className="flex-shrink-0 w-64 group"
                 >
-                  <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100 rounded-sm mb-3">
+                  <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100 rounded-2xl mb-3 shadow-[0_10px_40px_rgba(0,0,0,0.06)]">
                     <Image
                       src={relatedProduct.images?.[0] || ""}
                       alt={relatedProduct.title}
@@ -892,7 +1160,7 @@ export default function ProductDetailPage() {
                       unoptimized
                     />
                   </div>
-                  <h3 className="text-sm font-medium text-neutral-900 line-clamp-1 group-hover:text-neutral-600 transition-colors">
+                  <h3 className="text-sm font-medium text-neutral-900 line-clamp-1 group-hover:text-[#d97757] transition-colors">
                     {relatedProduct.title}
                   </h3>
                   <p className="text-sm font-semibold text-neutral-900 mt-1">

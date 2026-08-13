@@ -248,6 +248,15 @@ function CategoryContent({
         ))}
       </div>
 
+      <div className="w-full flex justify-center mb-10">
+        <Link
+          href="/products"
+          className="inline-flex items-center justify-center rounded-full bg-[#d97757] text-white px-6 py-2.5 text-sm font-bold transition-all hover:bg-[#c86a4c] shadow-[0_8px_20px_rgba(217,119,87,0.3)]"
+        >
+          مشاهده همه محصولات
+        </Link>
+      </div>
+
       <div className="container mx-auto px-4">
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-7">

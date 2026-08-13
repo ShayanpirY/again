@@ -45,17 +45,34 @@ interface ApiProduct {
 
 const PAGE_SIZE = 12;
 
+// رده سنی → اسلاگ دسته سنی واقعی (ageGroup همیشه پر نیست؛ دسته‌ها معتبرند)
+const AGE_TO_CATEGORY_SLUG: Record<string, string> = {
+  newborn: "newborn",
+  baby: "baby",
+  "pre-teen": "preteen",
+};
+
+// جنسیت باید روی فیلد gender فیلتر شود، نه category
+const GENDER_AGE_KEYS = ["girl", "boy"];
+
 function ProductsFallback() {
   return (
-    <div className="min-h-screen bg-white" dir="rtl">
+    <div
+      className="min-h-screen bg-[linear-gradient(135deg,#fff5f7_0%,#fff8f0_20%,#f0fff4_40%,#f0f7ff_60%,#faf0ff_80%,#fff5f7_100%)]"
+      dir="rtl"
+    >
       <div className="container mx-auto px-4 py-8">
-        <div className="h-8 w-48 bg-neutral-200 rounded animate-pulse mb-8" />
+        <div className="h-8 w-48 bg-neutral-200 rounded-full animate-pulse mb-8" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="aspect-[3/4] bg-neutral-200 rounded-2xl mb-4" />
-              <div className="h-4 bg-neutral-200 rounded-full mb-2" />
-              <div className="h-4 bg-neutral-200 rounded-full w-1/2" />
+            <div
+              key={i}
+              className="animate-pulse rounded-[28px] bg-white p-3 shadow-[0_10px_40px_rgba(0,0,0,0.06)]"
+            >
+              <div className="aspect-[3/4] rounded-2xl bg-neutral-200/80" />
+              <div className="mt-3 h-4 rounded-md bg-neutral-200/80" />
+              <div className="mt-2 h-3 w-2/3 rounded-md bg-neutral-200/80" />
+              <div className="mt-2 h-4 w-1/2 rounded-md bg-neutral-200/80" />
             </div>
           ))}
         </div>
@@ -84,6 +101,7 @@ function ProductsContent() {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const appliedKeyRef = useRef<string | null>(null);
   const urlCategorySlugsRef = useRef<string[]>([]);
+  const productsLenRef = useRef(0);
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -204,18 +222,33 @@ function ProductsContent() {
       try {
         const params = new URLSearchParams();
 
+        // دخترانه/پسرانه → فیلد gender
+        const genderValues = selectedAges.filter((a) => GENDER_AGE_KEYS.includes(a));
+        // رده سنی (newborn/baby/pre-teen) → اسلاگ دسته سنی
+        const ageCategorySlugs = selectedAges
+          .filter((a) => AGE_TO_CATEGORY_SLUG[a])
+          .map((a) => AGE_TO_CATEGORY_SLUG[a]);
+        const rawAgeValues = selectedAges.filter(
+          (a) => !GENDER_AGE_KEYS.includes(a) && !AGE_TO_CATEGORY_SLUG[a]
+        );
+
         const categorySlugs = [
           ...urlCategorySlugsRef.current,
           ...selectedCategories
             .map((id) => categories.find((c) => c.id === id)?.slug)
             .filter((slug): slug is string => Boolean(slug)),
-        ].filter((slug, index, arr) => arr.indexOf(slug) === index);
+          ...ageCategorySlugs,
+        ].filter((slug, index, arr) => Boolean(slug) && arr.indexOf(slug) === index);
         if (categorySlugs.length > 0) {
           params.set("category", categorySlugs.join(","));
         }
 
-        if (selectedAges.length > 0) {
-          params.set("age", selectedAges.join(","));
+        if (genderValues.length > 0) {
+          params.set("gender", genderValues.join(","));
+        }
+
+        if (rawAgeValues.length > 0) {
+          params.set("age", rawAgeValues.join(","));
         }
 
         if (selectedSizes.length > 0) {
@@ -254,12 +287,24 @@ function ProductsContent() {
         params.set("skip", String(skip));
         params.set("limit", String(PAGE_SIZE));
 
+        // دیباگ موقت: تعداد قبل از فیلتر و پارامترها
+        console.log(
+          `[filter] قبل از فیلتر: نمایش ${productsLenRef.current} | skip=${skip} | params=${params.toString()}`
+        );
+
         const res = await fetch(`/api/products?${params.toString()}`);
         const data: ApiProduct[] = await res.json();
         if (seq !== seqRef.current) return;
 
+        const totalCount = Number(res.headers.get("X-Total-Count")) || data.length;
+        // دیباگ موقت: تعداد بعد از فیلتر
+        console.log(
+          `[filter] بعد از فیلتر: دریافت ${data.length} | کل ${totalCount} | نمایش جدید ${replace ? data.length : productsLenRef.current + data.length}`
+        );
+        productsLenRef.current = replace ? data.length : productsLenRef.current + data.length;
+
         setProducts((prev) => (replace ? data : [...prev, ...data]));
-        setTotalProducts(Number(res.headers.get("X-Total-Count")) || data.length);
+        setTotalProducts(totalCount);
       } catch (error) {
         if (seq === seqRef.current) {
           console.error("Failed to fetch products:", error);
@@ -347,40 +392,45 @@ function ProductsContent() {
     (priceRange[0] > 0 || priceRange[1] < maxPrice ? 1 : 0);
 
   return (
-    <div className="min-h-screen bg-white" dir="rtl">
+    <div
+      className="min-h-screen bg-[linear-gradient(135deg,#fff5f7_0%,#fff8f0_20%,#f0fff4_40%,#f0f7ff_60%,#faf0ff_80%,#fff5f7_100%)]"
+      dir="rtl"
+    >
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-neutral-600 mb-6">
-          <Link href="/" className="hover:text-neutral-900 transition-colors">خانه</Link>
+          <Link href="/" className="hover:text-[#d97757] transition-colors">خانه</Link>
           <span>/</span>
-          <span className="text-neutral-900">همه محصولات</span>
+          <span className="font-bold text-neutral-900">همه محصولات</span>
         </nav>
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-neutral-900 mb-1">
+            <h1 className="text-3xl lg:text-4xl font-black text-neutral-900 mb-2">
               همه محصولات
             </h1>
             <p className="flex items-center gap-2 text-sm text-neutral-600">
               {loading ? (
                 <>
-                  <span className="h-3 w-3 rounded-full border-2 border-neutral-400 border-t-transparent animate-spin" />
+                  <span className="h-3 w-3 rounded-full border-2 border-[#d97757] border-t-transparent animate-spin" />
                   {products.length > 0 ? "در حال به‌روزرسانی..." : "در حال بارگذاری..."}
                 </>
               ) : (
-                `${totalProducts} محصول یافت شد`
+                <span className="inline-flex items-center rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-[#d97757] shadow-sm border border-neutral-100">
+                  {totalProducts} محصول یافت شد
+                </span>
               )}
             </p>
           </div>
           <div className="flex items-center gap-3">
             {/* Mobile Filter Button */}
             <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-              <SheetTrigger className={buttonVariants({ variant: "outline", className: "lg:hidden" })}>
+              <SheetTrigger className={buttonVariants({ variant: "outline", className: "lg:hidden rounded-full border-neutral-200 hover:border-[#d97757] hover:text-[#d97757]" })}>
                 <SlidersHorizontal className="h-4 w-4 ml-2" />
                 فیلترها
                 {activeFiltersCount > 0 && (
-                  <span className="mr-2 bg-neutral-900 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="mr-2 bg-[#d97757] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {activeFiltersCount}
                   </span>
                 )}
@@ -422,7 +472,7 @@ function ProductsContent() {
 
             {/* Sort */}
             <Select value={sortBy} onValueChange={(value) => value && setSortBy(value)}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[180px] rounded-full">
                 <SelectValue placeholder="مرتب‌سازی" />
               </SelectTrigger>
               <SelectContent>
@@ -438,7 +488,7 @@ function ProductsContent() {
         <div className="flex gap-8">
           {/* Desktop Sidebar */}
           <aside className="hidden lg:block w-64 flex-shrink-0">
-            <div className="sticky top-8 bg-[#F5F5F5] rounded-sm p-5">
+            <div className="sticky top-8 bg-white rounded-2xl p-5 shadow-[0_10px_40px_rgba(0,0,0,0.06)] border border-neutral-100">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-neutral-900">فیلترها</h2>
                 {activeFiltersCount > 0 && (
@@ -486,10 +536,14 @@ function ProductsContent() {
             {loading && products.length === 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[...Array(8)].map((_, i) => (
-                  <div key={i} className="animate-pulse">
-                    <div className="aspect-[3/4] bg-neutral-200 mb-4" />
-                    <div className="h-4 bg-neutral-200 rounded mb-2" />
-                    <div className="h-4 bg-neutral-200 rounded w-1/2" />
+                  <div
+                    key={i}
+                    className="animate-pulse rounded-[28px] bg-white p-3 shadow-[0_10px_40px_rgba(0,0,0,0.06)]"
+                  >
+                    <div className="aspect-[3/4] rounded-2xl bg-neutral-200/80" />
+                    <div className="mt-3 h-4 rounded-md bg-neutral-200/80" />
+                    <div className="mt-2 h-3 w-2/3 rounded-md bg-neutral-200/80" />
+                    <div className="mt-2 h-4 w-1/2 rounded-md bg-neutral-200/80" />
                   </div>
                 ))}
               </div>
@@ -523,7 +577,7 @@ function ProductsContent() {
                 </div>
                 {loading && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="h-8 w-8 rounded-full border-2 border-neutral-900 border-t-transparent animate-spin" />
+                    <div className="h-8 w-8 rounded-full border-2 border-[#d97757] border-t-transparent animate-spin" />
                   </div>
                 )}
               </div>
@@ -539,7 +593,7 @@ function ProductsContent() {
             {/* Infinite scroll sentinel */}
             <div ref={sentinelRef} className="flex items-center justify-center py-8">
               {loadingMore && (
-                <div className="h-8 w-8 rounded-full border-2 border-neutral-900 border-t-transparent animate-spin" />
+                <div className="h-8 w-8 rounded-full border-2 border-[#d97757] border-t-transparent animate-spin" />
               )}
             </div>
           </div>

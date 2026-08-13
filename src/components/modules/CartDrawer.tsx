@@ -150,6 +150,13 @@ export function CartDrawer() {
                   تکمیل خرید و پرداخت
                 </Button>
               </Link>
+              <Link
+                href="/cart"
+                onClick={closeCart}
+                className="block text-center text-sm font-semibold text-neutral-600 hover:text-[#d97757] transition-colors"
+              >
+                مشاهده سبد خرید
+              </Link>
             </div>
           </>
         )}

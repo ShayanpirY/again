@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import MegaMenu from './MegaMenu';
+import { useCartStore } from '@/store/useCart';
 
 const promoMessages = [
   '۱۰٪ تخفیف با کد B2510',
@@ -27,6 +28,9 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [promoIndex, setPromoIndex] = useState(0);
   const [fade, setFade] = useState(true);
+  const cartItems = useCartStore((state) => state.items);
+  const openCart = useCartStore((state) => state.openCart);
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -227,6 +231,15 @@ export function Header() {
                   </Link>
                 </div>
 
+                <div className="h-full flex items-center">
+                  <Link
+                    href="/products"
+                    className="text-[14px] font-medium text-gray-700 hover:text-black transition-colors"
+                  >
+                    همه محصولات
+                  </Link>
+                </div>
+
                 <MegaMenu type="kids" isOpen={activeMenu === 'kids'} />
                 <MegaMenu type="baby" isOpen={activeMenu === 'baby'} />
                 <MegaMenu type="preteen" isOpen={activeMenu === 'preteen'} />
@@ -253,15 +266,22 @@ export function Header() {
                   <circle cx="12" cy="7" r="4" />
                 </svg>
               </button>
-              <button type="button" aria-label="سبد خرید" className="hover:text-black transition-colors relative">
+              <button
+                type="button"
+                aria-label="سبد خرید"
+                onClick={openCart}
+                className="hover:text-black transition-colors relative"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
                   <path d="M3 6h18" />
                   <path d="M16 10a4 4 0 0 1-8 0" />
                 </svg>
-                <span className="absolute -top-1.5 -right-2 bg-white border border-gray-300 text-[#d97757] text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                  ۰
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-2 bg-[#d97757] text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                    {cartCount > 99 ? "۹۹+" : cartCount.toLocaleString("fa-IR")}
+                  </span>
+                )}
               </button>
             </div>
           </div>
