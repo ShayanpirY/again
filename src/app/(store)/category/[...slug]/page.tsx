@@ -84,7 +84,7 @@ const categoryConfig: Record<
     emoji: "🔥",
   },
   unisex: {
-    title: "لباس‌های یونیسکس",
+    title: "لباس مشترک",
     ageRange: "",
     bg: "bg-gradient-to-br from-rose-100 via-orange-50 to-amber-50",
     gradient: "from-[#e11d48] via-[#f97316] to-[#f59e0b]",

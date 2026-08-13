@@ -131,10 +131,10 @@ export default function HeroBanners() {
         
         {/* ستون ۱ */}
         <Link href="/category/unisex" className="relative w-full h-[450px] lg:h-[550px] overflow-hidden group">
-          <img src="/images/unisex.jpg" alt="لباس‌های یونیسکس" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-105" />
+          <img src="/images/unisex.jpg" alt="لباس مشترک" className="absolute inset-0 w-full h-full object-cover transition-transform duration-[8s] ease-out group-hover:scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
           <div className="absolute bottom-0 right-0 p-8 text-white z-10 flex flex-col items-start text-right">
-            <span className="text-[10px] md:text-[11px] tracking-widest font-bold mb-1 opacity-90 uppercase">لباس‌های یونیسکس</span>
+            <span className="text-[10px] md:text-[11px] tracking-widest font-bold mb-1 opacity-90 uppercase">لباس مشترک</span>
             <strong className="text-xl md:text-2xl font-normal drop-shadow-md">برای همه</strong>
           </div>
         </Link>

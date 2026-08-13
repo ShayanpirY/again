@@ -404,7 +404,7 @@ export default function AdminProductsPage() {
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-neutral-700">
-                      {product.gender === "girl" ? "دخترانه" : product.gender === "boy" ? "پسرانه" : product.gender === "unisex" ? "هر دو" : "—"}
+                      {product.gender === "girl" ? "دخترانه" : product.gender === "boy" ? "پسرانه" : product.gender === "unisex" ? "لباس مشترک" : "—"}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -515,7 +515,7 @@ export default function AdminProductsPage() {
                   {[
                     { value: "girl", label: "دخترانه", active: "bg-[#ff6b6b] text-white border-[#ff6b6b]" },
                     { value: "boy", label: "پسرانه", active: "bg-[#4dabf7] text-white border-[#4dabf7]" },
-                    { value: "unisex", label: "دخترانه و پسرانه", active: "bg-neutral-900 text-white border-neutral-900" },
+                    { value: "unisex", label: "لباس مشترک", active: "bg-neutral-900 text-white border-neutral-900" },
                   ].map((item) => (
                     <button
                       key={item.value}

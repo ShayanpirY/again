@@ -87,7 +87,7 @@ export default function AdminCategoriesPage() {
     { name: "پسرانه", slug: "boy" },
     { name: "لوازم ضروری", slug: "essentials" },
     { name: "حراج ویژه", slug: "sale" },
-    { name: "لباس‌های یونیسکس", slug: "unisex" },
+    { name: "لباس مشترک", slug: "unisex" },
     { name: "اکسسوری‌های مادر و نوزاد", slug: "accessories" },
   ];
 

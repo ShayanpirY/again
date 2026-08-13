@@ -167,7 +167,7 @@ const GENDER_LABELS: Record<string, string> = {
   female: "دخترانه",
   boy: "پسرانه",
   male: "پسرانه",
-  unisex: "یونیسکس",
+  unisex: "لباس مشترک",
 };
 
 const TYPE_LABELS: Record<string, string> = {

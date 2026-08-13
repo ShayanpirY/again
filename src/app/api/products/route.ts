@@ -64,7 +64,7 @@ const GENDER_ALIASES: Record<string, string> = {
   پسرانه: "boy",
   male: "boy",
   unisex: "unisex",
-  یونیسکس: "unisex",
+  "لباس مشترک": "unisex",
 };
 
 const GENDER_SLUGS = ["girl", "boy"];
