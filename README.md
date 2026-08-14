@@ -34,3 +34,37 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## احراز هویت (ورود و ثبت‌نام)
+
+فروشگاه با **Auth.js (NextAuth v5)** احراز هویت می‌شود؛ ورود با **حساب گوگل** یا **کد تأیید ایمیل (OTP با Resend)** امکان‌پذیر است.
+
+### تنظیم متغیرهای محیطی
+
+مقادیر را در فایل `.env` وارد کنید (مقدارها را خودتان از سرویس‌ها بگیرید):
+
+```env
+AUTH_SECRET=...            # بسازید با: npx auth secret
+AUTH_URL=http://localhost:3000
+AUTH_GOOGLE_ID=...         # از Google Cloud Console (OAuth Client)
+AUTH_GOOGLE_SECRET=...
+RESEND_API_KEY=...         # از https://resend.com
+EMAIL_FROM="Kodak <onboarding@resend.dev>"
+DATABASE_URL=...           # از قبل موجود است
+```
+
+بعد از اضافه کردن متغیرها، سرویس dev را دوباره راه‌اندازی کنید.
+
+### نقش‌ها
+
+- نقش همه کاربران به‌صورت پیش‌فرض `USER` است.
+- هیچ صفحه یا API عمومی‌ای برای ادمین شدن وجود ندارد؛ نقش `ADMIN` فقط دستی در دیتابیس تعیین می‌شود.
+
+بعد از اولین ورود با ایمیل ادمین موردنظر، در دیتابیس (یا با `psql` / Prisma Studio) اجرا کنید:
+
+```sql
+UPDATE "User" SET role = 'ADMIN' WHERE email = 'your@email.com';
+```
+
+سپس کاربر برای فعال شدن نقش، باید از حساب خود خارج و دوباره وارد شود.
+
