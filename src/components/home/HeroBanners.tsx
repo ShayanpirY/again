@@ -43,48 +43,60 @@ export default function HeroBanners() {
         
         {/* بنر سمت راست: تی‌شرت */}
         <div className="relative w-full h-[50vh] md:h-[65vh] overflow-hidden group">
-          <img
-            src="/images/t-shirts.jpg"
-            alt="تی‌شرت"
-            className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[10s] ease-out group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-black/20 transition-colors duration-500 group-hover:bg-black/30" />
+          <Link
+            href="/category/kids?type=tshirt"
+            aria-label="مشاهده تی‌شرت‌ها"
+            className="absolute inset-0 z-[5] block cursor-pointer"
+          >
+            <img
+              src="/images/t-shirts.jpg"
+              alt="تی‌شرت"
+              className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[10s] ease-out group-hover:scale-105"
+            />
+          </Link>
+          <div className="absolute inset-0 bg-black/20 transition-colors duration-500 group-hover:bg-black/30 pointer-events-none" />
           
-          <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 text-white z-10 px-4">
+          <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 text-white z-10 px-4 pointer-events-none">
             <h2 className="text-3xl md:text-4xl font-normal mb-6 tracking-wide drop-shadow-md">
               تی‌شرت
             </h2>
             <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 text-[10px] font-bold tracking-widest uppercase">
-              <Link href="/category/kids?gender=girl&type=tshirt" className="hover:text-gray-300 transition-colors">دخترانه</Link>
-              <Link href="/category/kids?gender=boy&type=tshirt" className="hover:text-gray-300 transition-colors">پسرانه</Link>
-              <Link href="/category/baby?gender=girl&type=tshirt" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
-              <Link href="/category/baby?gender=boy&type=tshirt" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
-              <Link href="/category/preteen?gender=girl&type=tshirt" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
-              <Link href="/category/preteen?gender=boy&type=tshirt" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
+              <Link href="/category/kids?gender=girl&type=tshirt" className="hover:text-gray-300 transition-colors pointer-events-auto">دخترانه</Link>
+              <Link href="/category/kids?gender=boy&type=tshirt" className="hover:text-gray-300 transition-colors pointer-events-auto">پسرانه</Link>
+              <Link href="/category/baby?gender=girl&type=tshirt" className="hover:text-gray-300 transition-colors pointer-events-auto">نوزاد دختر</Link>
+              <Link href="/category/baby?gender=boy&type=tshirt" className="hover:text-gray-300 transition-colors pointer-events-auto">نوزاد پسر</Link>
+              <Link href="/category/preteen?gender=girl&type=tshirt" className="hover:text-gray-300 transition-colors pointer-events-auto">نوجوان دختر</Link>
+              <Link href="/category/preteen?gender=boy&type=tshirt" className="hover:text-gray-300 transition-colors pointer-events-auto">نوجوان پسر</Link>
             </div>
           </div>
         </div>
 
         {/* بنر سمت چپ: شلوار */}
         <div className="relative w-full h-[50vh] md:h-[65vh] overflow-hidden group">
-          <img
-            src="/images/pants.jpg"
-            alt="شلوار"
-            className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[10s] ease-out group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-black/20 transition-colors duration-500 group-hover:bg-black/30" />
+          <Link
+            href="/category/kids?type=pants"
+            aria-label="مشاهده شلوارها"
+            className="absolute inset-0 z-[5] block cursor-pointer"
+          >
+            <img
+              src="/images/pants.jpg"
+              alt="شلوار"
+              className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-[10s] ease-out group-hover:scale-105"
+            />
+          </Link>
+          <div className="absolute inset-0 bg-black/20 transition-colors duration-500 group-hover:bg-black/30 pointer-events-none" />
           
-          <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 text-white z-10 px-4">
+          <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 text-white z-10 px-4 pointer-events-none">
             <h2 className="text-3xl md:text-4xl font-normal mb-6 tracking-wide drop-shadow-md">
               شلوار
             </h2>
             <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-3 text-[10px] font-bold tracking-widest uppercase">
-              <Link href="/category/kids?gender=girl&type=pants" className="hover:text-gray-300 transition-colors">دخترانه</Link>
-              <Link href="/category/kids?gender=boy&type=pants" className="hover:text-gray-300 transition-colors">پسرانه</Link>
-              <Link href="/category/baby?gender=girl&type=pants" className="hover:text-gray-300 transition-colors">نوزاد دختر</Link>
-              <Link href="/category/baby?gender=boy&type=pants" className="hover:text-gray-300 transition-colors">نوزاد پسر</Link>
-              <Link href="/category/preteen?gender=girl&type=pants" className="hover:text-gray-300 transition-colors">نوجوان دختر</Link>
-              <Link href="/category/preteen?gender=boy&type=pants" className="hover:text-gray-300 transition-colors">نوجوان پسر</Link>
+              <Link href="/category/kids?gender=girl&type=pants" className="hover:text-gray-300 transition-colors pointer-events-auto">دخترانه</Link>
+              <Link href="/category/kids?gender=boy&type=pants" className="hover:text-gray-300 transition-colors pointer-events-auto">پسرانه</Link>
+              <Link href="/category/baby?gender=girl&type=pants" className="hover:text-gray-300 transition-colors pointer-events-auto">نوزاد دختر</Link>
+              <Link href="/category/baby?gender=boy&type=pants" className="hover:text-gray-300 transition-colors pointer-events-auto">نوزاد پسر</Link>
+              <Link href="/category/preteen?gender=girl&type=pants" className="hover:text-gray-300 transition-colors pointer-events-auto">نوجوان دختر</Link>
+              <Link href="/category/preteen?gender=boy&type=pants" className="hover:text-gray-300 transition-colors pointer-events-auto">نوجوان پسر</Link>
             </div>
           </div>
         </div>
