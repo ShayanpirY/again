@@ -20,6 +20,48 @@ export type StoryItem = {
 
 const SLIDE_DURATION = 5000;
 
+function StoryMedia({ story }: { story: StoryItem }) {
+  const [mediaFallback, setMediaFallback] = useState(false);
+  const [videoBroken, setVideoBroken] = useState(false);
+
+  if (story.type === "video" && !videoBroken) {
+    return (
+      <video
+        src={story.mediaUrl}
+        autoPlay
+        muted
+        loop
+        playsInline
+        poster={story.thumbnail}
+        onError={() => setVideoBroken(true)}
+        className="h-full w-full object-cover"
+      />
+    );
+  }
+
+  if (mediaFallback || videoBroken) {
+    if (!story.thumbnail) return null;
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- arbitrary URL types (base64/external) bypass the optimizer
+      <img
+        src={story.thumbnail}
+        alt={story.title}
+        className="h-full w-full object-cover"
+      />
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- arbitrary URL types (base64/external) bypass the optimizer
+    <img
+      src={story.mediaUrl}
+      alt={story.title}
+      onError={() => setMediaFallback(true)}
+      className="h-full w-full object-cover"
+    />
+  );
+}
+
 export function StoriesViewer({
   stories,
   initialIndex,
@@ -114,26 +156,8 @@ export function StoriesViewer({
         </button>
 
         {/* Media */}
-        <div className="absolute inset-0">
-          {story.type === "video" ? (
-            <video
-              key={story.id}
-              src={story.mediaUrl}
-              autoPlay
-              muted
-              loop
-              playsInline
-              poster={story.thumbnail}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <img
-              key={story.id}
-              src={story.mediaUrl}
-              alt={story.title}
-              className="h-full w-full object-cover"
-            />
-          )}
+        <div className="absolute inset-0 bg-neutral-950">
+          <StoryMedia key={story.id} story={story} />
         </div>
 
         {/* Prev / Next */}
