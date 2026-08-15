@@ -9,6 +9,7 @@ export type StoryItem = {
   title: string;
   mediaUrl: string;
   type: "image" | "video";
+  thumbnail?: string;
   badge: string | null;
   isActive: boolean;
   order: number;
@@ -122,6 +123,7 @@ export function StoriesViewer({
               muted
               loop
               playsInline
+              poster={story.thumbnail}
               className="h-full w-full object-cover"
             />
           ) : (
