@@ -164,7 +164,7 @@ export default function AdminStoriesPage() {
   const fetchStories = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/stories");
+      const res = await fetch("/api/admin/stories", { cache: "no-store" });
       const raw: unknown = await res.json();
       const data: StoryRow[] = Array.isArray(raw) ? raw : [];
       setStories(data);
@@ -177,7 +177,7 @@ export default function AdminStoriesPage() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch("/api/admin/products");
+      const res = await fetch("/api/admin/products", { cache: "no-store" });
       const raw: unknown = await res.json();
       const data: ProductOption[] = Array.isArray(raw) ? raw : [];
       const active = data.filter((p) => p.isActive !== false);

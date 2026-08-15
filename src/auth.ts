@@ -54,22 +54,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: user.name,
           image: user.image,
           role: user.role,
+          firstName: user.firstName,
+          lastName: user.lastName,
         };
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger }) {
-      if (user) {
-        if (user.id) token.id = user.id;
-        token.role = user.role ?? "USER";
-        return token;
-      }
+    async jwt({ token, user }) {
+      if (user?.id) token.id = user.id;
 
-      if (trigger === "update" && token.id) {
+      const userId = token.id ?? token.sub ?? user?.id;
+
+      if (userId) {
         const dbUser = await prisma.user.findUnique({
-          where: { id: token.id },
-          select: { id: true, name: true, email: true, image: true, role: true },
+          where: { id: userId },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            role: true,
+            firstName: true,
+            lastName: true,
+          },
         });
         if (dbUser) {
           token.id = dbUser.id;
@@ -77,6 +85,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.email = dbUser.email;
           token.picture = dbUser.image;
           token.role = dbUser.role;
+          token.firstName = dbUser.firstName;
+          token.lastName = dbUser.lastName;
         }
       }
 
@@ -84,8 +94,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
+        session.user.id = token.id ?? token.sub ?? "";
         session.user.role = token.role ?? "USER";
+        session.user.firstName = token.firstName ?? null;
+        session.user.lastName = token.lastName ?? null;
       }
       return session;
     },

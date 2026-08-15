@@ -18,11 +18,37 @@ model User {
   emailVerified DateTime?
   image         String?
   role          Role               @default(USER)
+  phone         String?
+  firstName     String?
+  lastName      String?
+  displayName   String?
   accounts      Account[]
   sessions      Session[]
   orders        Order[]
+  addresses     Address[]
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  firstName  String
+  lastName   String
+  province   String
+  city       String
+  street     String
+  plaque     String?
+  unit       String?
+  postalCode String
+  phone      String
+  email      String?
+  isDefault  Boolean  @default(false)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Account {

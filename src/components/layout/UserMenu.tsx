@@ -7,6 +7,7 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuItem,
@@ -27,7 +28,12 @@ export function UserMenu() {
   const router = useRouter();
   const isLoggedIn = status === "authenticated";
   const user = session?.user;
-  const firstName = user?.name?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "کاربر";
+  const fullName =
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
+    user?.name ||
+    user?.email?.split("@")[0] ||
+    "کاربر";
+  const firstName = user?.firstName || fullName.split(" ")[0];
 
   if (status === "loading") {
     return (
@@ -55,25 +61,30 @@ export function UserMenu() {
         </span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 rounded-2xl p-1.5">
-        <DropdownMenuLabel className="px-3 py-2">
-          <p className="text-sm font-semibold text-gray-900">{user?.name ?? "کاربر"}</p>
-          <p className="text-xs text-gray-400 font-normal truncate" dir="ltr">
-            {user?.email}
-          </p>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="px-3 py-2">
+            <p className="text-sm font-semibold text-gray-900">{fullName}</p>
+            <p className="text-xs text-gray-400 font-normal truncate" dir="ltr">
+              {user?.email}
+            </p>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => router.push("/account")}>
           <UserRound />
           حساب من
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push("/account#orders")}>
+        <DropdownMenuItem onClick={() => router.push("/account/orders")}>
           <Package />
           سفارش‌های من
         </DropdownMenuItem>
         {user?.role === "ADMIN" && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => router.push("/admin")}>
+            <DropdownMenuItem
+              onClick={() => router.push("/admin")}
+              className="font-semibold text-[#d97757] focus:text-[#d97757] focus:bg-[#d97757]/10"
+            >
               <LayoutDashboard />
               پنل مدیریت
             </DropdownMenuItem>

@@ -1,39 +1,25 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { NextResponse } from "next/server";
+import { auth } from "@/auth";
 
-const isSecureCookies = process.env.AUTH_URL?.startsWith("https://") === true;
-
-export async function proxy(request: NextRequest) {
+export default auth((request) => {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/admin")) {
-    const secret = process.env.AUTH_SECRET;
+    const session = request.auth;
 
-    if (!secret) {
+    if (!session?.user?.id) {
       const url = new URL("/login", request.url);
       url.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(url);
     }
 
-    const token = await getToken({
-      req: request,
-      secret,
-      secureCookie: isSecureCookies,
-    });
-
-    if (!token) {
-      const url = new URL("/login", request.url);
-      url.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(url);
-    }
-
-    if (token.role !== "ADMIN") {
+    if (session.user.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: ["/admin/:path*"],

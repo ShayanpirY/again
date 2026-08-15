@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
@@ -17,7 +18,9 @@ export async function GET() {
       },
       orderBy: [{ order: "asc" }, { createdAt: "desc" }],
     });
-    return NextResponse.json(stories);
+    return NextResponse.json(stories, {
+      headers: { "Cache-Control": "no-store" },
+    });
   } catch (error) {
     console.error("Failed to fetch stories:", error);
     return NextResponse.json(
@@ -89,7 +92,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(story);
+    revalidateTag("stories", { expire: 0 });
+    revalidatePath("/");
+
+    return NextResponse.json(story, {
+      headers: { "Cache-Control": "no-store" },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

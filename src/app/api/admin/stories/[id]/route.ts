@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 const storyInclude = {
@@ -57,6 +58,9 @@ export async function PUT(
       include: storyInclude,
     });
 
+    revalidateTag("stories", { expire: 0 });
+    revalidatePath("/");
+
     return NextResponse.json(story);
   } catch (error) {
     console.error(error);
@@ -91,6 +95,9 @@ export async function PATCH(
       include: storyInclude,
     });
 
+    revalidateTag("stories", { expire: 0 });
+    revalidatePath("/");
+
     return NextResponse.json(story);
   } catch (error) {
     console.error(error);
@@ -119,6 +126,9 @@ export async function DELETE(
     }
 
     await prisma.story.delete({ where: { id } });
+
+    revalidateTag("stories", { expire: 0 });
+    revalidatePath("/");
 
     return NextResponse.json({ success: true });
   } catch (error) {

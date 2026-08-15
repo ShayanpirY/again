@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { applyCoupon } from "@/lib/coupons";
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id ?? undefined;
+
     const body = await request.json();
     const { customerName, customerPhone, address, items, promoCode } = body;
 
@@ -39,6 +43,7 @@ export async function POST(request: NextRequest) {
 
     const order = await prisma.order.create({
       data: {
+        userId,
         customerName,
         customerPhone,
         address,

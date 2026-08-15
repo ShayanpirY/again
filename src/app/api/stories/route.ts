@@ -1,39 +1,16 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getStories } from "@/lib/stories";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const stories = await prisma.story.findMany({
-      where: {
-        isActive: true,
-        product: { isActive: true },
-      },
-      select: {
-        id: true,
-        title: true,
-        mediaUrl: true,
-        badge: true,
-        order: true,
-        product: {
-          select: {
-            id: true,
-            title: true,
-            price: true,
-            images: true,
-          },
-        },
-      },
-      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-    });
-
-    return NextResponse.json(stories);
+    const { searchParams } = new URL(request.url);
+    const active = searchParams.get("active") !== "false";
+    const data = await getStories({ active });
+    return NextResponse.json(data);
   } catch (error) {
     console.error("Failed to fetch stories:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch stories" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch stories" }, { status: 500 });
   }
 }
