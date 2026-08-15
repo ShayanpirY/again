@@ -39,6 +39,7 @@ function BabyCategoryContent() {
             name: p.title || p.name,
             price: p.price ? `${p.price.toLocaleString()} تومان` : '۰ تومان',
             rawPrice: p.price || 0,
+            stock: p.stock || 0,
             hasColors: Boolean(p.colors && p.colors.length > 0),
             gender: p.ageGroup || 'girl',
             type: 'dress',
@@ -66,6 +67,7 @@ function BabyCategoryContent() {
 
   if (sortBy === 'price-asc') displayedProducts.sort((a, b) => a.rawPrice - b.rawPrice);
   else if (sortBy === 'price-desc') displayedProducts.sort((a, b) => b.rawPrice - a.rawPrice);
+  else if (sortBy === 'best-selling') displayedProducts.sort((a, b) => (b.stock || 0) - (a.stock || 0));
 
   return (
     <div className="min-h-screen bg-[#e8f5e9] text-[#1a1a1a] font-sans pb-20" dir="rtl">
@@ -127,16 +129,18 @@ function BabyCategoryContent() {
             <span className="hidden md:inline-block text-gray-500 font-medium">{displayedProducts.length} محصول</span>
             <div className="relative border-r border-gray-300 pr-4 md:pr-6">
               <button onClick={() => setIsSortOpen(!isSortOpen)} className="flex items-center gap-2 bg-transparent border-none outline-none cursor-pointer text-gray-800 font-bold hover:text-[#ff6b6b] transition-colors">
-                {sortBy === 'newest' && 'مرتب‌سازی: جدیدترین‌ها'}
-                {sortBy === 'price-asc' && 'ارزان‌ترین به گران‌ترین'}
-                {sortBy === 'price-desc' && 'گران‌ترین به ارزان‌ترین'}
+                {sortBy === 'newest' && 'مرتب‌سازی: جدیدترین'}
+                {sortBy === 'price-asc' && 'ارزان‌ترین'}
+                {sortBy === 'price-desc' && 'گران‌ترین'}
+                {sortBy === 'best-selling' && 'پرفروش‌ترین'}
                 <svg className={`w-4 h-4 transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               {isSortOpen && (
                 <div className="absolute right-0 top-full mt-3 w-48 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden z-50">
-                  <div onClick={() => { setSortBy('newest'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'newest' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>جدیدترین‌ها</div>
-                  <div onClick={() => { setSortBy('price-asc'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'price-asc' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>ارزان‌ترین به گران‌ترین</div>
-                  <div onClick={() => { setSortBy('price-desc'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'price-desc' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>گران‌ترین به ارزان‌ترین</div>
+                  <div onClick={() => { setSortBy('newest'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'newest' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>جدیدترین</div>
+                  <div onClick={() => { setSortBy('price-asc'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'price-asc' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>ارزان‌ترین</div>
+                  <div onClick={() => { setSortBy('price-desc'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'price-desc' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>گران‌ترین</div>
+                  <div onClick={() => { setSortBy('best-selling'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'best-selling' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>پرفروش‌ترین</div>
                 </div>
               )}
             </div>

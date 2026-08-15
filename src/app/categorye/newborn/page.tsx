@@ -8,25 +8,25 @@ import Header from '@/components/layout/Header';
 // دیتای محصولات (شامل دسته‌بندی‌های مختلف مثل بادی، پتو، پاپوش و ...)
 const mockProducts = [
   { 
-    id: 1, name: 'بادی نخی طرح‌دار', price: '۳۵۰,۰۰۰ تومان', rawPrice: 350000, 
+    id: 1, name: 'بادی نخی طرح‌دار', price: '۳۵۰,۰۰۰ تومان', rawPrice: 350000, stock: 18, 
     hasColors: true, gender: 'girl', type: 'body',
     img1: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?q=80&w=600&auto=format&fit=crop',
     img2: 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop'
   },
   { 
-    id: 2, name: 'ست بیمارستانی ۵ تکه', price: '۹۸۰,۰۰۰ تومان', rawPrice: 980000, 
+    id: 2, name: 'ست بیمارستانی ۵ تکه', price: '۹۸۰,۰۰۰ تومان', rawPrice: 980000, stock: 6, 
     hasColors: false, gender: 'essentials', type: 'set',
     img1: 'https://images.unsplash.com/photo-1598536066224-b153e34bba46?q=80&w=600&auto=format&fit=crop',
     img2: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?q=80&w=600&auto=format&fit=crop'
   },
   { 
-    id: 3, name: 'شلوار لگ راحتی', price: '۲۸۰,۰۰۰ تومان', rawPrice: 280000, 
+    id: 3, name: 'شلوار لگ راحتی', price: '۲۸۰,۰۰۰ تومان', rawPrice: 280000, stock: 25, 
     hasColors: true, gender: 'boy', type: 'pants',
     img1: 'https://images.unsplash.com/photo-1519238380205-0819126cb726?q=80&w=600&auto=format&fit=crop',
     img2: 'https://images.unsplash.com/photo-1611428522646-04289895df87?q=80&w=600&auto=format&fit=crop'
   },
   { 
-    id: 4, name: 'پتوی بافتنی لطیف', price: '۱,۲۰۰,۰۰۰ تومان', rawPrice: 1200000, 
+    id: 4, name: 'پتوی بافتنی لطیف', price: '۱,۲۰۰,۰۰۰ تومان', rawPrice: 1200000, stock: 11, 
     hasColors: true, gender: 'essentials', type: 'blankets',
     img1: 'https://images.unsplash.com/photo-1522771930-78848d92871d?q=80&w=600&auto=format&fit=crop',
     img2: 'https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=600&auto=format&fit=crop'
@@ -77,6 +77,7 @@ function NewbornCategoryContent() {
 
   if (sortBy === 'price-asc') displayedProducts.sort((a, b) => a.rawPrice - b.rawPrice);
   else if (sortBy === 'price-desc') displayedProducts.sort((a, b) => b.rawPrice - a.rawPrice);
+  else if (sortBy === 'best-selling') displayedProducts.sort((a, b) => (b.stock || 0) - (a.stock || 0));
 
   return (
     // تم رنگی بسیار ملایم کِرم/نخودی مناسب نوزاد
@@ -142,16 +143,18 @@ function NewbornCategoryContent() {
             <span className="hidden md:inline-block text-gray-500 font-medium">{displayedProducts.length} محصول</span>
             <div className="relative border-r border-gray-300 pr-4 md:pr-6">
               <button onClick={() => setIsSortOpen(!isSortOpen)} className="flex items-center gap-2 bg-transparent border-none outline-none cursor-pointer text-gray-800 font-bold hover:text-[#ff6b6b] transition-colors">
-                {sortBy === 'newest' && 'مرتب‌سازی: جدیدترین‌ها'}
-                {sortBy === 'price-asc' && 'ارزان‌ترین به گران‌ترین'}
-                {sortBy === 'price-desc' && 'گران‌ترین به ارزان‌ترین'}
+                {sortBy === 'newest' && 'مرتب‌سازی: جدیدترین'}
+                {sortBy === 'price-asc' && 'ارزان‌ترین'}
+                {sortBy === 'price-desc' && 'گران‌ترین'}
+                {sortBy === 'best-selling' && 'پرفروش‌ترین'}
                 <svg className={`w-4 h-4 transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               {isSortOpen && (
                 <div className="absolute right-0 top-full mt-3 w-48 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden z-50">
-                  <div onClick={() => { setSortBy('newest'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'newest' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>جدیدترین‌ها</div>
-                  <div onClick={() => { setSortBy('price-asc'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'price-asc' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>ارزان‌ترین به گران‌ترین</div>
-                  <div onClick={() => { setSortBy('price-desc'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'price-desc' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>گران‌ترین به ارزان‌ترین</div>
+                  <div onClick={() => { setSortBy('newest'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'newest' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>جدیدترین</div>
+                  <div onClick={() => { setSortBy('price-asc'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'price-asc' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>ارزان‌ترین</div>
+                  <div onClick={() => { setSortBy('price-desc'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'price-desc' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>گران‌ترین</div>
+                  <div onClick={() => { setSortBy('best-selling'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'best-selling' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>پرفروش‌ترین</div>
                 </div>
               )}
             </div>

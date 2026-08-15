@@ -8,25 +8,25 @@ import Header from '@/components/layout/Header';
 // دیتای محصولات نوجوان (متناسب با سن ۸ تا ۱۶ سال)
 const mockProducts = [
   { 
-    id: 1, name: 'هودی اسپرت اورسایز', price: '۱,۲۵۰,۰۰۰ تومان', rawPrice: 1250000, 
+    id: 1, name: 'هودی اسپرت اورسایز', price: '۱,۲۵۰,۰۰۰ تومان', rawPrice: 1250000, stock: 14, 
     hasColors: true, gender: 'boy', type: 'pants', // شلوار و هودی
     img1: 'https://images.unsplash.com/photo-1517677129524-7833cb3971c0?q=80&w=600&auto=format&fit=crop',
     img2: 'https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?q=80&w=600&auto=format&fit=crop'
   },
   { 
-    id: 2, name: 'ست ورزشی دو تکه', price: '۱,۶۸۰,۰۰۰ تومان', rawPrice: 1680000, 
+    id: 2, name: 'ست ورزشی دو تکه', price: '۱,۶۸۰,۰۰۰ تومان', rawPrice: 1680000, stock: 9, 
     hasColors: false, gender: 'girl', type: 'sport', // لباس ورزشی
     img1: 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?q=80&w=600&auto=format&fit=crop',
     img2: 'https://images.unsplash.com/photo-1514090458221-65bb69cf63e6?q=80&w=600&auto=format&fit=crop'
   },
   { 
-    id: 3, name: 'تی‌شرت لانگ نخی', price: '۵۸۰,۰۰۰ تومان', rawPrice: 580000, 
+    id: 3, name: 'تی‌شرت لانگ نخی', price: '۵۸۰,۰۰۰ تومان', rawPrice: 580000, stock: 32, 
     hasColors: true, gender: 'boy', type: 'tshirt', // تی‌شرت و پولوشرت
     img1: 'https://images.unsplash.com/photo-1519238380205-0819126cb726?q=80&w=600&auto=format&fit=crop',
     img2: 'https://images.unsplash.com/photo-1611428522646-04289895df87?q=80&w=600&auto=format&fit=crop'
   },
   { 
-    id: 4, name: 'پیراهن جین دخترانه', price: '۱,۴۰۰,۰۰۰ تومان', rawPrice: 1400000, 
+    id: 4, name: 'پیراهن جین دخترانه', price: '۱,۴۰۰,۰۰۰ تومان', rawPrice: 1400000, stock: 21, 
     hasColors: true, gender: 'girl', type: 'dress', // پیراهن نوجوان
     img1: 'https://images.unsplash.com/photo-1622290319146-7b63df48a635?q=80&w=600&auto=format&fit=crop',
     img2: 'https://images.unsplash.com/photo-1503919545889-aef636e10ad4?q=80&w=600&auto=format&fit=crop'
@@ -71,6 +71,7 @@ function PreteenCategoryContent() {
 
   if (sortBy === 'price-asc') displayedProducts.sort((a, b) => a.rawPrice - b.rawPrice);
   else if (sortBy === 'price-desc') displayedProducts.sort((a, b) => b.rawPrice - a.rawPrice);
+  else if (sortBy === 'best-selling') displayedProducts.sort((a, b) => (b.stock || 0) - (a.stock || 0));
 
   return (
     // تم رنگی خنثی‌تر و مدرن‌تر (f8f9fa) مناسب سنین نوجوانی
@@ -129,16 +130,18 @@ function PreteenCategoryContent() {
             <span className="hidden md:inline-block text-gray-500 font-medium">{displayedProducts.length} محصول</span>
             <div className="relative border-r border-gray-300 pr-4 md:pr-6">
               <button onClick={() => setIsSortOpen(!isSortOpen)} className="flex items-center gap-2 bg-transparent border-none outline-none cursor-pointer text-gray-800 font-bold hover:text-[#ff6b6b] transition-colors">
-                {sortBy === 'newest' && 'مرتب‌سازی: جدیدترین‌ها'}
-                {sortBy === 'price-asc' && 'ارزان‌ترین به گران‌ترین'}
-                {sortBy === 'price-desc' && 'گران‌ترین به ارزان‌ترین'}
+                {sortBy === 'newest' && 'مرتب‌سازی: جدیدترین'}
+                {sortBy === 'price-asc' && 'ارزان‌ترین'}
+                {sortBy === 'price-desc' && 'گران‌ترین'}
+                {sortBy === 'best-selling' && 'پرفروش‌ترین'}
                 <svg className={`w-4 h-4 transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
               </button>
               {isSortOpen && (
                 <div className="absolute right-0 top-full mt-3 w-48 bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden z-50">
-                  <div onClick={() => { setSortBy('newest'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'newest' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>جدیدترین‌ها</div>
-                  <div onClick={() => { setSortBy('price-asc'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'price-asc' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>ارزان‌ترین به گران‌ترین</div>
-                  <div onClick={() => { setSortBy('price-desc'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'price-desc' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>گران‌ترین به ارزان‌ترین</div>
+                  <div onClick={() => { setSortBy('newest'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'newest' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>جدیدترین</div>
+                  <div onClick={() => { setSortBy('price-asc'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'price-asc' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>ارزان‌ترین</div>
+                  <div onClick={() => { setSortBy('price-desc'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'price-desc' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>گران‌ترین</div>
+                  <div onClick={() => { setSortBy('best-selling'); setIsSortOpen(false); }} className={`px-4 py-3 text-[12px] cursor-pointer hover:bg-gray-50 transition-colors ${sortBy === 'best-selling' ? 'text-[#ff6b6b] font-bold bg-orange-50/50' : 'text-gray-600 font-medium'}`}>پرفروش‌ترین</div>
                 </div>
               )}
             </div>
