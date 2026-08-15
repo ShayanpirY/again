@@ -91,6 +91,7 @@ export async function GET(request: NextRequest) {
     const inStock = searchParams.get("inStock");
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
+    const query = searchParams.get("q")?.trim();
 
     const where: Record<string, unknown> = {
       isActive: true,
@@ -214,6 +215,21 @@ export async function GET(request: NextRequest) {
       if (minPrice) priceFilter.gte = parseInt(minPrice);
       if (maxPrice) priceFilter.lte = parseInt(maxPrice);
       andGroups.push({ price: priceFilter });
+    }
+
+    if (query) {
+      andGroups.push({
+        OR: [
+          { title: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } },
+          { brand: { contains: query, mode: "insensitive" } },
+          {
+            category: {
+              is: { name: { contains: query, mode: "insensitive" } },
+            },
+          },
+        ],
+      });
     }
 
     if (andGroups.length === 1) {
