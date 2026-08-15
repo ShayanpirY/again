@@ -95,6 +95,15 @@ model EmailOtp {
   @@index([email])
 }
 
+model SiteSettings {
+  id                    String   @id @default("default")
+  supportPhone          String   @default("")
+  freeShippingThreshold Int      @default(2500000)
+  promoText             String   @default("۱۰٪ تخفیف با کد B2510")
+  instagramUrl          String   @default("")
+  updatedAt             DateTime @updatedAt
+}
+
 model Category {
   id        String    @id @default(cuid())
   name      String

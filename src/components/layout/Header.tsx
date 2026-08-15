@@ -8,12 +8,7 @@ import { SearchModal } from '@/components/modules/SearchModal';
 import { useCartStore } from '@/store/useCart';
 import { useWishlistStore } from '@/store/useWishlist';
 
-const promoMessages = [
-  '۱۰٪ تخفیف با کد B2510',
-  'ارسال رایگان برای خریدهای بالای ۱ میلیون تومان',
-  'تعویض و مرجوعی رایگان تا ۳۰ روز',
-  'کالکشن جدید پاییزه رسید!',
-];
+const FALLBACK_PROMO = '۱۰٪ تخفیف با کد B2510';
 
 const mobileLinks = [
   { href: '/category/kids', label: 'کودک' },
@@ -26,27 +21,17 @@ const mobileLinks = [
   { href: '/products', label: 'همه محصولات' },
 ];
 
-export function Header() {
+export function Header({ promoText }: { promoText?: string }) {
   const [activeMenu, setActiveMenu] = useState<'kids' | 'baby' | 'preteen' | 'newborn' | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [promoIndex, setPromoIndex] = useState(0);
-  const [fade, setFade] = useState(true);
   const cartItems = useCartStore((state) => state.items);
   const openCart = useCartStore((state) => state.openCart);
   const wishlistCount = useWishlistStore((state) => state.items.length);
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFade(false);
-      setTimeout(() => {
-        setPromoIndex((prev) => (prev + 1) % promoMessages.length);
-        setFade(true);
-      }, 500);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+  const promoMessage = (promoText ?? FALLBACK_PROMO).trim();
+  const showPromoBar = promoMessage.length > 0;
 
   // قفل اسکرول وقتی منوی موبایل باز است
   useEffect(() => {
@@ -56,27 +41,11 @@ export function Header() {
     };
   }, [mobileOpen]);
 
-  const nextPromo = () => {
-    setFade(false);
-    setTimeout(() => {
-      setPromoIndex((prev) => (prev + 1) % promoMessages.length);
-      setFade(true);
-    }, 300);
-  };
-
-  const prevPromo = () => {
-    setFade(false);
-    setTimeout(() => {
-      setPromoIndex((prev) => (prev - 1 + promoMessages.length) % promoMessages.length);
-      setFade(true);
-    }, 300);
-  };
-
   return (
     <>
       {/* Overlay دسکتاپ برای مگامنو */}
       <div
-        className={`fixed inset-0 top-[112px] bg-black/20 z-40 transition-opacity duration-300 ${
+        className={`fixed inset-0 ${showPromoBar ? 'top-[112px]' : 'top-[72px]'} bg-black/20 z-40 transition-opacity duration-300 ${
           activeMenu ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
         }`}
         onClick={() => setActiveMenu(null)}
@@ -131,19 +100,13 @@ export function Header() {
 
       <div className="w-full sticky top-0 z-50 flex flex-col bg-white" dir="rtl">
         {/* نوار پرومو */}
-        <div className="bg-[#d97757] text-white text-[11px] md:text-xs font-medium py-2.5 px-4 flex justify-between items-center w-full relative z-50">
-          <button onClick={prevPromo} className="hidden md:block px-2 opacity-70 hover:opacity-100 transition-opacity">
-            ‹
-          </button>
-          <div className="flex-1 text-center tracking-wide overflow-hidden flex justify-center items-center h-4">
-            <span className={`transition-opacity duration-500 ease-in-out ${fade ? 'opacity-100' : 'opacity-0'}`}>
-              {promoMessages[promoIndex]}
-            </span>
+        {showPromoBar && (
+          <div className="bg-[#d97757] text-white text-[11px] md:text-xs font-medium py-2.5 px-4 flex justify-center items-center w-full relative z-50">
+            <div className="flex-1 text-center tracking-wide overflow-hidden flex justify-center items-center h-4">
+              <span>{promoMessage}</span>
+            </div>
           </div>
-          <button onClick={nextPromo} className="hidden md:block px-2 opacity-70 hover:opacity-100 transition-opacity">
-            ›
-          </button>
-        </div>
+        )}
 
         <header className="w-full border-b border-gray-200 relative z-50 bg-white">
           <div

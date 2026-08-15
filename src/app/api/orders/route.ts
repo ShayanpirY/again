@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { applyCoupon } from "@/lib/coupons";
+import { getCachedSiteSettings } from "@/lib/site-settings";
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,7 +39,8 @@ export async function POST(request: NextRequest) {
 
     const promo = applyCoupon(promoCode ?? "", subtotal);
     const discount = promo.ok ? promo.discount : 0;
-    const shippingCost = subtotal > 2500000 ? 0 : 150000;
+    const settings = await getCachedSiteSettings();
+    const shippingCost = subtotal > settings.freeShippingThreshold ? 0 : 150000;
     const totalPrice = subtotal - discount + shippingCost;
 
     const order = await prisma.order.create({

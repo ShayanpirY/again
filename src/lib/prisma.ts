@@ -24,6 +24,7 @@ const requiredModels = [
   "variant",
   "review",
   "question",
+  "siteSettings",
 ] as const;
 
 for (const model of requiredModels) {

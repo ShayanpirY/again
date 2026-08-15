@@ -7,6 +7,7 @@ import { useCartStore } from "@/store/useCart";
 import { Button } from "@/components/ui/button";
 import { PromoCodeBox } from "@/components/modules/PromoCodeBox";
 import { applyCoupon } from "@/lib/coupons";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 export default function CartPage() {
   const {
@@ -17,11 +18,13 @@ export default function CartPage() {
     getTotalPrice,
     promoCode,
   } = useCartStore();
+  const settings = useSiteSettings();
   const totalItems = getTotalItems();
   const subtotal = getTotalPrice();
   const promo = applyCoupon(promoCode ?? "", subtotal);
   const discount = promo.ok ? promo.discount : 0;
-  const shipping = subtotal > 2500000 ? 0 : 150000;
+  const freeShippingThreshold = settings.freeShippingThreshold ?? 2500000;
+  const shipping = subtotal > freeShippingThreshold ? 0 : 150000;
   const total = Math.max(0, subtotal - discount + shipping);
 
   return (
@@ -208,6 +211,11 @@ export default function CartPage() {
                       {shipping === 0 ? "رایگان" : `${shipping.toLocaleString("fa-IR")} تومان`}
                     </span>
                   </div>
+                  {shipping > 0 && (
+                    <p className="text-xs text-neutral-400 leading-6">
+                      ارسال رایگان برای خرید بالای {freeShippingThreshold.toLocaleString("fa-IR")} تومان
+                    </p>
+                  )}
                   <div className="flex items-center justify-between text-base font-black text-neutral-900 pt-3 border-t border-neutral-100">
                     <span>جمع نهایی:</span>
                     <span>

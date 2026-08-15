@@ -1,29 +1,32 @@
 import Link from "next/link";
+import { getCachedSiteSettings } from "@/lib/site-settings";
 
-const shippingItems = [
-  {
-    emoji: "📦",
-    title: "آماده‌سازی سریع",
-    text: "سفارش‌ها طی ۲۴ تا ۴۸ ساعت کاری آماده و تحویل شرکت پست می‌شوند.",
-  },
-  {
-    emoji: "🚚",
-    title: "ارسال سراسر ایران",
-    text: "سفارش شما به تمام نقاط کشور با پست پیشتاز یا تیپاکس ارسال می‌شود.",
-  },
-  {
-    emoji: "🎁",
-    title: "ارسال رایگان",
-    text: "برای سفارش‌های بالای ۲٬۵۰۰٬۰۰۰ تومان هزینه ارسال رایگان است.",
-  },
-  {
-    emoji: "🔎",
-    title: "پیگیری سفارش",
-    text: "پس از ارسال، کد رهگیری برایتان ارسال می‌شود تا مسیر مرسوله را دنبال کنید.",
-  },
-];
+export default async function ShippingPage() {
+  const settings = await getCachedSiteSettings();
 
-export default function ShippingPage() {
+  const shippingItems = [
+    {
+      emoji: "📦",
+      title: "آماده‌سازی سریع",
+      text: "سفارش‌ها طی ۲۴ تا ۴۸ ساعت کاری آماده و تحویل شرکت پست می‌شوند.",
+    },
+    {
+      emoji: "🚚",
+      title: "ارسال سراسر ایران",
+      text: "سفارش شما به تمام نقاط کشور با پست پیشتاز یا تیپاکس ارسال می‌شود.",
+    },
+    {
+      emoji: "🎁",
+      title: "ارسال رایگان",
+      text: `برای سفارش‌های بالای ${settings.freeShippingThreshold.toLocaleString("fa-IR")} تومان هزینه ارسال رایگان است.`,
+    },
+    {
+      emoji: "🔎",
+      title: "پیگیری سفارش",
+      text: "پس از ارسال، کد رهگیری برایتان ارسال می‌شود تا مسیر مرسوله را دنبال کنید.",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-[#faf9f7]" dir="rtl">
       <div className="container mx-auto px-4 py-12 md:py-16 max-w-4xl">

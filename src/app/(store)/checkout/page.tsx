@@ -12,9 +12,11 @@ import { useCartStore } from "@/store/useCart";
 import { PromoCodeBox } from "@/components/modules/PromoCodeBox";
 import { applyCoupon } from "@/lib/coupons";
 import { iranLocations, provinces } from "@/data/iran-locations";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 export default function CheckoutPage() {
   const { items, getTotalPrice, clearCart, promoCode } = useCartStore();
+  const settings = useSiteSettings();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [province, setProvince] = useState("");
   const [city, setCity] = useState("");
@@ -26,7 +28,8 @@ export default function CheckoutPage() {
   const subtotal = getTotalPrice();
   const promo = applyCoupon(promoCode ?? "", subtotal);
   const discount = promo.ok ? promo.discount : 0;
-  const shipping = subtotal > 2500000 ? 0 : 150000;
+  const freeShippingThreshold = settings.freeShippingThreshold ?? 2500000;
+  const shipping = subtotal > freeShippingThreshold ? 0 : 150000;
   const total = Math.max(0, subtotal - discount + shipping);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -307,7 +310,7 @@ export default function CheckoutPage() {
                   </div>
                   {shipping > 0 && (
                     <p className="text-[11px] text-neutral-400">
-                      ارسال رایگان برای خرید بالای ۲٬۵۰۰٬۰۰۰ تومان
+                      ارسال رایگان برای خرید بالای {freeShippingThreshold.toLocaleString("fa-IR")} تومان
                     </p>
                   )}
                   <Separator className="bg-neutral-100" />

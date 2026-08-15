@@ -2,13 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-
-const supportInfo = [
-  { label: "ساعت کاری", value: "شنبه تا پنجشنبه، ۹ تا ۱۷" },
-  { label: "تلفن تماس", value: "۰۲۱-۱۲۳۴۵۶۷۸", dir: "ltr" as const },
-  { label: "ایمیل", value: "info@koodak.ir", dir: "ltr" as const },
-  { label: "آدرس", value: "تهران، خیابان ولیعصر، مرکز خرید کودک" },
-];
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 export default function ContactPage() {
   const [name, setName] = useState("");
@@ -16,6 +10,26 @@ export default function ContactPage() {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const settings = useSiteSettings();
+
+  const supportInfo = [
+    { label: "ساعت کاری", value: "شنبه تا پنجشنبه، ۹ تا ۱۷" },
+    ...(settings.supportPhone
+      ? [{ label: "تلفن تماس", value: settings.supportPhone, dir: "ltr" as const }]
+      : []),
+    { label: "ایمیل", value: "info@koodak.ir", dir: "ltr" as const },
+    ...(settings.instagramUrl
+      ? [
+          {
+            label: "اینستاگرام",
+            value: settings.instagramUrl,
+            dir: "ltr" as const,
+            href: settings.instagramUrl,
+          },
+        ]
+      : []),
+    { label: "آدرس", value: "تهران، خیابان ولیعصر، مرکز خرید کودک" },
+  ];
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -52,12 +66,23 @@ export default function ContactPage() {
                   <span className="text-xs font-bold text-[#d97757] bg-[#fdf1ec] rounded-full px-3 py-1.5 shrink-0 mt-0.5">
                     {info.label}
                   </span>
-                  <span
-                    className="text-sm text-neutral-700 font-medium leading-7 break-all"
-                    dir={info.dir}
-                  >
-                    {info.value}
-                  </span>
+                  {"href" in info && info.href ? (
+                    <a
+                      href={info.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-[#d97757] font-medium leading-7 break-all underline"
+                    >
+                      {info.value}
+                    </a>
+                  ) : (
+                    <span
+                      className="text-sm text-neutral-700 font-medium leading-7 break-all"
+                      dir={info.dir}
+                    >
+                      {info.value}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>

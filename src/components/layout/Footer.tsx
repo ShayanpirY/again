@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 
-export function Footer() {
+export function Footer({
+  supportPhone,
+  instagramUrl,
+}: {
+  supportPhone?: string;
+  instagramUrl?: string;
+}) {
   return (
     <footer className="bg-neutral-50 border-t border-neutral-200">
       <div className="container mx-auto px-4 py-12 lg:py-16">
@@ -14,6 +20,28 @@ export function Footer() {
             <p className="text-sm text-neutral-600 leading-relaxed max-w-xs">
               پوشاک کودک و نوجوان با بالاترین کیفیت. راحتی و استایل برای کوچک‌ترین‌های شما.
             </p>
+            {(supportPhone || instagramUrl) && (
+              <ul className="space-y-2.5 text-sm">
+                {supportPhone && (
+                  <li className="text-neutral-600">
+                    <span className="font-medium text-neutral-900 ml-1">تلفن پشتیبانی:</span>
+                    <span dir="ltr">{supportPhone}</span>
+                  </li>
+                )}
+                {instagramUrl && (
+                  <li>
+                    <Link
+                      href={instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-neutral-600 hover:text-black transition-colors"
+                    >
+                      اینستاگرام
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            )}
           </div>
 
           <div>
