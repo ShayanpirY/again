@@ -70,17 +70,12 @@ export function Footer({
             <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-900 mb-4">درباره ما</h3>
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/about" className="text-neutral-600 hover:text-black transition-colors">درباره ما</Link></li>
-              <li><Link href="/press" className="text-neutral-600 hover:text-black transition-colors">رسانه‌ها</Link></li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-neutral-200 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-neutral-500">© ۲۰۲۵ کودک. تمامی حقوق محفوظ است.</p>
-          <div className="flex items-center gap-6 text-xs text-neutral-500">
-            <Link href="/privacy" className="hover:text-black transition-colors">حریم خصوصی</Link>
-            <Link href="/terms" className="hover:text-black transition-colors">شرایط استفاده</Link>
-          </div>
+        <div className="border-t border-neutral-200 mt-12 pt-8">
+          <p className="text-center text-xs text-neutral-500">© ۲۰۲۵ کودک. تمامی حقوق محفوظ است.</p>
         </div>
       </div>
     </footer>
