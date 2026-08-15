@@ -21,7 +21,8 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { title, mediaUrl, badge, productId, isActive, order } = body;
+    const { title, mediaUrl, thumbnail, badge, productId, isActive, order } =
+      body;
 
     const existing = await prisma.story.findUnique({ where: { id } });
     if (!existing) {
@@ -46,6 +47,10 @@ export async function PUT(
         title: title !== undefined ? title.trim() : existing.title,
         mediaUrl:
           mediaUrl !== undefined ? mediaUrl.trim() : existing.mediaUrl,
+        thumbnail:
+          thumbnail !== undefined
+            ? thumbnail?.trim() || null
+            : existing.thumbnail,
         badge: badge !== undefined ? badge?.trim() || null : existing.badge,
         productId: productId || existing.productId,
         isActive:

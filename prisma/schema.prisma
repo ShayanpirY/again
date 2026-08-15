@@ -117,6 +117,7 @@ model Story {
   id        String   @id @default(cuid())
   title     String
   mediaUrl  String
+  thumbnail String?
   badge     String?
   productId String
   isActive  Boolean  @default(true)

@@ -33,7 +33,8 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, mediaUrl, badge, productId, isActive, order } = body;
+    const { title, mediaUrl, thumbnail, badge, productId, isActive, order } =
+      body;
 
     if (!title || !title.trim()) {
       return NextResponse.json(
@@ -74,6 +75,7 @@ export async function POST(request: NextRequest) {
       data: {
         title: title.trim(),
         mediaUrl: mediaUrl.trim(),
+        thumbnail: thumbnail?.trim() || null,
         badge: badge?.trim() || null,
         productId: safeProductId,
         isActive: isActive !== false,

@@ -38,6 +38,7 @@ type StoryRow = {
   id: string;
   title: string;
   mediaUrl: string;
+  thumbnail: string | null;
   badge: string | null;
   productId: string;
   isActive: boolean;
@@ -62,6 +63,7 @@ type ProductOption = {
 const formDefaults = {
   title: "",
   mediaUrl: "",
+  thumbnail: "",
   badge: "",
   productId: "",
   order: "0",
@@ -120,8 +122,15 @@ export default function AdminStoriesPage() {
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
-          const data = JSON.parse(xhr.responseText) as { url: string };
-          setFormData((prev) => ({ ...prev, mediaUrl: data.url }));
+          const data = JSON.parse(xhr.responseText) as {
+            url: string;
+            thumbnail?: string;
+          };
+          setFormData((prev) => ({
+            ...prev,
+            mediaUrl: data.url,
+            thumbnail: data.thumbnail || "",
+          }));
           setPreviewUrl(data.url);
           setUploadProgress(100);
         } catch (error) {
@@ -210,6 +219,7 @@ export default function AdminStoriesPage() {
     setFormData({
       title: story.title,
       mediaUrl: story.mediaUrl,
+      thumbnail: story.thumbnail || "",
       badge: story.badge || "",
       productId: story.productId,
       order: String(story.order),
@@ -244,6 +254,7 @@ export default function AdminStoriesPage() {
       const payload = {
         title: formData.title,
         mediaUrl: formData.mediaUrl,
+        thumbnail: formData.thumbnail || null,
         badge: formData.badge || null,
         productId: formData.productId,
         order: Number(formData.order) || 0,
@@ -371,7 +382,7 @@ export default function AdminStoriesPage() {
                   <TableCell>
                     <div className="h-16 w-10 overflow-hidden rounded-md bg-neutral-100 ring-1 ring-neutral-200">
                       <img
-                        src={story.mediaUrl}
+                        src={story.thumbnail || story.mediaUrl}
                         alt={story.title}
                         className="h-full w-full object-cover"
                       />
@@ -382,6 +393,11 @@ export default function AdminStoriesPage() {
                       <Play className="h-3.5 w-3.5 text-neutral-400" />
                       {story.title}
                     </div>
+                    {story.mediaUrl.trim().startsWith("/uploads") && (
+                      <span className="mt-1 inline-block rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                        فایل قدیمی — نیاز به آپلود مجدد
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell>
                     {story.badge ? (
@@ -548,7 +564,11 @@ export default function AdminStoriesPage() {
                   id="mediaUrl"
                   value={formData.mediaUrl}
                   onChange={(e) => {
-                    setFormData({ ...formData, mediaUrl: e.target.value });
+                    setFormData({
+                      ...formData,
+                      mediaUrl: e.target.value,
+                      thumbnail: "",
+                    });
                     setPreviewUrl(e.target.value.trim());
                   }}
                   dir="ltr"
